@@ -1,0 +1,5 @@
+*.ncb
+*.suo
+*.user
+Debug_*
+Release_*
