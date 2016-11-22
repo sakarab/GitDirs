@@ -4,6 +4,7 @@
 	Version="9,00"
 	Name="GitDirs"
 	ProjectGUID="{958C19FF-B033-40BC-B6D3-E9A7D200AC63}"
+	RootNamespace="GitDirs"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -17,7 +18,7 @@
 		<Configuration
 			Name="Debug_Static|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\Dbg_090.vsprops;.\GetDirs.vsprops"
+			InheritedPropertySheets="..\..\..\Dbg_090.vsprops;..\..\..\Dirs_090.vsprops;.\GetDirs.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -91,7 +92,7 @@
 		<Configuration
 			Name="Release_Static|Win32"
 			ConfigurationType="1"
-			InheritedPropertySheets="..\..\..\Rel_090.vsprops;.\GetDirs.vsprops"
+			InheritedPropertySheets="..\..\..\Rel_090.vsprops;..\..\..\Dirs_090.vsprops;.\GetDirs.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="true"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -173,6 +174,10 @@
 			>
 			<File
 				RelativePath="..\Src\GitDirs.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Src\MainDlg.cpp"
 				>
 			</File>
 			<File

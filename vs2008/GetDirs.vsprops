@@ -8,6 +8,11 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(WTLINC)&quot;"
 		UsePrecompiledHeader="2"
+	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(WTLINC)&quot;"
 	/>
 </VisualStudioPropertySheet>

@@ -3,3 +3,5 @@
 *.user
 Debug_*
 Release_*
+*.db
+*.opendb
