@@ -6,3 +6,5 @@ Release_*
 *.db
 *.opendb
 *.aps
+ipch
+.vs

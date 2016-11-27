@@ -2,8 +2,15 @@
 #include "MainDlg.h"
 #include "AboutDlg.h"
 
+void CMainDlg::GlobalHandleException( const std::exception& ex )
+{
+    MessageBoxA( this->m_hWnd, ex.what(), "Error", MB_OK | MB_ICONHAND );
+}
+
 BOOL CMainDlg::PreTranslateMessage( MSG* pMsg )
 {
+    if ( mHAccel != NULL && ::TranslateAccelerator( m_hWnd, mHAccel, pMsg ) )
+        return TRUE;
     return CWindow::IsDialogMessage( pMsg );
 }
 
@@ -15,6 +22,8 @@ BOOL CMainDlg::OnIdle()
 
 LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ )
 {
+    DlgResize_Init( true, true, WS_THICKFRAME | WS_CLIPCHILDREN );
+
     // center the dialog on the screen
     CenterWindow();
 
@@ -31,6 +40,14 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     pLoop->AddIdleHandler( this );
 
     UIAddChildWindowContainer( m_hWnd );
+
+    mMainMenu.Attach( GetMenu() );
+    if ( m_hWnd != NULL )
+        mHAccel = ::LoadAccelerators( ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE( IDR_MAINFRAME ) );
+
+    mListView.Attach( GetDlgItem( IDC_LIST ) );
+    mListView.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT );
+    mListView.InsertColumn( 0, TEXT( "Directories" ), LVCFMT_LEFT, 400, 0 );
 
     return TRUE;
 }
