@@ -5,3 +5,4 @@ Debug_*
 Release_*
 *.db
 *.opendb
+*.aps
