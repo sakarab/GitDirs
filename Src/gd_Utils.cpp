@@ -6,9 +6,10 @@
 
 ccwin::TStringList ReadFolderList()
 {
-    ccwin::TIniFile     ini( ccwin::ChangeFileExt( ccwin::getAPPName(), L".ini" ) );
-    ccwin::TStringList  slist;
+    ccwin::TCommonDirectories   dirs;
+    ccwin::TIniFile             ini( ccwin::IncludeTrailingPathDelimiter( dirs.AppDataDirectory_UserLocal() ).append( L"GitDirs.ini" ) );
+    ccwin::TStringList          slist;
 
-    ini.ReadSectionKeys( L"GitPaths", slist );
+    ini.ReadSectionKeys( L"GitDirs", slist );
     return slist;
 }

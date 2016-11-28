@@ -12,6 +12,11 @@
 		UsePrecompiledHeader="2"
 	/>
 	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="ccLib.lib"
+		AdditionalLibraryDirectories="&quot;$(BOOST_LIB)&quot;;&quot;$(CCLIB_LIB)&quot;"
+	/>
+	<Tool
 		Name="VCResourceCompilerTool"
 		AdditionalIncludeDirectories="&quot;$(WTLINC)&quot;"
 	/>
