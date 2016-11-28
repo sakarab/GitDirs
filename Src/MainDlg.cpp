@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "MainDlg.h"
 #include "AboutDlg.h"
+#include <winClasses.h>
+#include "gd_Utils.h"
 
 void CMainDlg::GlobalHandleException( const std::exception& ex )
 {
@@ -48,6 +50,11 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     mListView.Attach( GetDlgItem( IDC_LIST ) );
     mListView.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT );
     mListView.InsertColumn( 0, TEXT( "Directories" ), LVCFMT_LEFT, 400, 0 );
+
+    ccwin::TStringList      slist = ReadFolderList();
+
+    for ( int n = 0, eend = slist.Count() ; n < eend ; ++n )
+        mListView.AddItem( mListView.GetItemCount(), 0, slist[n].c_str() );
 
     return TRUE;
 }

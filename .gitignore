@@ -8,3 +8,4 @@ Release_*
 *.aps
 ipch
 .vs
+/CommonData
