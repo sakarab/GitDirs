@@ -8,7 +8,7 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(WTLINC)&quot;"
+		AdditionalIncludeDirectories="&quot;$(WTLINC)&quot;;&quot;$(CCLIB_INC)&quot;;&quot;$(BOOST_INC)&quot;"
 		UsePrecompiledHeader="2"
 	/>
 	<Tool

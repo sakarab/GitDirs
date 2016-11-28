@@ -173,6 +173,10 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
+				RelativePath="..\Src\gd_Utils.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Src\GitDirs.cpp"
 				>
 			</File>
@@ -207,6 +211,10 @@
 			>
 			<File
 				RelativePath="..\Src\AboutDlg.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Src\gd_Utils.h"
 				>
 			</File>
 			<File
