@@ -2,7 +2,10 @@
 #include "MainDlg.h"
 #include "AboutDlg.h"
 #include <winClasses.h>
+#include <winOSUtils.h>
 #include "gd_Utils.h"
+#include <atlmisc.h>
+#include <boost/format.hpp>
 
 void CMainDlg::GlobalHandleException( const std::exception& ex )
 {
@@ -20,6 +23,24 @@ BOOL CMainDlg::OnIdle()
 {
     UIUpdateChildWindows();
     return FALSE;
+}
+
+LRESULT CMainDlg::OnContextMenu( UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/ )
+{
+    if ( reinterpret_cast<HWND>(wParam) != mListView.m_hWnd )
+        return 0;
+
+    WTL::CPoint     point( GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) );
+    CMenu           menu;
+
+    menu.LoadMenu( IDR_MENU_POPUP );
+
+    CMenuHandle     menuPopup = menu.GetSubMenu( 0 );
+    CPoint          pt;
+
+    GetCursorPos( &pt );
+    menuPopup.TrackPopupMenuEx( TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_TOPALIGN | TPM_VERTICAL, pt.x, pt.y, this->m_hWnd );
+    return 0;
 }
 
 LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ )
@@ -49,13 +70,18 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
     mListView.Attach( GetDlgItem( IDC_LIST ) );
     mListView.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT );
-    mListView.InsertColumn( 0, TEXT( "Directories" ), LVCFMT_LEFT, 400, 0 );
+    mListView.InsertColumn( 0, TEXT( "Name" ), LVCFMT_LEFT, 100, 0 );
+    mListView.InsertColumn( 1, TEXT( "Directory" ), LVCFMT_LEFT, 320, 0 );
 
-    ccwin::TStringList      slist = ReadFolderList();
+    GitDirList      slist = ReadFolderList();
 
-    for ( int n = 0, eend = slist.Count() ; n < eend ; ++n )
-        mListView.AddItem( mListView.GetItemCount(), 0, slist[n].c_str() );
+    for ( GitDirList::iterator it = slist.begin(), eend = slist.end() ; it != eend ; ++it )
+    {
+        int     list_count = mListView.GetItemCount();
 
+        mListView.AddItem( list_count, 0, it->Name.c_str() );
+        mListView.AddItem( list_count, 1, it->Directory.c_str() );
+    }
     return TRUE;
 }
 
@@ -90,8 +116,72 @@ LRESULT CMainDlg::OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BO
     return 0;
 }
 
+LRESULT CMainDlg::OnFile_OpenInExplorer( WORD, WORD, HWND, BOOL & )
+{
+    CString     sstr = ListView_GetSelectedText( 1 );
+
+    if ( !sstr.IsEmpty() )
+        ccwin::ExecuteProgram( boost::str( boost::wformat( L"explorer.exe %1%" ) % static_cast<const wchar_t *>(sstr) ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
+{
+    CString     sstr = ListView_GetSelectedText( 1 );
+
+    if ( !sstr.IsEmpty() )
+        ccwin::ExecuteProgram( MakeCommand( L"repostatus", sstr ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnGit_Fetch( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
+{
+    CString     sstr = ListView_GetSelectedText( 1 );
+
+    if ( !sstr.IsEmpty() )
+        ccwin::ExecuteProgram( MakeCommand( L"fetch", sstr ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnGit_Pull( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
+{
+    CString     sstr = ListView_GetSelectedText( 1 );
+
+    if ( !sstr.IsEmpty() )
+        ccwin::ExecuteProgram( MakeCommand( L"pull", sstr ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnGit_Push( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
+{
+    CString     sstr = ListView_GetSelectedText( 1 );
+
+    if ( !sstr.IsEmpty() )
+        ccwin::ExecuteProgram( MakeCommand( L"push", sstr ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
+{
+    CString     sstr = ListView_GetSelectedText( 1 );
+
+    if ( !sstr.IsEmpty() )
+        ccwin::ExecuteProgram( MakeCommand( L"revisiongraph", sstr ) );
+    return LRESULT();
+}
+
 void CMainDlg::CloseDialog( int nVal )
 {
     DestroyWindow();
     ::PostQuitMessage( nVal );
+}
+
+CString CMainDlg::ListView_GetSelectedText( int col )
+{
+    CString     sstr;
+    int         idx = mListView.GetSelectedIndex();
+
+    if ( idx >= 0 )
+        mListView.GetItemText( idx, col, sstr );
+    return sstr;
 }

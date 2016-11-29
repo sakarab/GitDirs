@@ -115,6 +115,7 @@ END
 IDR_MAINFRAME ACCELERATORS
 BEGIN
     "Q",            ID_FILE_QUIT,           VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPENINEXPLORER, VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -277,11 +278,39 @@ BEGIN
     BEGIN
         MENUITEM "About",                       ID_FILE_ABOUT
         MENUITEM SEPARATOR
+        MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
+        MENUITEM SEPARATOR
         MENUITEM "Quit\tCtrl+Q",                ID_FILE_QUIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Options...",                  ID_EDIT_OPTIONS
+    END
+    POPUP "&Git"
+    BEGIN
+        MENUITEM "Pull...",                     ID_GIT_PULL
+        MENUITEM "Fetch...",                    ID_GIT_FETCH
+        MENUITEM "Push...",                     ID_GIT_PUSH
+        MENUITEM SEPARATOR
+        MENUITEM "Check for Modifications...",  ID_GIT_CHECKFORMODIFICATIONS
+        MENUITEM "Revision Grapph...",          ID_GIT_REVISIONGRAPPH
+    END
+END
+
+IDR_MENU_POPUP MENU
+BEGIN
+    POPUP "Unused"
+    BEGIN
+        MENUITEM "Pull...", ID_GIT_PULL
+        MENUITEM "Fetch...", ID_GIT_FETCH
+        MENUITEM "Push...", ID_GIT_PUSH
+        MENUITEM SEPARATOR
+        MENUITEM "Check for Modifications...", ID_GIT_CHECKFORMODIFICATIONS
+        MENUITEM "Revision Grapph...", ID_GIT_REVISIONGRAPPH
+        MENUITEM SEPARATOR
+        MENUITEM "Open in Explorer\tCtrl+O", ID_FILE_OPENINEXPLORER
     END
 END
 
 #endif    // Greek (Greece) resources
 /////////////////////////////////////////////////////////////////////////////
-
-

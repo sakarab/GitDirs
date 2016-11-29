@@ -12,6 +12,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(WTLINC);$(BOOST_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>_WTL_USE_CSTRING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(WTLINC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
