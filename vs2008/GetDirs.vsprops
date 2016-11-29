@@ -9,6 +9,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories="&quot;$(WTLINC)&quot;;&quot;$(CCLIB_INC)&quot;;&quot;$(BOOST_INC)&quot;"
+		PreprocessorDefinitions="_WTL_USE_CSTRING"
 		UsePrecompiledHeader="2"
 	/>
 	<Tool
