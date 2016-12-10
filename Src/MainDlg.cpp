@@ -7,6 +7,8 @@
 #include <atlmisc.h>
 #include <boost/format.hpp>
 
+typedef std::pair<int, CMainDlg *>      ListCompare_lParamSort;
+
 void CMainDlg::GlobalHandleException( const std::exception& ex )
 {
     MessageBoxA( this->m_hWnd, ex.what(), "Error", MB_OK | MB_ICONHAND );
@@ -17,6 +19,23 @@ BOOL CMainDlg::PreTranslateMessage( MSG* pMsg )
     if ( mHAccel != NULL && ::TranslateAccelerator( m_hWnd, mHAccel, pMsg ) )
         return TRUE;
     return CWindow::IsDialogMessage( pMsg );
+}
+
+void CMainDlg::CloseDialog( int nVal )
+{
+    DestroyWindow();
+    ::PostQuitMessage( nVal );
+}
+
+//static
+int CALLBACK CMainDlg::List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort )
+{
+    ListCompare_lParamSort      *param = reinterpret_cast<ListCompare_lParamSort *>(lParamSort);
+    CString                     str1, str2;
+
+    param->second->mListView.GetItemText( lParam1, param->first, str1 );
+    param->second->mListView.GetItemText( lParam2, param->first, str2 );
+    return ccwin::case_insensitive_string_compare_ptr<wchar_t>()( static_cast<const wchar_t *>(str1), static_cast<const wchar_t *>(str2) );
 }
 
 BOOL CMainDlg::OnIdle()
@@ -170,10 +189,14 @@ LRESULT CMainDlg::OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
     return LRESULT();
 }
 
-void CMainDlg::CloseDialog( int nVal )
+HRESULT CMainDlg::OnList_ColumnClick( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
 {
-    DestroyWindow();
-    ::PostQuitMessage( nVal );
+    ListCompare_lParamSort      sort_data;
+
+    sort_data.first = reinterpret_cast<NMLISTVIEW *>(pnmh)->iSubItem;
+    sort_data.second = this;
+    mListView.SortItemsEx( List_Compare, reinterpret_cast<LPARAM>(&sort_data) );
+    return LRESULT();
 }
 
 CString CMainDlg::ListView_GetSelectedText( int col )
