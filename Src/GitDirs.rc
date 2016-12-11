@@ -309,6 +309,7 @@ BEGIN
         MENUITEM "Check for Modifications...",  ID_GIT_CHECKFORMODIFICATIONS
         MENUITEM "Revision Grapph...",          ID_GIT_REVISIONGRAPPH
         MENUITEM SEPARATOR
+        MENUITEM "Refresh Repository State",    ID_POPUP_REFRESHSTATE
         MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
     END
 END

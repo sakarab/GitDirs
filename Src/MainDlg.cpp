@@ -171,6 +171,30 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
     return LRESULT();
 }
 
+LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
+{
+    int                 idx = mListView.GetSelectedIndex();
+
+    if ( idx >= 0 )
+    {
+        CString             sstr;
+
+        mListView.GetItemText( idx, static_cast<int>(ListColumn::path), sstr );
+
+        GitDirStateList     state_list;
+
+        state_list.push_back( GitDirStateItem( static_cast<const wchar_t *>(sstr) ) );
+
+        GitGetRepositoriesState( state_list );
+
+        GitDirStateItem&    item = state_list.front();
+
+        mListView.SetItemText( idx, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
+        mListView.SetItemText( idx, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
+    }
+    return 0;
+}
+
 LRESULT CMainDlg::OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
     CString     sstr = ListView_GetSelectedText( 1 );
