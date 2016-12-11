@@ -7,8 +7,9 @@
 #include <atlmisc.h>
 #include <boost/format.hpp>
 
-typedef std::pair<int, CMainDlg *>      ListCompare_lParamSort;
-
+//=======================================================================
+//==============    CMainDlg
+//=======================================================================
 void CMainDlg::GlobalHandleException( const std::exception& ex )
 {
     MessageBoxA( this->m_hWnd, ex.what(), "Error", MB_OK | MB_ICONHAND );

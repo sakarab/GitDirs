@@ -4,6 +4,7 @@
 #include <winOSUtils.h>
 #include <winClasses.h>
 #include <boost/format.hpp>
+#include <smException.h>
 
 GitDirList ReadFolderList()
 {
@@ -23,4 +24,43 @@ GitDirList ReadFolderList()
 std::wstring MakeCommand( const wchar_t *command, const wchar_t *path )
 {
     return boost::str( boost::wformat( L"TortoiseGitProc.exe /command:%1% /path:%2%" ) % command % path );
+}
+
+//=======================================================================
+//==============    LibGit2
+//=======================================================================
+LibGit2::LibGit2()
+    : mRepository(nullptr)
+{
+    git_libgit2_init();
+}
+
+LibGit2::~LibGit2()
+{
+    CloseRepository();
+    git_libgit2_shutdown();
+}
+
+void LibGit2::Check( int git_error_code )
+{
+    if ( !git_error_code )
+        return;
+
+    const git_error     *lg2err;
+
+    if ( (lg2err = giterr_last()) != nullptr && lg2err->message != nullptr )
+        throw cclib::BaseException( boost::str( boost::format( "libgit2 error [%1%]\n%2%" ) % git_error_code % lg2err->message ) );
+    else
+        throw cclib::BaseException( boost::str( boost::format( "libgit2 unknown error [%1%]" ) % git_error_code ) );
+}
+
+void LibGit2::OpenRepository( const char * path )
+{
+    git_repository_open_ext( &mRepository, path, 0, NULL );
+}
+
+void LibGit2::CloseRepository()
+{
+    if ( mRepository )
+        git_repository_free( mRepository );
 }

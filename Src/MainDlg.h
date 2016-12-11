@@ -10,11 +10,17 @@
 #include "resource.h"
 #include <atlframe.h>
 #include <wtl_msg_map.h>
+#include <utility>
 
+//=======================================================================
+//==============    CMainDlg
+//=======================================================================
 class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
                  public CDialogResize<CMainDlg>,
                  public CMessageFilter, public CIdleHandler
 {
+private:
+    typedef std::pair<int, CMainDlg *>      ListCompare_lParamSort;
 private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
