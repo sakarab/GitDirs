@@ -278,6 +278,7 @@ BEGIN
     BEGIN
         MENUITEM "About",                       ID_FILE_ABOUT
         MENUITEM SEPARATOR
+        MENUITEM "Refresh State of Repositories", ID_FILE_REFRESHREPOSITORYSTATE
         MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
         MENUITEM SEPARATOR
         MENUITEM "Quit\tCtrl+Q",                ID_FILE_QUIT
@@ -301,16 +302,18 @@ IDR_MENU_POPUP MENU
 BEGIN
     POPUP "Unused"
     BEGIN
-        MENUITEM "Pull...", ID_GIT_PULL
-        MENUITEM "Fetch...", ID_GIT_FETCH
-        MENUITEM "Push...", ID_GIT_PUSH
+        MENUITEM "Pull...",                     ID_GIT_PULL
+        MENUITEM "Fetch...",                    ID_GIT_FETCH
+        MENUITEM "Push...",                     ID_GIT_PUSH
         MENUITEM SEPARATOR
-        MENUITEM "Check for Modifications...", ID_GIT_CHECKFORMODIFICATIONS
-        MENUITEM "Revision Grapph...", ID_GIT_REVISIONGRAPPH
+        MENUITEM "Check for Modifications...",  ID_GIT_CHECKFORMODIFICATIONS
+        MENUITEM "Revision Grapph...",          ID_GIT_REVISIONGRAPPH
         MENUITEM SEPARATOR
-        MENUITEM "Open in Explorer\tCtrl+O", ID_FILE_OPENINEXPLORER
+        MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
     END
 END
 
 #endif    // Greek (Greece) resources
 /////////////////////////////////////////////////////////////////////////////
+
+

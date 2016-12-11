@@ -21,6 +21,7 @@ class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
 {
 private:
     typedef std::pair<int, CMainDlg *>      ListCompare_lParamSort;
+    enum class ListColumn                   { name, path, branch, uncommited };
 private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
@@ -45,6 +46,7 @@ private:
     LRESULT OnOK( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_OpenInExplorer( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_Fetch( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_Pull( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -60,6 +62,7 @@ private:
         COMMAND_ID_HANDLER( ID_FILE_ABOUT, OnAppAbout )
         COMMAND_ID_HANDLER( ID_FILE_QUIT, OnCancel )
         COMMAND_ID_HANDLER( ID_FILE_OPENINEXPLORER, OnFile_OpenInExplorer )
+        COMMAND_ID_HANDLER( ID_FILE_REFRESHREPOSITORYSTATE, OnFile_RefreshRepositoryState );
         COMMAND_ID_HANDLER( ID_GIT_CHECKFORMODIFICATIONS, OnGit_CheckForModifications )
         COMMAND_ID_HANDLER( ID_GIT_FETCH, OnGit_Fetch )
         COMMAND_ID_HANDLER( ID_GIT_PULL, OnGit_Pull )

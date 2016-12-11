@@ -90,8 +90,10 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
     mListView.Attach( GetDlgItem( IDC_LIST ) );
     mListView.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT );
-    mListView.InsertColumn( 0, TEXT( "Name" ), LVCFMT_LEFT, 100, 0 );
-    mListView.InsertColumn( 1, TEXT( "Directory" ), LVCFMT_LEFT, 320, 0 );
+    mListView.InsertColumn( static_cast<int>(ListColumn::name), TEXT( "Name" ), LVCFMT_LEFT, 100, 0 );
+    mListView.InsertColumn( static_cast<int>(ListColumn::path), TEXT( "Directory" ), LVCFMT_LEFT, 260, 0 );
+    mListView.InsertColumn( static_cast<int>(ListColumn::branch), TEXT( "Branch" ), LVCFMT_LEFT, 140, 0 );
+    mListView.InsertColumn( static_cast<int>(ListColumn::uncommited), TEXT( "Uncommited" ), LVCFMT_CENTER, 80, 0 );
 
     GitDirList      slist = ReadFolderList();
 
@@ -99,8 +101,8 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     {
         int     list_count = mListView.GetItemCount();
 
-        mListView.AddItem( list_count, 0, it->Name.c_str() );
-        mListView.AddItem( list_count, 1, it->Directory.c_str() );
+        mListView.AddItem( list_count, static_cast<int>(ListColumn::name), it->Name.c_str() );
+        mListView.AddItem( list_count, static_cast<int>(ListColumn::path), it->Directory.c_str() );
     }
     return TRUE;
 }
@@ -142,6 +144,30 @@ LRESULT CMainDlg::OnFile_OpenInExplorer( WORD, WORD, HWND, BOOL & )
 
     if ( !sstr.IsEmpty() )
         ccwin::ExecuteProgram( boost::str( boost::wformat( L"explorer.exe %1%" ) % static_cast<const wchar_t *>(sstr) ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
+{
+    CString             sstr;
+    GitDirStateList     state_list;
+
+    for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
+    {
+        mListView.GetItemText( n, static_cast<int>(ListColumn::path), sstr );
+        state_list.push_back( GitDirStateItem( static_cast<const wchar_t *>(sstr) ) );
+    }
+
+    GitGetRepositoriesState( state_list );
+
+    int     idx = 0;
+
+    for ( GitDirStateList::value_type item : state_list )
+    {
+        mListView.SetItemText( idx, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
+        mListView.SetItemText( idx, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
+        ++idx;
+    }
     return LRESULT();
 }
 
