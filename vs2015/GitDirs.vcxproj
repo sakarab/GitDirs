@@ -119,6 +119,9 @@
   <ItemGroup>
     <ResourceCompile Include="..\Src\GitDirs.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="GetDirs.props" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
