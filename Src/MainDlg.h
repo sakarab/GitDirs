@@ -11,6 +11,7 @@
 #include <atlframe.h>
 #include <wtl_msg_map.h>
 #include <utility>
+#include <predef_cc.h>
 
 //=======================================================================
 //==============    CMainDlg
@@ -21,7 +22,11 @@ class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
 {
 private:
     typedef std::pair<int, CMainDlg *>      ListCompare_lParamSort;
+#if defined (CC_HAVE_ENUM_CLASS)
     enum class ListColumn                   { name, path, branch, uncommited };
+#else
+    class ListColumn { public: static const int name = 0; static const int path = 1; static const int branch = 2; static const int uncommited = 3; };
+#endif
 private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;

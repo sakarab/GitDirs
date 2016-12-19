@@ -162,12 +162,21 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
 
     int     idx = 0;
 
+#if defined (CC_HAVE_RANGE_FOR)
     for ( GitDirStateList::value_type item : state_list )
     {
         mListView.SetItemText( idx, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
         mListView.SetItemText( idx, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
         ++idx;
     }
+#else
+    for ( GitDirStateList::iterator it = state_list.begin(), eend = state_list.end() ; it != eend ; ++it )
+    {
+        mListView.SetItemText( idx, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( it->Branch ).c_str() );
+        mListView.SetItemText( idx, static_cast<int>(ListColumn::uncommited), it->Uncommited ? L"Yes" : L"No" );
+        ++idx;
+    }
+#endif
     return LRESULT();
 }
 

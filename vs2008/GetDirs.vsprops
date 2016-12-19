@@ -8,14 +8,14 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="&quot;$(WTLINC)&quot;;&quot;$(CCLIB_INC)&quot;;&quot;$(BOOST_INC)&quot;"
+		AdditionalIncludeDirectories="&quot;$(WTLINC)&quot;;&quot;$(CCLIB_INC)&quot;;&quot;$(BOOST_INC)&quot;;&quot;$(LIBGIT2_INC)&quot;"
 		PreprocessorDefinitions="_WTL_USE_CSTRING"
 		UsePrecompiledHeader="2"
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalDependencies="ccLib.lib"
-		AdditionalLibraryDirectories="&quot;$(BOOST_LIB)&quot;;&quot;$(CCLIB_LIB)&quot;"
+		AdditionalDependencies="ccLib.lib libgit2.lib winhttp.lib rpcrt4.lib crypt32.lib ws2_32.lib"
+		AdditionalLibraryDirectories="&quot;$(BOOST_LIB)&quot;;&quot;$(CCLIB_LIB)&quot;;&quot;$(LIBGIT2_LIB)&quot;"
 	/>
 	<Tool
 		Name="VCResourceCompilerTool"

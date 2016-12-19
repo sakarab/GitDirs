@@ -243,6 +243,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\GetDirs.vsprops"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
