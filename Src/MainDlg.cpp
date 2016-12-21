@@ -6,6 +6,7 @@
 #include "gd_Utils.h"
 #include <atlmisc.h>
 #include <boost/format.hpp>
+#include <winUtils.h>
 
 //=======================================================================
 //==============    CMainDlg
@@ -30,6 +31,7 @@ void CMainDlg::CloseDialog( int nVal )
 
 void CMainDlg::AddFile( const std::wstring& fname )
 {
+    MessageBoxW( boost::str( boost::wformat( L"File addded\n%1%" ) % fname ).c_str(), L"Error", MB_OK | MB_ICONHAND );
 }
 
 //static
@@ -159,6 +161,15 @@ LRESULT CMainDlg::OnFile_OpenInExplorer( WORD, WORD, HWND, BOOL & )
 
     if ( !sstr.IsEmpty() )
         ccwin::ExecuteProgram( boost::str( boost::wformat( L"explorer.exe %1%" ) % static_cast<const wchar_t *>(sstr) ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnFile_OpenIniDirectory( WORD, WORD, HWND, BOOL & )
+{
+    ccwin::TCommonDirectories   dirs;
+    std::wstring                fname = ccwin::IncludeTrailingPathDelimiter( dirs.AppDataDirectory_UserLocal() ).append( L"GitDirs.ini" );
+
+    ccwin::ExecuteProgram( boost::str( boost::wformat( L"explorer.exe /select,\"%1%\"" ) % fname ) );
     return LRESULT();
 }
 
