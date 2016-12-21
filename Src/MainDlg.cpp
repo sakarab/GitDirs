@@ -28,6 +28,10 @@ void CMainDlg::CloseDialog( int nVal )
     ::PostQuitMessage( nVal );
 }
 
+void CMainDlg::AddFile( const std::wstring& fname )
+{
+}
+
 //static
 int CALLBACK CMainDlg::List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort )
 {
@@ -66,6 +70,7 @@ LRESULT CMainDlg::OnContextMenu( UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ )
 {
     DlgResize_Init( true, true, WS_THICKFRAME | WS_CLIPCHILDREN );
+    DragAcceptFiles();
 
     // center the dialog on the screen
     CenterWindow();
@@ -115,6 +120,16 @@ LRESULT CMainDlg::OnDestroy( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     pLoop->RemoveMessageFilter( this );
     pLoop->RemoveIdleHandler( this );
 
+    return 0;
+}
+
+LRESULT CMainDlg::OnDropFiles( UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/ )
+{
+    CHDrop<WCHAR>       drop( wParam );
+
+    for ( int n = 0, eend = drop.GetNumFiles() ; n < eend ; ++n )
+        if ( drop.GetDropedFile( n ) )
+            AddFile( drop.GetDropedFileName() );
     return 0;
 }
 
