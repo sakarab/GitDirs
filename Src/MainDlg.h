@@ -110,6 +110,7 @@ private:
     virtual BOOL OnIdle();
     void CloseDialog( int nVal );
     CString ListView_GetSelectedText( int col );
+    void AddListLine( const std::wstring& name, const std::wstring& directory );
     void AddFile( const std::wstring& fname );
 
     static int CALLBACK List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );

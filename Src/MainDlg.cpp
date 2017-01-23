@@ -29,9 +29,24 @@ void CMainDlg::CloseDialog( int nVal )
     ::PostQuitMessage( nVal );
 }
 
+void CMainDlg::AddListLine( const std::wstring& name, const std::wstring& directory )
+{
+    int     list_count = mListView.GetItemCount();
+
+    mListView.AddItem( list_count, static_cast<int>(ListColumn::name), name.c_str() );
+    mListView.AddItem( list_count, static_cast<int>(ListColumn::path), directory.c_str() );
+}
+
 void CMainDlg::AddFile( const std::wstring& fname )
 {
-    MessageBoxW( boost::str( boost::wformat( L"File addded\n%1%" ) % fname ).c_str(), L"Error", MB_OK | MB_ICONHAND );
+    std::wstring        skey = ccwin::ExtractFileName( fname );
+    std::wstring        svalue = fname;
+
+    AddListLine( skey, svalue );
+
+    ccwin::TIniFile     ini( GetIniFileName() );
+
+    ini.WriteString( L"GitDirs", skey.c_str(), svalue.c_str() );
 }
 
 //static
@@ -105,12 +120,7 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     GitDirList      slist = ReadFolderList();
 
     for ( GitDirList::iterator it = slist.begin(), eend = slist.end() ; it != eend ; ++it )
-    {
-        int     list_count = mListView.GetItemCount();
-
-        mListView.AddItem( list_count, static_cast<int>(ListColumn::name), it->Name.c_str() );
-        mListView.AddItem( list_count, static_cast<int>(ListColumn::path), it->Directory.c_str() );
-    }
+        AddListLine( it->Name, it->Directory );
     return TRUE;
 }
 

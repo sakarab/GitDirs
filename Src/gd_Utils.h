@@ -34,6 +34,7 @@ typedef std::vector<GitDirStateItem>    GitDirStateList;
 GitDirList ReadFolderList();
 std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
 void GitGetRepositoriesState( GitDirStateList& state_list );
+std::wstring GetIniFileName();
 
 //=======================================================================
 //==============    LibGit2

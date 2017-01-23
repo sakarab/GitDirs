@@ -43,10 +43,16 @@ namespace
     }
 }
 
-GitDirList ReadFolderList()
+std::wstring GetIniFileName()
 {
     ccwin::TCommonDirectories   dirs;
-    ccwin::TIniFile             ini( ccwin::IncludeTrailingPathDelimiter( dirs.AppDataDirectory_UserLocal() ).append( L"GitDirs.ini" ) );
+
+    return ccwin::IncludeTrailingPathDelimiter( dirs.AppDataDirectory_UserLocal() ).append( L"GitDirs.ini" );
+}
+
+GitDirList ReadFolderList()
+{
+    ccwin::TIniFile             ini( GetIniFileName() );
     ccwin::TStringList          slist;
 
     ini.ReadSectionKeys( L"GitDirs", slist );
