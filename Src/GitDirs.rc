@@ -114,8 +114,10 @@ END
 
 IDR_MAINFRAME ACCELERATORS
 BEGIN
-    "Q",            ID_FILE_QUIT,           VIRTKEY, CONTROL, NOINVERT
     "O",            ID_FILE_OPENINEXPLORER, VIRTKEY, CONTROL, NOINVERT
+    "Q",            ID_FILE_QUIT,           VIRTKEY, CONTROL, NOINVERT
+    "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
+    "M",            ID_GIT_CHECKFORMODIFICATIONS, VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -295,8 +297,8 @@ BEGIN
         MENUITEM "Fetch...",                    ID_GIT_FETCH
         MENUITEM "Push...",                     ID_GIT_PUSH
         MENUITEM SEPARATOR
-        MENUITEM "Check for Modifications...",  ID_GIT_CHECKFORMODIFICATIONS
-        MENUITEM "Revision Grapph...",          ID_GIT_REVISIONGRAPPH
+        MENUITEM "Check for Modifications...\tCtrl+M", ID_GIT_CHECKFORMODIFICATIONS
+        MENUITEM "Revision Grapph...\tCtrl+G",  ID_GIT_REVISIONGRAPPH
     END
 END
 
@@ -308,8 +310,8 @@ BEGIN
         MENUITEM "Fetch...",                    ID_GIT_FETCH
         MENUITEM "Push...",                     ID_GIT_PUSH
         MENUITEM SEPARATOR
-        MENUITEM "Check for Modifications...",  ID_GIT_CHECKFORMODIFICATIONS
-        MENUITEM "Revision Grapph...",          ID_GIT_REVISIONGRAPPH
+        MENUITEM "Check for Modifications...\tCtrl+M", ID_GIT_CHECKFORMODIFICATIONS
+        MENUITEM "Revision Grapph...\tCtrl+G",  ID_GIT_REVISIONGRAPPH
         MENUITEM SEPARATOR
         MENUITEM "Refresh Repository State",    ID_POPUP_REFRESHSTATE
         MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
