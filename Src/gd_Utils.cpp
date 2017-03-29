@@ -159,3 +159,51 @@ git_status_list * LibGit2::GetStatusList( git_status_options& options )
     Check( git_status_list_new( &result, mRepository, &options ) );
     return result;
 }
+
+std::vector<std::string> LibGit2::ListBranches()
+{
+    CheckOpen();
+
+    std::vector<std::string>    result;
+    git_branch_iterator         *it;
+
+    Check( git_branch_iterator_new( &it, mRepository, GIT_BRANCH_ALL ) );
+    BOOST_SCOPE_EXIT( it )      { git_branch_iterator_free( it ); }         BOOST_SCOPE_EXIT_END;
+
+    int     gret;
+
+    do
+    {
+        git_reference   *ref;
+        git_branch_t    branch_type;
+
+        gret = git_branch_next( &ref, &branch_type, it );
+        if ( gret == 0 )
+        {
+            const char      *name;
+
+            Check( git_branch_name( &name, ref ) );
+            result.push_back( std::string( name ) );
+            git_reference_free( ref );
+        }
+    }
+    while ( gret == 0 );
+    if ( gret != GIT_ITEROVER )
+        Check( gret );
+    return result;
+}
+
+std::vector<std::string> LibGit2::ListRemotes()
+{
+    CheckOpen();
+
+    std::vector<std::string>    result;
+    git_strarray                list;
+
+    Check( git_remote_list( &list, mRepository ) );
+    BOOST_SCOPE_EXIT( list )    { git_strarray_free( &list ); }      BOOST_SCOPE_EXIT_END;
+
+    for ( size_t n = 0 ; n < list.count ; ++n )
+        result.push_back( list.strings[n] );
+    return result;
+}

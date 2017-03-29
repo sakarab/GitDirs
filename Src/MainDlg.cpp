@@ -7,6 +7,7 @@
 #include <atlmisc.h>
 #include <boost/format.hpp>
 #include <winUtils.h>
+#include <boost/scope_exit.hpp>
 
 //=======================================================================
 //==============    CMainDlg
@@ -214,6 +215,36 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
     }
 #endif
     return LRESULT();
+}
+
+LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
+{
+    int     idx = mListView.GetSelectedIndex();
+
+    if ( idx >= 0 )
+    {
+        CString             sstr;
+
+        mListView.GetItemText( idx, static_cast<int>(ListColumn::path), sstr );
+
+        LibGit2             libgit;
+
+        libgit.OpenRepository( ccwin::NarrowStringStrict( std::wstring( sstr ) ).c_str() );
+        BOOST_SCOPE_EXIT( &libgit )     { libgit.CloseRepository(); }       BOOST_SCOPE_EXIT_END;
+
+        std::vector<std::string>    list = libgit.ListBranches();
+
+        for ( std::string name : list )
+            if ( name == std::string( "aaaaaa" ) )
+                break;
+
+        list = libgit.ListRemotes();
+
+        for ( std::string name : list )
+            if ( name == std::string( "aaaaaa" ) )
+                break;
+    }
+    return 0;
 }
 
 LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )

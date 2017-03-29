@@ -58,6 +58,8 @@ public:
 
     std::string GetCurrentBranch();
     git_status_list * GetStatusList( git_status_options& options );
+    std::vector<std::string> ListBranches();
+    std::vector<std::string> ListRemotes();
 };
 
 #endif
