@@ -10,7 +10,7 @@
 
 namespace
 {
-    void GetDirectoryState( LibGit2& libgit, GitDirStateItem& state_item )
+    void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item )
     {
         libgit.OpenRepository( ccwin::NarrowStringStrict( state_item.Directory ).c_str() );
         BOOST_SCOPE_EXIT( &libgit )     { libgit.CloseRepository(); }       BOOST_SCOPE_EXIT_END;
@@ -71,7 +71,7 @@ std::wstring MakeCommand( const wchar_t *command, const wchar_t *path )
 
 void GitGetRepositoriesState( GitDirStateList& state_list )
 {
-    LibGit2     libgit;
+    git2::LibGit2     libgit;
 
 #if defined (CC_HAVE_RANGE_FOR)
     for ( GitDirStateList::value_type& item : state_list )
@@ -82,128 +82,133 @@ void GitGetRepositoriesState( GitDirStateList& state_list )
 #endif
 }
 
-//=======================================================================
-//==============    LibGit2
-//=======================================================================
-LibGit2::LibGit2()
-    : mRepository(nullptr)
+namespace git2
 {
-    git_libgit2_init();
-}
-
-LibGit2::~LibGit2()
-{
-    CloseRepository();
-    git_libgit2_shutdown();
-}
-
-void LibGit2::Check( int git_error_code )
-{
-    if ( !git_error_code )
-        return;
-
-    const git_error     *lg2err;
-
-    if ( (lg2err = giterr_last()) != nullptr && lg2err->message != nullptr )
-        throw cclib::BaseException( boost::str( boost::format( "libgit2 error [%1%]\n%2%" ) % git_error_code % lg2err->message ) );
-    else
-        throw cclib::BaseException( boost::str( boost::format( "libgit2 unknown error [%1%]" ) % git_error_code ) );
-}
-
-void LibGit2::CheckOpen()
-{
-    if ( !mRepository )
-        throw cclib::BaseException( "Repository not opened." );
-}
-
-void LibGit2::OpenRepository( const char *path )
-{
-    if ( mRepository )
-        throw cclib::BaseException( "Repository already opened." );
-    Check( git_repository_open_ext( &mRepository, path, 0, NULL ) );
-}
-
-void LibGit2::CloseRepository()
-{
-    if ( mRepository )
+    //=======================================================================
+    //==============    LibGit2
+    //=======================================================================
+    LibGit2::LibGit2()
+        : mRepository(nullptr)
     {
-        git_repository_free( mRepository );
-        mRepository = nullptr;
+        git_libgit2_init();
     }
-}
 
-std::string LibGit2::GetCurrentBranch()
-{
-    CheckOpen();
-
-    git_reference   *head = nullptr;
-    int             error = git_repository_head( &head, mRepository );
-    std::string     result;
-
-    if ( error && error != GIT_EUNBORNBRANCH && error != GIT_ENOTFOUND )
-        Check( error );
-    else
+    LibGit2::~LibGit2()
     {
-        result = git_reference_shorthand( head );
-        git_reference_free( head );
+        CloseRepository();
+        git_libgit2_shutdown();
     }
-    return result;
-}
 
-git_status_list * LibGit2::GetStatusList( git_status_options& options )
-{
-    CheckOpen();
-
-    git_status_list     *result = nullptr;
-
-    Check( git_status_list_new( &result, mRepository, &options ) );
-    return result;
-}
-
-std::vector<std::string> LibGit2::ListBranches()
-{
-    CheckOpen();
-
-    std::vector<std::string>    result;
-    git_branch_iterator         *it;
-
-    Check( git_branch_iterator_new( &it, mRepository, GIT_BRANCH_ALL ) );
-    BOOST_SCOPE_EXIT( it )      { git_branch_iterator_free( it ); }         BOOST_SCOPE_EXIT_END;
-
-    int     gret;
-
-    do
+    void LibGit2::Check( int git_error_code )
     {
-        git_reference   *ref;
-        git_branch_t    branch_type;
+        if ( !git_error_code )
+            return;
 
-        gret = git_branch_next( &ref, &branch_type, it );
-        if ( gret == 0 )
+        const git_error     *lg2err;
+
+        if ( (lg2err = giterr_last()) != nullptr && lg2err->message != nullptr )
+            throw cclib::BaseException( boost::str( boost::format( "libgit2 error [%1%]\n%2%" ) % git_error_code % lg2err->message ) );
+        else
+            throw cclib::BaseException( boost::str( boost::format( "libgit2 unknown error [%1%]" ) % git_error_code ) );
+    }
+
+    void LibGit2::CheckOpen()
+    {
+        if ( !mRepository )
+            throw cclib::BaseException( "Repository not opened." );
+    }
+
+    void LibGit2::OpenRepository( const char *path )
+    {
+        if ( mRepository )
+            throw cclib::BaseException( "Repository already opened." );
+        Check( git_repository_open_ext( &mRepository, path, 0, NULL ) );
+    }
+
+    void LibGit2::CloseRepository()
+    {
+        if ( mRepository )
         {
-            const char      *name;
-
-            Check( git_branch_name( &name, ref ) );
-            result.push_back( std::string( name ) );
-            git_reference_free( ref );
+            git_repository_free( mRepository );
+            mRepository = nullptr;
         }
     }
-    while ( gret == 0 );
-    if ( gret != GIT_ITEROVER )
-        Check( gret );
-    return result;
+
+    std::string LibGit2::GetCurrentBranch()
+    {
+        CheckOpen();
+
+        git_reference   *head = nullptr;
+        int             error = git_repository_head( &head, mRepository );
+        std::string     result;
+
+        if ( error && error != GIT_EUNBORNBRANCH && error != GIT_ENOTFOUND )
+            Check( error );
+        else
+        {
+            result = git_reference_shorthand( head );
+            git_reference_free( head );
+        }
+        return result;
+    }
+
+    git_status_list * LibGit2::GetStatusList( git_status_options& options )
+    {
+        CheckOpen();
+
+        git_status_list     *result = nullptr;
+
+        Check( git_status_list_new( &result, mRepository, &options ) );
+        return result;
+    }
+
+    std::vector<BranchInfo> LibGit2::ListBranches()
+    {
+        CheckOpen();
+
+        std::vector<BranchInfo>     result;
+        git_branch_iterator         *it;
+
+        Check( git_branch_iterator_new( &it, mRepository, GIT_BRANCH_ALL ) );
+        BOOST_SCOPE_EXIT( it )      { git_branch_iterator_free( it ); }         BOOST_SCOPE_EXIT_END;
+
+        int     gret;
+
+        do
+        {
+            git_reference   *ref;
+            git_branch_t    branch_type;
+
+            gret = git_branch_next( &ref, &branch_type, it );
+            if ( gret == 0 )
+            {
+                const char      *name;
+
+                Check( git_branch_name( &name, ref ) );
+                result.push_back( BranchInfo( std::string( name ), branch_type ) );
+                git_reference_free( ref );
+            }
+        }
+        while ( gret == 0 );
+        if ( gret != GIT_ITEROVER )
+            Check( gret );
+        return result;
+    }
+
+    std::vector<std::string> LibGit2::ListRemotes()
+    {
+        CheckOpen();
+
+        std::vector<std::string>    result;
+        git_strarray                list;
+
+        Check( git_remote_list( &list, mRepository ) );
+        BOOST_SCOPE_EXIT( list )    { git_strarray_free( &list ); }      BOOST_SCOPE_EXIT_END;
+
+        for ( size_t n = 0 ; n < list.count ; ++n )
+            result.push_back( list.strings[n] );
+        return result;
+    }
+
 }
-
-std::vector<std::string> LibGit2::ListRemotes()
-{
-    CheckOpen();
-
-    std::vector<std::string>    result;
-    git_strarray                list;
-
-    Check( git_remote_list( &list, mRepository ) );
-    BOOST_SCOPE_EXIT( list )    { git_strarray_free( &list ); }      BOOST_SCOPE_EXIT_END;
-
-    for ( size_t n = 0 ; n < list.count ; ++n )
-        result.push_back( list.strings[n] );
-    return result;
-}
+// namespace git2

@@ -1,5 +1,3 @@
-#pragma once
-
 #if !defined(GITDIRS_GD_UTILS_H)
 #define GITDIRS_GD_UTILS_H
 
@@ -36,30 +34,51 @@ std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
 void GitGetRepositoriesState( GitDirStateList& state_list );
 std::wstring GetIniFileName();
 
-//=======================================================================
-//==============    LibGit2
-//=======================================================================
-class LibGit2
+namespace git2
 {
-private:
-    git_repository      *mRepository;
+    //=======================================================================
+    //==============    BranchInfo
+    //=======================================================================
+    class BranchInfo
+    {
+    private:
+        std::string     mName;
+        git_branch_t    mType;
+    public:
+        BranchInfo( const std::string& name, git_branch_t type )
+            : mName(name), mType(type)
+        {
+        }
 
-    void Check( int git_error_code );
-    void CheckOpen();
-    // noncopyable
-    LibGit2( const LibGit2& other ) CC_EQ_DELETE;
-    LibGit2& operator=( const LibGit2& other ) CC_EQ_DELETE;
-public:
-    LibGit2();
-    ~LibGit2();
+        const std::string& Name() const         { return mName; }
+        git_branch_t Type() const               { return mType; }
+    };
 
-    void OpenRepository( const char *path );
-    void CloseRepository();
+    //=======================================================================
+    //==============    LibGit2
+    //=======================================================================
+    class LibGit2
+    {
+    private:
+        git_repository      *mRepository;
 
-    std::string GetCurrentBranch();
-    git_status_list * GetStatusList( git_status_options& options );
-    std::vector<std::string> ListBranches();
-    std::vector<std::string> ListRemotes();
-};
+        void Check( int git_error_code );
+        void CheckOpen();
+        // noncopyable
+        LibGit2( const LibGit2& other ) CC_EQ_DELETE;
+        LibGit2& operator=( const LibGit2& other ) CC_EQ_DELETE;
+    public:
+        LibGit2();
+        ~LibGit2();
+
+        void OpenRepository( const char *path );
+        void CloseRepository();
+
+        std::string GetCurrentBranch();
+        git_status_list * GetStatusList( git_status_options& options );
+        std::vector<BranchInfo> ListBranches();
+        std::vector<std::string> ListRemotes();
+    };
+}
 
 #endif
