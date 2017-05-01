@@ -184,6 +184,11 @@ LRESULT CMainDlg::OnFile_OpenIniDirectory( WORD, WORD, HWND, BOOL & )
     return LRESULT();
 }
 
+LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
+{
+    return LRESULT();
+}
+
 LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
     CString             sstr;

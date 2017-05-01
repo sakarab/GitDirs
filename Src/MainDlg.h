@@ -128,6 +128,7 @@ private:
     LRESULT OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_OpenInExplorer( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_OpenIniDirectory( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnFile_FetchAllRepositories( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -148,6 +149,7 @@ private:
         COMMAND_ID_HANDLER( ID_FILE_QUIT, OnCancel );
         COMMAND_ID_HANDLER( ID_FILE_OPENINEXPLORER, OnFile_OpenInExplorer );
         COMMAND_ID_HANDLER( ID_FILE_OPENINIDIRECTORY, OnFile_OpenIniDirectory );
+        COMMAND_ID_HANDLER( ID_FILE_FETCHALLREPOSITORIES, OnFile_FetchAllRepositories );
         COMMAND_ID_HANDLER( ID_FILE_REFRESHREPOSITORYSTATE, OnFile_RefreshRepositoryState );
         COMMAND_ID_HANDLER( ID_EDIT_OPTIONS, OnEdit_Options );
         COMMAND_ID_HANDLER( ID_POPUP_REFRESHSTATE, OnPopup_RefreshState );

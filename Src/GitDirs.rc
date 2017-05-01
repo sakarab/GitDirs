@@ -282,6 +282,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Open ""ini"" directory",      ID_FILE_OPENINIDIRECTORY
         MENUITEM SEPARATOR
+        MENUITEM "Fetch All Repositories",      ID_FILE_FETCHALLREPOSITORIES
         MENUITEM "Refresh State of Repositories", ID_FILE_REFRESHREPOSITORYSTATE
         MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
         MENUITEM SEPARATOR
