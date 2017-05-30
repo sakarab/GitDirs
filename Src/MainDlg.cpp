@@ -113,11 +113,11 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
     mListView.Attach( GetDlgItem( IDC_LIST ) );
     mListView.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT );
-    mListView.InsertColumn( static_cast<int>(ListColumn::name), TEXT( "Name" ), LVCFMT_LEFT, 100, 0 );
+    mListView.InsertColumn( static_cast<int>(ListColumn::name), TEXT( "Name" ), LVCFMT_LEFT, 200, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::path), TEXT( "Directory" ), LVCFMT_LEFT, 260, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::branch), TEXT( "Branch" ), LVCFMT_LEFT, 140, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::uncommited), TEXT( "Uncommited" ), LVCFMT_CENTER, 80, 0 );
-    mListView.InsertColumn( static_cast<int>(ListColumn::needs), TEXT( "Needs" ), LVCFMT_LEFT, 80, 0 );
+    mListView.InsertColumn( static_cast<int>(ListColumn::needs), TEXT( "Update" ), LVCFMT_CENTER, 80, 0 );
 
     GitDirList      slist = ReadFolderList();
 
