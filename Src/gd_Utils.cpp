@@ -10,13 +10,47 @@
 
 namespace
 {
-    void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item )
+    void GetDirectoryStateNeeds( git2::LibGit2& libgit, GitDirStateItem& state_item )
     {
-        libgit.OpenRepository( ccwin::NarrowStringStrict( state_item.Directory ).c_str() );
-        BOOST_SCOPE_EXIT( &libgit )     { libgit.CloseRepository(); }       BOOST_SCOPE_EXIT_END;
+        // for each local branch
+        // for each remote
+        // constract the remote-branch name and find it
+        // if found git_revwalk() back and forth to see differances
 
-        state_item.Branch = libgit.GetCurrentBranch();
+        std::vector<git2::BranchInfo>   branch_list = libgit.ListBranches();
+        std::vector<std::string>        remotes_list = libgit.ListRemotes();
 
+        for ( git2::BranchInfo branch : branch_list )
+        {
+            if ( branch.Type() != GIT_BRANCH_LOCAL )
+                continue;
+
+            for ( std::string name : remotes_list )
+            {
+                std::string     remote_name = boost::str( boost::format( "%1%/%2%" ) % name % branch.Name() );
+
+                std::vector<git2::BranchInfo>::iterator     it =
+                    std::find_if( branch_list.begin(), branch_list.end(), [&remote_name]( const git2::BranchInfo& branch )->bool {
+                    return remote_name == branch.Name();
+                } );
+
+                if ( it != branch_list.end() )
+                {
+                    std::string     ref_local  = boost::str( boost::format( "refs/heads/%1%" ) % branch.Name() );
+                    std::string     ref_remote = boost::str( boost::format( "refs/remotes/%1%" ) % it->Name() );
+
+                    state_item.NeedsUpdate = libgit.RevisionCount( ref_local, ref_remote ) != 0;
+                    if ( !state_item.NeedsUpdate )
+                        state_item.NeedsUpdate = libgit.RevisionCount( ref_remote, ref_local ) != 0;
+                    if ( state_item.NeedsUpdate )
+                        break;
+                }
+            }
+        }
+    }
+
+    void GetDirectoryStateUncommited( git2::LibGit2& libgit, GitDirStateItem& state_item )
+    {
         git_status_options      statusopt;
 
         statusopt.pathspec.strings = nullptr;
@@ -24,12 +58,12 @@ namespace
         statusopt.version = GIT_STATUS_OPTIONS_VERSION;
         statusopt.show = GIT_STATUS_SHOW_INDEX_AND_WORKDIR;
         statusopt.flags = GIT_STATUS_OPT_RENAMES_HEAD_TO_INDEX |
-                          GIT_STATUS_OPT_SORT_CASE_SENSITIVELY |
-                          GIT_STATUS_OPT_INCLUDE_UNTRACKED;
-                          //GIT_STATUS_OPT_INCLUDE_IGNORED
+            GIT_STATUS_OPT_SORT_CASE_SENSITIVELY |
+            GIT_STATUS_OPT_INCLUDE_UNTRACKED;
+        //GIT_STATUS_OPT_INCLUDE_IGNORED
 
         git_status_list         *status = libgit.GetStatusList( statusopt );
-        BOOST_SCOPE_EXIT( &status )     { git_status_list_free( status ); }       BOOST_SCOPE_EXIT_END;
+        BOOST_SCOPE_EXIT( &status ) { git_status_list_free( status ); }       BOOST_SCOPE_EXIT_END;
 
         if ( status )
         {
@@ -40,6 +74,16 @@ namespace
                     break;
             }
         }
+    }
+
+    void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item )
+    {
+        libgit.OpenRepository( ccwin::NarrowStringStrict( state_item.Directory ).c_str() );
+        BOOST_SCOPE_EXIT( &libgit )     { libgit.CloseRepository(); }       BOOST_SCOPE_EXIT_END;
+
+        state_item.Branch = libgit.GetCurrentBranch();
+        GetDirectoryStateUncommited( libgit, state_item );
+        GetDirectoryStateNeeds( libgit, state_item );
     }
 }
 
@@ -170,7 +214,7 @@ namespace git2
         git_branch_iterator         *it;
 
         Check( git_branch_iterator_new( &it, mRepository, GIT_BRANCH_ALL ) );
-        BOOST_SCOPE_EXIT( it )      { git_branch_iterator_free( it ); }         BOOST_SCOPE_EXIT_END;
+        BOOST_SCOPE_EXIT( it ) { git_branch_iterator_free( it ); }         BOOST_SCOPE_EXIT_END;
 
         int     gret;
 
@@ -203,11 +247,31 @@ namespace git2
         git_strarray                list;
 
         Check( git_remote_list( &list, mRepository ) );
-        BOOST_SCOPE_EXIT( list )    { git_strarray_free( &list ); }      BOOST_SCOPE_EXIT_END;
+        BOOST_SCOPE_EXIT( list ) { git_strarray_free( &list ); }      BOOST_SCOPE_EXIT_END;
 
         for ( size_t n = 0 ; n < list.count ; ++n )
             result.push_back( list.strings[n] );
         return result;
+    }
+
+    size_t LibGit2::RevisionCount( const std::string& src, const std::string& dst )
+    {
+        CheckOpen();
+
+        git_revwalk         *walker;
+
+        git_revwalk_new( &walker, mRepository );
+        BOOST_SCOPE_EXIT( walker ) { git_revwalk_free( walker ); }         BOOST_SCOPE_EXIT_END;
+
+        git_revwalk_push_ref( walker, dst.c_str() );
+        git_revwalk_hide_ref( walker, src.c_str() );
+
+        git_oid     id;
+        size_t      count = 0;
+
+        while ( !git_revwalk_next( &id, walker ) )
+            ++count;
+        return count;
     }
 
 }

@@ -117,6 +117,7 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     mListView.InsertColumn( static_cast<int>(ListColumn::path), TEXT( "Directory" ), LVCFMT_LEFT, 260, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::branch), TEXT( "Branch" ), LVCFMT_LEFT, 140, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::uncommited), TEXT( "Uncommited" ), LVCFMT_CENTER, 80, 0 );
+    mListView.InsertColumn( static_cast<int>(ListColumn::needs), TEXT( "Needs" ), LVCFMT_LEFT, 80, 0 );
 
     GitDirList      slist = ReadFolderList();
 
@@ -197,26 +198,22 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
     for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
     {
         mListView.GetItemText( n, static_cast<int>(ListColumn::path), sstr );
-        state_list.push_back( GitDirStateItem( static_cast<const wchar_t *>(sstr) ) );
+        state_list.push_back( GitDirStateItem( n, static_cast<const wchar_t *>(sstr) ) );
     }
 
     GitGetRepositoriesState( state_list );
 
-    int     idx = 0;
-
 #if defined (CC_HAVE_RANGE_FOR)
     for ( GitDirStateList::value_type item : state_list )
     {
-        mListView.SetItemText( idx, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
-        mListView.SetItemText( idx, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
-        ++idx;
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
     }
 #else
     for ( GitDirStateList::iterator it = state_list.begin(), eend = state_list.end() ; it != eend ; ++it )
     {
-        mListView.SetItemText( idx, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( it->Branch ).c_str() );
-        mListView.SetItemText( idx, static_cast<int>(ListColumn::uncommited), it->Uncommited ? L"Yes" : L"No" );
-        ++idx;
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( it->Branch ).c_str() );
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), it->Uncommited ? L"Yes" : L"No" );
     }
 #endif
     return LRESULT();
@@ -224,31 +221,31 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
 
 LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    //int     idx = mListView.GetSelectedIndex();
+    int     idx = mListView.GetSelectedIndex();
 
-    //if ( idx >= 0 )
-    //{
-    //    CString             sstr;
+    if ( idx >= 0 )
+    {
+        CString             sstr;
 
-    //    mListView.GetItemText( idx, static_cast<int>(ListColumn::path), sstr );
+        mListView.GetItemText( idx, static_cast<int>(ListColumn::path), sstr );
 
-    //    LibGit2             libgit;
+        git2::LibGit2       libgit;
 
-    //    libgit.OpenRepository( ccwin::NarrowStringStrict( std::wstring( sstr ) ).c_str() );
-    //    BOOST_SCOPE_EXIT( &libgit )     { libgit.CloseRepository(); }       BOOST_SCOPE_EXIT_END;
+        libgit.OpenRepository( ccwin::NarrowStringStrict( std::wstring( sstr ) ).c_str() );
+        BOOST_SCOPE_EXIT( &libgit )     { libgit.CloseRepository(); }       BOOST_SCOPE_EXIT_END;
 
-    //    std::vector<std::string>    list = libgit.ListBranches();
+        std::vector<git2::BranchInfo>       branch_list = libgit.ListBranches();
 
-    //    for ( std::string name : list )
-    //        if ( name == std::string( "aaaaaa" ) )
-    //            break;
+        for ( git2::BranchInfo branch : branch_list )
+            if ( branch.Name() == std::string( "aaaaaa" ) )
+                break;
 
-    //    list = libgit.ListRemotes();
+        std::vector<std::string>    remotes_list = libgit.ListRemotes();
 
-    //    for ( std::string name : list )
-    //        if ( name == std::string( "aaaaaa" ) )
-    //            break;
-    //}
+        for ( std::string name : remotes_list )
+            if ( name == std::string( "aaaaaa" ) )
+                break;
+    }
     return 0;
 }
 
@@ -264,14 +261,14 @@ LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
         GitDirStateList     state_list;
 
-        state_list.push_back( GitDirStateItem( static_cast<const wchar_t *>(sstr) ) );
+        state_list.push_back( GitDirStateItem( idx, static_cast<const wchar_t *>(sstr) ) );
 
         GitGetRepositoriesState( state_list );
 
         GitDirStateItem&    item = state_list.front();
 
-        mListView.SetItemText( idx, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
-        mListView.SetItemText( idx, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
     }
     return 0;
 }

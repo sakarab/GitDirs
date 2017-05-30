@@ -18,11 +18,13 @@ struct GitDirItem
 
 struct GitDirStateItem
 {
+    int             VisualIndex;
     std::wstring    Directory;
     std::string     Branch;
     bool            Uncommited;
-    GitDirStateItem( const std::wstring& dir )
-        : Directory( dir ), Branch(), Uncommited()
+    bool            NeedsUpdate;
+    GitDirStateItem( int visual_index, const std::wstring& dir )
+        : VisualIndex( visual_index ), Directory( dir ), Branch(), Uncommited(), NeedsUpdate()
     {}
 };
 
@@ -78,6 +80,7 @@ namespace git2
         git_status_list * GetStatusList( git_status_options& options );
         std::vector<BranchInfo> ListBranches();
         std::vector<std::string> ListRemotes();
+        size_t RevisionCount( const std::string& src, const std::string& dst );
     };
 }
 
