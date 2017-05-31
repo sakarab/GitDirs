@@ -95,18 +95,7 @@ class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
 {
 private:
     typedef std::pair<int, CMainDlg *>      ListCompare_lParamSort;
-#if defined (CC_HAVE_ENUM_CLASS)
     enum class ListColumn                   { name, path, branch, uncommited, needs };
-#else
-    struct ListColumn
-    {
-        static const int name = 0;
-        static const int path = 1;
-        static const int branch = 2;
-        static const int uncommited = 3;
-        static const int needs = 4;
-    };
-#endif
 private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;

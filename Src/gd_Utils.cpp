@@ -117,13 +117,8 @@ void GitGetRepositoriesState( GitDirStateList& state_list )
 {
     git2::LibGit2     libgit;
 
-#if defined (CC_HAVE_RANGE_FOR)
     for ( GitDirStateList::value_type& item : state_list )
         GetDirectoryState( libgit, item );
-#else
-    for ( GitDirStateList::iterator it = state_list.begin(), eend = state_list.end() ; it != eend ; ++it )
-        GetDirectoryState( libgit, *it );
-#endif
 }
 
 namespace git2
