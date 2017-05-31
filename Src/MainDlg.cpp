@@ -212,8 +212,8 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
 #else
     for ( GitDirStateList::iterator it = state_list.begin(), eend = state_list.end() ; it != eend ; ++it )
     {
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( it->Branch ).c_str() );
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), it->Uncommited ? L"Yes" : L"No" );
+        mListView.SetItemText( it->VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( it->Branch ).c_str() );
+        mListView.SetItemText( it->VisualIndex, static_cast<int>(ListColumn::uncommited), it->Uncommited ? L"Yes" : L"No" );
     }
 #endif
     return LRESULT();
