@@ -43,7 +43,7 @@ namespace
                     if ( !state_item.NeedsUpdate )
                         state_item.NeedsUpdate = libgit.RevisionCount( ref_remote, ref_local ) != 0;
                     if ( state_item.NeedsUpdate )
-                        break;
+                        return;
                 }
             }
         }
@@ -253,13 +253,13 @@ namespace git2
     {
         CheckOpen();
 
-        git_revwalk         *walker;
+        git_revwalk         *walker = nullptr;
 
-        git_revwalk_new( &walker, mRepository );
+        Check( git_revwalk_new( &walker, mRepository ) );
         BOOST_SCOPE_EXIT( walker ) { git_revwalk_free( walker ); }         BOOST_SCOPE_EXIT_END;
 
-        git_revwalk_push_ref( walker, dst.c_str() );
-        git_revwalk_hide_ref( walker, src.c_str() );
+        Check( git_revwalk_push_ref( walker, dst.c_str() ) );
+        Check( git_revwalk_hide_ref( walker, src.c_str() ) );
 
         git_oid     id;
         size_t      count = 0;
