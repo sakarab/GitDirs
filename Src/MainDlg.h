@@ -105,9 +105,11 @@ private:
     virtual BOOL PreTranslateMessage( MSG* pMsg );
     virtual BOOL OnIdle();
     void CloseDialog( int nVal );
-    CString ListView_GetSelectedText( int col );
+    std::wstring ListView_GetSelectedText( int col );
+    std::wstring ListView_GetSelectedText_Checked( int col );
     void AddListLine( const std::wstring& name, const std::wstring& directory );
     void AddFile( const std::wstring& fname );
+    void ReloadIni();
 
     static int CALLBACK List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
@@ -124,6 +126,7 @@ private:
     LRESULT OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_OpenInExplorer( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_OpenIniDirectory( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnFile_ReloadIni( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_FetchAllRepositories( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -145,6 +148,7 @@ private:
         COMMAND_ID_HANDLER( ID_FILE_QUIT, OnCancel );
         COMMAND_ID_HANDLER( ID_FILE_OPENINEXPLORER, OnFile_OpenInExplorer );
         COMMAND_ID_HANDLER( ID_FILE_OPENINIDIRECTORY, OnFile_OpenIniDirectory );
+        COMMAND_ID_HANDLER( ID_FILE_RELOADINI, OnFile_ReloadIni );
         COMMAND_ID_HANDLER( ID_FILE_FETCHALLREPOSITORIES, OnFile_FetchAllRepositories );
         COMMAND_ID_HANDLER( ID_FILE_REFRESHREPOSITORYSTATE, OnFile_RefreshRepositoryState );
         COMMAND_ID_HANDLER( ID_EDIT_OPTIONS, OnEdit_Options );

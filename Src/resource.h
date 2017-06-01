@@ -21,13 +21,16 @@
 #define ID_POPUP_REFRESHSTATE           32796
 #define ID_FILE_OPENINIDIRECTORY        32798
 #define ID_FILE_FETCHALLREPOSITORIES    32806
+#define ID_EDIT_DELETEENTRY             32810
+#define ID_UNUSED_DELETEENTRY           32811
+#define ID_FILE_RELOADINI               32812
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        207
-#define _APS_NEXT_COMMAND_VALUE         32810
+#define _APS_NEXT_COMMAND_VALUE         32813
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
