@@ -3,7 +3,6 @@
 #include "AboutDlg.h"
 #include <winClasses.h>
 #include <winOSUtils.h>
-#include "gd_Utils.h"
 #include <atlmisc.h>
 #include <boost/format.hpp>
 #include <winUtils.h>
@@ -54,8 +53,23 @@ void CMainDlg::ReloadIni()
 {
     GitDirList      slist = ReadFolderList();
 
+    mViewState.SortColumn = -1;
     for ( GitDirList::iterator it = slist.begin(), eend = slist.end() ; it != eend ; ++it )
         AddListLine( it->Name, it->Directory );
+}
+
+void CMainDlg::SortList( int column )
+{
+    if ( column < 0 )
+        ReloadIni();
+    else
+    {
+        ListCompare_lParamSort      sort_data;
+
+        sort_data.first = column;
+        sort_data.second = this;
+        mListView.SortItemsEx( List_Compare, reinterpret_cast<LPARAM>(&sort_data) );
+    }
 }
 
 //static
@@ -128,7 +142,9 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     mListView.InsertColumn( static_cast<int>(ListColumn::needs), TEXT( "Update" ), LVCFMT_CENTER, 80, 0 );
 
     ReloadIni();
-
+    mViewState.Load();
+    if ( mViewState.SortColumn >= 0 )
+        SortList( mViewState.SortColumn );
     return TRUE;
 }
 
@@ -139,6 +155,8 @@ LRESULT CMainDlg::OnDestroy( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     ATLASSERT( pLoop != NULL );
     pLoop->RemoveMessageFilter( this );
     pLoop->RemoveIdleHandler( this );
+
+    mViewState.Save();
 
     return 0;
 }
@@ -302,11 +320,8 @@ LRESULT CMainDlg::OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 HRESULT CMainDlg::OnList_ColumnClick( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
 {
-    ListCompare_lParamSort      sort_data;
-
-    sort_data.first = reinterpret_cast<NMLISTVIEW *>(pnmh)->iSubItem;
-    sort_data.second = this;
-    mListView.SortItemsEx( List_Compare, reinterpret_cast<LPARAM>(&sort_data) );
+    mViewState.SortColumn = reinterpret_cast<NMLISTVIEW *>(pnmh)->iSubItem;
+    SortList( mViewState.SortColumn );
     return LRESULT();
 }
 

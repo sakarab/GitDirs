@@ -12,6 +12,7 @@
 #include <wtl_msg_map.h>
 #include <utility>
 #include <predef_cc.h>
+#include "gd_Utils.h"
 
 //=======================================================================
 //==============    CHDrop
@@ -100,6 +101,7 @@ private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
     CMenu               mMainMenu;
+    ViewState           mViewState;
 
     void GlobalHandleException( const std::exception& ex );
     virtual BOOL PreTranslateMessage( MSG* pMsg );
@@ -110,6 +112,7 @@ private:
     void AddListLine( const std::wstring& name, const std::wstring& directory );
     void AddFile( const std::wstring& fname );
     void ReloadIni();
+    void SortList( int column );
 
     static int CALLBACK List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
