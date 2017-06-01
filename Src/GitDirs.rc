@@ -116,8 +116,10 @@ IDR_MAINFRAME ACCELERATORS
 BEGIN
     "O",            ID_FILE_OPENINEXPLORER, VIRTKEY, CONTROL, NOINVERT
     "Q",            ID_FILE_QUIT,           VIRTKEY, CONTROL, NOINVERT
-    "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
     "M",            ID_GIT_CHECKFORMODIFICATIONS, VIRTKEY, CONTROL, NOINVERT
+    "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
+    "F",            ID_GIT_FETCH,           VIRTKEY, CONTROL, NOINVERT
+    "R",            ID_POPUP_REFRESHSTATE,  VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -295,7 +297,7 @@ BEGIN
     POPUP "&Git"
     BEGIN
         MENUITEM "Pull...",                     ID_GIT_PULL
-        MENUITEM "Fetch...",                    ID_GIT_FETCH
+        MENUITEM "Fetch...\tCtrl+F",            ID_GIT_FETCH
         MENUITEM "Push...",                     ID_GIT_PUSH
         MENUITEM SEPARATOR
         MENUITEM "Check for Modifications...\tCtrl+M", ID_GIT_CHECKFORMODIFICATIONS
@@ -308,13 +310,13 @@ BEGIN
     POPUP "Unused"
     BEGIN
         MENUITEM "Pull...",                     ID_GIT_PULL
-        MENUITEM "Fetch...",                    ID_GIT_FETCH
+        MENUITEM "Fetch...\tCtrl+F",            ID_GIT_FETCH
         MENUITEM "Push...",                     ID_GIT_PUSH
         MENUITEM SEPARATOR
         MENUITEM "Check for Modifications...\tCtrl+M", ID_GIT_CHECKFORMODIFICATIONS
         MENUITEM "Revision Grapph...\tCtrl+G",  ID_GIT_REVISIONGRAPPH
         MENUITEM SEPARATOR
-        MENUITEM "Refresh Repository State",    ID_POPUP_REFRESHSTATE
+        MENUITEM "Refresh Repository State\tCtrl+R", ID_POPUP_REFRESHSTATE
         MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
     END
 END

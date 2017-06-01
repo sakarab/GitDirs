@@ -214,31 +214,6 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
 
 LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    int     idx = mListView.GetSelectedIndex();
-
-    if ( idx >= 0 )
-    {
-        CString             sstr;
-
-        mListView.GetItemText( idx, static_cast<int>(ListColumn::path), sstr );
-
-        git2::LibGit2       libgit;
-
-        libgit.OpenRepository( ccwin::NarrowStringStrict( std::wstring( sstr ) ).c_str() );
-        BOOST_SCOPE_EXIT( &libgit )     { libgit.CloseRepository(); }       BOOST_SCOPE_EXIT_END;
-
-        std::vector<git2::BranchInfo>       branch_list = libgit.ListBranches();
-
-        for ( git2::BranchInfo branch : branch_list )
-            if ( branch.Name() == std::string( "aaaaaa" ) )
-                break;
-
-        std::vector<std::string>    remotes_list = libgit.ListRemotes();
-
-        for ( std::string name : remotes_list )
-            if ( name == std::string( "aaaaaa" ) )
-                break;
-    }
     return 0;
 }
 

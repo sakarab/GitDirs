@@ -127,7 +127,7 @@ namespace git2
     //==============    LibGit2
     //=======================================================================
     LibGit2::LibGit2()
-        : mRepository(nullptr)
+        : mRepository()
     {
         git_libgit2_init();
     }
@@ -161,16 +161,16 @@ namespace git2
     {
         if ( mRepository )
             throw cclib::BaseException( "Repository already opened." );
-        Check( git_repository_open_ext( &mRepository, path, 0, NULL ) );
+
+        git_repository      *rep = nullptr;
+
+        Check( git_repository_open_ext( &rep, path, 0, NULL ) );
+        mRepository = std::move( RepositoryHolder( rep, []( git_repository *rep ) { git_repository_free( rep ); } ) );
     }
 
     void LibGit2::CloseRepository()
     {
-        if ( mRepository )
-        {
-            git_repository_free( mRepository );
-            mRepository = nullptr;
-        }
+        mRepository.reset();
     }
 
     std::string LibGit2::GetCurrentBranch()
@@ -178,7 +178,7 @@ namespace git2
         CheckOpen();
 
         git_reference   *head = nullptr;
-        int             error = git_repository_head( &head, mRepository );
+        int             error = git_repository_head( &head, mRepository.get() );
         std::string     result;
 
         if ( error && error != GIT_EUNBORNBRANCH && error != GIT_ENOTFOUND )
@@ -197,7 +197,7 @@ namespace git2
 
         git_status_list     *result = nullptr;
 
-        Check( git_status_list_new( &result, mRepository, &options ) );
+        Check( git_status_list_new( &result, mRepository.get(), &options ) );
         return result;
     }
 
@@ -208,7 +208,7 @@ namespace git2
         std::vector<BranchInfo>     result;
         git_branch_iterator         *it;
 
-        Check( git_branch_iterator_new( &it, mRepository, GIT_BRANCH_ALL ) );
+        Check( git_branch_iterator_new( &it, mRepository.get(), GIT_BRANCH_ALL ) );
         BOOST_SCOPE_EXIT( it ) { git_branch_iterator_free( it ); }         BOOST_SCOPE_EXIT_END;
 
         int     gret;
@@ -241,7 +241,7 @@ namespace git2
         std::vector<std::string>    result;
         git_strarray                list;
 
-        Check( git_remote_list( &list, mRepository ) );
+        Check( git_remote_list( &list, mRepository.get() ) );
         BOOST_SCOPE_EXIT( list ) { git_strarray_free( &list ); }      BOOST_SCOPE_EXIT_END;
 
         for ( size_t n = 0 ; n < list.count ; ++n )
@@ -255,7 +255,7 @@ namespace git2
 
         git_revwalk         *walker = nullptr;
 
-        Check( git_revwalk_new( &walker, mRepository ) );
+        Check( git_revwalk_new( &walker, mRepository.get() ) );
         BOOST_SCOPE_EXIT( walker ) { git_revwalk_free( walker ); }         BOOST_SCOPE_EXIT_END;
 
         Check( git_revwalk_push_ref( walker, dst.c_str() ) );

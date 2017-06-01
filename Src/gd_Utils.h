@@ -62,7 +62,10 @@ namespace git2
     class LibGit2
     {
     private:
-        git_repository      *mRepository;
+        typedef std::function<void( git_repository *rep )>              RepositoryDeleter;
+        typedef std::unique_ptr<git_repository, RepositoryDeleter>      RepositoryHolder;
+    private:
+        RepositoryHolder        mRepository;
 
         void Check( int git_error_code );
         void CheckOpen();
