@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GitDirs", "GitDirs.vcxproj", "{958C19FF-B033-40BC-B6D3-E9A7D200AC63}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_Static_XP|Win32 = Debug_Static_XP|Win32
+		Debug_Static|Win32 = Debug_Static|Win32
+		Release_Static_XP|Win32 = Release_Static_XP|Win32
+		Release_Static|Win32 = Release_Static|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{958C19FF-B033-40BC-B6D3-E9A7D200AC63}.Debug_Static_XP|Win32.ActiveCfg = Debug_Static_XP|Win32
+		{958C19FF-B033-40BC-B6D3-E9A7D200AC63}.Debug_Static_XP|Win32.Build.0 = Debug_Static_XP|Win32
+		{958C19FF-B033-40BC-B6D3-E9A7D200AC63}.Debug_Static|Win32.ActiveCfg = Debug_Static|Win32
+		{958C19FF-B033-40BC-B6D3-E9A7D200AC63}.Debug_Static|Win32.Build.0 = Debug_Static|Win32
+		{958C19FF-B033-40BC-B6D3-E9A7D200AC63}.Release_Static_XP|Win32.ActiveCfg = Release_Static_XP|Win32
+		{958C19FF-B033-40BC-B6D3-E9A7D200AC63}.Release_Static_XP|Win32.Build.0 = Release_Static_XP|Win32
+		{958C19FF-B033-40BC-B6D3-E9A7D200AC63}.Release_Static|Win32.ActiveCfg = Release_Static|Win32
+		{958C19FF-B033-40BC-B6D3-E9A7D200AC63}.Release_Static|Win32.Build.0 = Release_Static|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
