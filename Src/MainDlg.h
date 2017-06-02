@@ -107,8 +107,10 @@ private:
     virtual BOOL PreTranslateMessage( MSG* pMsg );
     virtual BOOL OnIdle();
     void CloseDialog( int nVal );
-    std::wstring ListView_GetSelectedText( int col );
-    std::wstring ListView_GetSelectedText_Checked( int col );
+    std::wstring ListView_GetText( int idx, ListColumn col );
+    std::wstring ListView_GetText_Checked( int idx, ListColumn col );
+    std::wstring ListView_GetSelectedText( ListColumn col );
+    std::wstring ListView_GetSelectedText_Checked( ListColumn col );
     void AddListLine( const std::wstring& name, const std::wstring& directory );
     void AddFile( const std::wstring& fname );
     void ReloadIni();

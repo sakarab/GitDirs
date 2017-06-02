@@ -88,20 +88,27 @@ namespace
 }
 
 //=======================================================================
+//==============    IniStrings
+//=======================================================================
+const wchar_t * IniStrings::Repositories = L"Repositories";
+const wchar_t * IniStrings::ViewState = L"ViewState";
+const wchar_t * IniStrings::SortColumn = L"SortColumn";
+
+//=======================================================================
 //==============    ViewState
 //=======================================================================
 void ViewState::Save()
 {
     ccwin::TIniFile             ini( GetIniFileName() );
 
-    ini.WriteInteger( L"ViewState", L"SortColumn", SortColumn );
+    ini.WriteInteger( IniStrings::ViewState, IniStrings::SortColumn, SortColumn );
 }
 
 void ViewState::Load()
 {
     ccwin::TIniFile             ini( GetIniFileName() );
 
-    SortColumn = ini.ReadInteger( L"ViewState", L"SortColumn", -1 );
+    SortColumn = ini.ReadInteger( IniStrings::ViewState, IniStrings::SortColumn, -1 );
 }
 
 std::wstring GetIniFileName()
@@ -116,12 +123,12 @@ GitDirList ReadFolderList()
     ccwin::TIniFile             ini( GetIniFileName() );
     ccwin::TStringList          slist;
 
-    ini.ReadSectionKeys( L"Repositories", slist );
+    ini.ReadSectionKeys( IniStrings::Repositories, slist );
 
     GitDirList                  result;
 
     for ( int n = 0, eend = slist.Count() ; n < eend ; ++n )
-        result.push_back( GitDirItem( slist[n], ini.ReadString( L"Repositories", slist[n].c_str(), L"" ) ) );
+        result.push_back( GitDirItem( slist[n], ini.ReadString( IniStrings::Repositories, slist[n].c_str(), L"" ) ) );
     return result;
 }
 

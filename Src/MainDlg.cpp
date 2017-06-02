@@ -46,7 +46,7 @@ void CMainDlg::AddFile( const std::wstring& fname )
 
     ccwin::TIniFile     ini( GetIniFileName() );
 
-    ini.WriteString( L"GitDirs", skey.c_str(), svalue.c_str() );
+    ini.WriteString( IniStrings::Repositories, skey.c_str(), svalue.c_str() );
 }
 
 void CMainDlg::ReloadIni()
@@ -193,7 +193,7 @@ LRESULT CMainDlg::OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BO
 
 LRESULT CMainDlg::OnFile_OpenInExplorer( WORD, WORD, HWND, BOOL & )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( 1 );
+    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
 
     if ( !sstr.empty() )
         ccwin::ExecuteProgram( boost::str( boost::wformat( L"explorer.exe %1%" ) % sstr ) );
@@ -227,10 +227,7 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
     GitDirStateList     state_list;
 
     for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
-    {
-        mListView.GetItemText( n, static_cast<int>(ListColumn::path), sstr );
-        state_list.push_back( GitDirStateItem( n, static_cast<const wchar_t *>(sstr) ) );
-    }
+        state_list.push_back( GitDirStateItem( n, ListView_GetText_Checked( n, ListColumn::path ).c_str() ) );
 
     GitGetRepositoriesState( state_list );
 
@@ -254,13 +251,9 @@ LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
     if ( idx >= 0 )
     {
-        CString             sstr;
-
-        mListView.GetItemText( idx, static_cast<int>(ListColumn::path), sstr );
-
         GitDirStateList     state_list;
 
-        state_list.push_back( GitDirStateItem( idx, static_cast<const wchar_t *>(sstr) ) );
+        state_list.push_back( GitDirStateItem( idx, ListView_GetText_Checked( idx, ListColumn::path ) ) );
 
         GitGetRepositoriesState( state_list );
 
@@ -275,7 +268,7 @@ LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT CMainDlg::OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( 1 );
+    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
 
     if ( !sstr.empty() )
         ccwin::ExecuteProgram( MakeCommand( L"repostatus", sstr.c_str() ) );
@@ -284,7 +277,7 @@ LRESULT CMainDlg::OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*
 
 LRESULT CMainDlg::OnGit_Fetch( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( 1 );
+    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
 
     if ( !sstr.empty() )
         ccwin::ExecuteProgram( MakeCommand( L"fetch", sstr.c_str() ) );
@@ -293,7 +286,7 @@ LRESULT CMainDlg::OnGit_Fetch( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 LRESULT CMainDlg::OnGit_Pull( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( 1 );
+    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
 
     if ( !sstr.empty() )
         ccwin::ExecuteProgram( MakeCommand( L"pull", sstr.c_str() ) );
@@ -302,7 +295,7 @@ LRESULT CMainDlg::OnGit_Pull( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT CMainDlg::OnGit_Push( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( 1 );
+    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
 
     if ( !sstr.empty() )
         ccwin::ExecuteProgram( MakeCommand( L"push", sstr.c_str() ) );
@@ -311,7 +304,7 @@ LRESULT CMainDlg::OnGit_Push( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT CMainDlg::OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( 1 );
+    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
 
     if ( !sstr.empty() )
         ccwin::ExecuteProgram( MakeCommand( L"revisiongraph", sstr.c_str() ) );
@@ -325,17 +318,35 @@ HRESULT CMainDlg::OnList_ColumnClick( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHan
     return LRESULT();
 }
 
-std::wstring CMainDlg::ListView_GetSelectedText( int col )
+std::wstring CMainDlg::ListView_GetText( int idx, ListColumn col )
+{
+    CString     sstr;
+
+    if ( idx >= 0 )
+        mListView.GetItemText( idx, static_cast<int>(col), sstr );
+    return std::wstring( static_cast<const wchar_t *>(sstr) );
+}
+
+std::wstring CMainDlg::ListView_GetText_Checked( int idx, ListColumn col )
+{
+    std::wstring    result = ListView_GetText( idx, col );
+
+    if ( !result.empty() && !ccwin::DirectoryExists( result ) )
+        throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nis not present." ) % ccwin::NarrowStringStrict( result ) ) );
+    return result;
+}
+
+std::wstring CMainDlg::ListView_GetSelectedText( ListColumn col )
 {
     CString     sstr;
     int         idx = mListView.GetSelectedIndex();
 
     if ( idx >= 0 )
-        mListView.GetItemText( idx, col, sstr );
+        mListView.GetItemText( idx, static_cast<int>(col), sstr );
     return std::wstring( static_cast<const wchar_t *>(sstr) );
 }
 
-std::wstring CMainDlg::ListView_GetSelectedText_Checked( int col )
+std::wstring CMainDlg::ListView_GetSelectedText_Checked( ListColumn col )
 {
     std::wstring    result = ListView_GetSelectedText( col );
 
