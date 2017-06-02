@@ -173,7 +173,8 @@ LRESULT CMainDlg::OnDropFiles( UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
 
 LRESULT CMainDlg::OnAppAbout( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    CAboutDlg dlg;
+    CAboutDlg       dlg( L"GitDirs" );
+
     dlg.DoModal();
     return 0;
 }
