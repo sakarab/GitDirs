@@ -93,6 +93,18 @@ void CMainDlg::SortList( int column )
     }
 }
 
+bool CMainDlg::UniqueName( int idx, const std::wstring& name )
+{
+    for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
+    {
+        if ( n == idx )
+            continue;
+        if ( ListView_GetText( n, ListColumn::name ) == name )
+            return false;
+    }
+    return true;
+}
+
 //static
 int CALLBACK CMainDlg::List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort )
 {
@@ -190,6 +202,11 @@ LRESULT CMainDlg::OnDropFiles( UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
         if ( drop.GetDropedFile( n ) )
             AddFile( drop.GetDropedFileName() );
     return 0;
+}
+
+LRESULT CMainDlg::OnListEditError( UINT, WPARAM, LPARAM, BOOL & )
+{
+    throw cclib::BaseException( "The name must be unique." );
 }
 
 LRESULT CMainDlg::OnAppAbout( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
@@ -338,6 +355,23 @@ HRESULT CMainDlg::OnList_ColumnClick( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHan
     mViewState.SortColumn = reinterpret_cast<NMLISTVIEW *>(pnmh)->iSubItem;
     SortList( mViewState.SortColumn );
     return LRESULT();
+}
+
+HRESULT CMainDlg::OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
+{
+    return FALSE;
+}
+
+HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
+{
+    LVITEM      lvitem = reinterpret_cast<NMLVDISPINFO *>(pnmh)->item;
+
+    if ( lvitem.pszText != nullptr && !UniqueName( lvitem.iItem, lvitem.pszText ) )
+    {
+        PostMessage( WM_LIST_EDIT_ERROR, 0, 0 );
+        return FALSE;
+    }
+    return TRUE;
 }
 
 std::wstring CMainDlg::ListView_GetText( int idx, ListColumn col )

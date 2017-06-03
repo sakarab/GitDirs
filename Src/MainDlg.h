@@ -107,6 +107,8 @@ public:
 //=======================================================================
 //==============    CMainDlg
 //=======================================================================
+#define WM_LIST_EDIT_ERROR      (WM_USER + 1)
+
 class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
                  public CDialogResize<CMainDlg>,
                  public CMessageFilter, public CIdleHandler
@@ -132,6 +134,7 @@ private:
     void AddFile( const std::wstring& fname );
     void ReloadIni();
     void SortList( int column );
+    bool UniqueName( int idx, const std::wstring& name );
 
     static int CALLBACK List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
@@ -143,6 +146,7 @@ private:
     LRESULT OnDestroy( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ );
     LRESULT OnContextMenu( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
     LRESULT OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
+    LRESULT OnListEditError( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ );
     LRESULT OnAppAbout( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnOK( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -159,12 +163,15 @@ private:
     LRESULT OnGit_Push( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     HRESULT OnList_ColumnClick( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
+    HRESULT OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
+    HRESULT OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
 
     BEGIN_MSG_MAP_XX( CMainDlg )
         MESSAGE_HANDLER( WM_INITDIALOG, OnInitDialog );
         MESSAGE_HANDLER( WM_DESTROY, OnDestroy );
         MESSAGE_HANDLER( WM_CONTEXTMENU, OnContextMenu );
         MESSAGE_HANDLER( WM_DROPFILES, OnDropFiles );
+        MESSAGE_HANDLER( WM_LIST_EDIT_ERROR, OnListEditError );
         COMMAND_ID_HANDLER( IDCANCEL, OnCancel );
         COMMAND_ID_HANDLER( ID_HELP_ABOUT, OnAppAbout );
         COMMAND_ID_HANDLER( ID_FILE_QUIT, OnCancel );
@@ -181,6 +188,8 @@ private:
         COMMAND_ID_HANDLER( ID_GIT_PUSH, OnGit_Push );
         COMMAND_ID_HANDLER( ID_GIT_REVISIONGRAPPH, OnGit_RevisionGraph );
         NOTIFY_HANDLER( IDC_LIST, LVN_COLUMNCLICK, OnList_ColumnClick );
+        NOTIFY_HANDLER( IDC_LIST, LVN_BEGINLABELEDIT, OnList_BeginLabelEdit );
+        NOTIFY_HANDLER( IDC_LIST, LVN_ENDLABELEDIT, OnList_EndLabelEdit );
         CHAIN_MSG_MAP( CDialogResize<CMainDlg> );
     END_MSG_MAP()
 
