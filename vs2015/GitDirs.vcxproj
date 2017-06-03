@@ -209,6 +209,7 @@
     <ResourceCompile Include="..\Src\GitDirs.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\LICENSE" />
     <None Include="GetDirs.props" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

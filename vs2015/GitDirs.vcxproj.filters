@@ -60,5 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="GetDirs.props" />
+    <None Include="..\LICENSE" />
   </ItemGroup>
 </Project>
