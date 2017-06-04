@@ -107,7 +107,7 @@ public:
 //=======================================================================
 //==============    CMainDlg
 //=======================================================================
-#define WM_LIST_EDIT_ERROR      (WM_USER + 1)
+#define WM_LIST_EDIT_RESULT     (WM_USER + 1)
 
 class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
                  public CDialogResize<CMainDlg>,
@@ -115,12 +115,15 @@ class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
 {
 private:
     typedef std::pair<int, CMainDlg *>      ListCompare_lParamSort;
+    typedef std::unique_ptr<std::wstring>   unique_string;
     enum class ListColumn                   { name, path, branch, uncommited, needs };
+    enum class ListEditResult               { error, success, cancel };
 private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
     CMenu               mMainMenu;
     ViewState           mViewState;
+    unique_string       mOldEditName;
 
     void GlobalHandleException( const std::exception& ex );
     virtual BOOL PreTranslateMessage( MSG* pMsg );
@@ -146,7 +149,7 @@ private:
     LRESULT OnDestroy( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ );
     LRESULT OnContextMenu( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
     LRESULT OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
-    LRESULT OnListEditError( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ );
+    LRESULT OnListEditResult( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ );
     LRESULT OnAppAbout( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnOK( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -171,7 +174,7 @@ private:
         MESSAGE_HANDLER( WM_DESTROY, OnDestroy );
         MESSAGE_HANDLER( WM_CONTEXTMENU, OnContextMenu );
         MESSAGE_HANDLER( WM_DROPFILES, OnDropFiles );
-        MESSAGE_HANDLER( WM_LIST_EDIT_ERROR, OnListEditError );
+        MESSAGE_HANDLER( WM_LIST_EDIT_RESULT, OnListEditResult );
         COMMAND_ID_HANDLER( IDCANCEL, OnCancel );
         COMMAND_ID_HANDLER( ID_HELP_ABOUT, OnAppAbout );
         COMMAND_ID_HANDLER( ID_FILE_QUIT, OnCancel );

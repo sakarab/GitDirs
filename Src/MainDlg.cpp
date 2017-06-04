@@ -204,9 +204,29 @@ LRESULT CMainDlg::OnDropFiles( UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
     return 0;
 }
 
-LRESULT CMainDlg::OnListEditError( UINT, WPARAM, LPARAM, BOOL & )
+LRESULT CMainDlg::OnListEditResult( UINT, WPARAM wParam, LPARAM lParam, BOOL & )
 {
-    throw cclib::BaseException( "The name must be unique." );
+    ListEditResult      result = static_cast<ListEditResult>(wParam);
+
+    switch ( result )
+    {
+        case ListEditResult::cancel :
+            // do nothing
+            break;
+        case ListEditResult::error:
+            throw cclib::BaseException( "The name must be unique." );
+        case ListEditResult::success:
+        {   // delete old key, save new
+            ccwin::TIniFile             ini( GetIniFileName() );
+
+            ini.EraseKey( IniStrings::Repositories, mOldEditName->c_str() );
+            ini.WriteString( IniStrings::Repositories,
+                             ListView_GetText( lParam, ListColumn::name ).c_str(),
+                             ListView_GetText( lParam, ListColumn::path ).c_str() );
+            break;
+        }
+    }
+    return 0;
 }
 
 LRESULT CMainDlg::OnAppAbout( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
@@ -359,19 +379,31 @@ HRESULT CMainDlg::OnList_ColumnClick( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHan
 
 HRESULT CMainDlg::OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
 {
+    LVITEM      lvitem = reinterpret_cast<NMLVDISPINFO *>(pnmh)->item;
+
+    mOldEditName = std::make_unique<std::wstring>( ListView_GetText( lvitem.iItem, ListColumn::name ) );
     return FALSE;
 }
 
 HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
 {
     LVITEM      lvitem = reinterpret_cast<NMLVDISPINFO *>(pnmh)->item;
+    HRESULT     result = TRUE;
 
-    if ( lvitem.pszText != nullptr && !UniqueName( lvitem.iItem, lvitem.pszText ) )
+    if ( lvitem.pszText == nullptr )
     {
-        PostMessage( WM_LIST_EDIT_ERROR, 0, 0 );
-        return FALSE;
+        PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::cancel), 0 );
     }
-    return TRUE;
+    else if ( !UniqueName( lvitem.iItem, lvitem.pszText ) )
+    {
+        PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::error), 0 );
+        result = FALSE;
+    }
+    else
+    {
+        PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::success), lvitem.iItem );
+    }
+    return result;
 }
 
 std::wstring CMainDlg::ListView_GetText( int idx, ListColumn col )
