@@ -117,9 +117,10 @@ BEGIN
     "O",            ID_FILE_OPENINEXPLORER, VIRTKEY, CONTROL, NOINVERT
     "Q",            ID_FILE_QUIT,           VIRTKEY, CONTROL, NOINVERT
     "M",            ID_GIT_CHECKFORMODIFICATIONS, VIRTKEY, CONTROL, NOINVERT
-    "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
     "F",            ID_GIT_FETCH,           VIRTKEY, CONTROL, NOINVERT
+    "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
     "R",            ID_POPUP_REFRESHSTATE,  VIRTKEY, CONTROL, NOINVERT
+    VK_F2,          ID_EDIT_EDITNAME,       VIRTKEY, NOINVERT
 END
 
 
@@ -298,7 +299,11 @@ BEGIN
     END
     POPUP "&Edit"
     BEGIN
-        MENUITEM "Options...",                  ID_EDIT_OPTIONS
+        MENUITEM "&Edit Name\tF2",              ID_EDIT_EDITNAME
+        MENUITEM SEPARATOR
+        MENUITEM "&Delete",                     ID_EDIT_DELETE_2
+        MENUITEM SEPARATOR
+        MENUITEM "&Options...",                 ID_EDIT_OPTIONS
     END
     POPUP "&Git"
     BEGIN
@@ -328,6 +333,12 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Refresh Repository State\tCtrl+R", ID_POPUP_REFRESHSTATE
         MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
+        MENUITEM SEPARATOR
+        POPUP "Edit"
+        BEGIN
+            MENUITEM "Edit Name\tF2",               ID_EDIT_EDITNAME
+            MENUITEM "Delete",                      ID_EDIT_DELETE_2
+        END
     END
 END
 

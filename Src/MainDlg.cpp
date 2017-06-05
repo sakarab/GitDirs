@@ -22,7 +22,6 @@
 #include "stdafx.h"
 #include "MainDlg.h"
 #include "AboutDlg.h"
-#include <winClasses.h>
 #include <winOSUtils.h>
 #include <atlmisc.h>
 #include <boost/format.hpp>
@@ -62,6 +61,9 @@ void CMainDlg::AddFile( const std::wstring& fname )
 {
     std::wstring        skey = ccwin::ExtractFileName( fname );
     std::wstring        svalue = fname;
+
+    if ( !UniqueName( -1, skey ) )
+        Throw_NoUniqueName( skey );
 
     AddListLine( skey, svalue );
 
@@ -103,6 +105,13 @@ bool CMainDlg::UniqueName( int idx, const std::wstring& name )
             return false;
     }
     return true;
+}
+
+void CMainDlg::Throw_NoUniqueName( const std::wstring& name )
+{
+    std::string     msg = boost::str( boost::format( "There already is an entry with the name '%1%'" ) % ccwin::NarrowStringStrict( name ) );
+
+    throw cclib::BaseException( msg );
 }
 
 //static
@@ -214,7 +223,8 @@ LRESULT CMainDlg::OnListEditResult( UINT, WPARAM wParam, LPARAM lParam, BOOL & )
             // do nothing
             break;
         case ListEditResult::error:
-            throw cclib::BaseException( "The name must be unique." );
+            Throw_NoUniqueName( *mOldEditName );
+            break;
         case ListEditResult::success:
         {   // delete old key, save new
             ccwin::TIniFile             ini( GetIniFileName() );
@@ -295,6 +305,29 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
         mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
         mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
         mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::needs), item.NeedsUpdate ? L"Yes" : L"No" );
+    }
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnEdit_EditName( WORD, WORD, HWND, BOOL & )
+{
+    int         idx = mListView.GetSelectedIndex();
+
+    if ( idx >= 0 )
+        mListView.EditLabel( idx );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnEdit_Delete( WORD, WORD, HWND, BOOL & )
+{
+    int         idx = mListView.GetSelectedIndex();
+
+    if ( idx >= 0 && MessageBox( L"Delete Seleted Message?", L"Confirm", MB_ICONQUESTION | MB_OKCANCEL ) != IDOK )
+    {
+        ccwin::TIniFile     ini( GetIniFileName() );
+
+        ini.EraseKey( IniStrings::Repositories, ListView_GetText( idx, ListColumn::name ).c_str() );
+        mListView.DeleteItem( idx );
     }
     return LRESULT();
 }
@@ -396,6 +429,7 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
     }
     else if ( !UniqueName( lvitem.iItem, lvitem.pszText ) )
     {
+        mOldEditName = std::make_unique<std::wstring>( std::wstring( lvitem.pszText ) );
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::error), 0 );
         result = FALSE;
     }

@@ -30,6 +30,7 @@
 #include <utility>
 #include <predef_cc.h>
 #include "gd_Utils.h"
+#include <winClasses.h>
 
 //=======================================================================
 //==============    CHDrop
@@ -138,6 +139,7 @@ private:
     void ReloadIni();
     void SortList( int column );
     bool UniqueName( int idx, const std::wstring& name );
+    void Throw_NoUniqueName( const std::wstring& name );
 
     static int CALLBACK List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
@@ -158,6 +160,8 @@ private:
     LRESULT OnFile_ReloadIni( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_FetchAllRepositories( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnEdit_EditName( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnEdit_Delete( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -183,6 +187,8 @@ private:
         COMMAND_ID_HANDLER( ID_FILE_RELOADINI, OnFile_ReloadIni );
         COMMAND_ID_HANDLER( ID_FILE_FETCHALLREPOSITORIES, OnFile_FetchAllRepositories );
         COMMAND_ID_HANDLER( ID_FILE_REFRESHREPOSITORYSTATE, OnFile_RefreshRepositoryState );
+        COMMAND_ID_HANDLER( ID_EDIT_EDITNAME, OnEdit_EditName );
+        COMMAND_ID_HANDLER( ID_EDIT_DELETE_2, OnEdit_Delete );
         COMMAND_ID_HANDLER( ID_EDIT_OPTIONS, OnEdit_Options );
         COMMAND_ID_HANDLER( ID_POPUP_REFRESHSTATE, OnPopup_RefreshState );
         COMMAND_ID_HANDLER( ID_GIT_CHECKFORMODIFICATIONS, OnGit_CheckForModifications );
