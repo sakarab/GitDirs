@@ -286,8 +286,6 @@ IDR_MENU_MAIN MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "About",                       ID_FILE_ABOUT
-        MENUITEM SEPARATOR
         MENUITEM "Open ""ini"" directory",      ID_FILE_OPENINIDIRECTORY
         MENUITEM "Reload Ini",                  ID_FILE_RELOADINI
         MENUITEM SEPARATOR
@@ -301,7 +299,7 @@ BEGIN
     BEGIN
         MENUITEM "&Edit Name\tF2",              ID_EDIT_EDITNAME
         MENUITEM SEPARATOR
-        MENUITEM "&Delete",                     ID_EDIT_DELETE_2
+        MENUITEM "&Delete...",                  ID_EDIT_DELETE_2
         MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_EDIT_OPTIONS
     END
@@ -337,7 +335,7 @@ BEGIN
         POPUP "Edit"
         BEGIN
             MENUITEM "Edit Name\tF2",               ID_EDIT_EDITNAME
-            MENUITEM "Delete",                      ID_EDIT_DELETE_2
+            MENUITEM "&Delete...",                  ID_EDIT_DELETE_2
         END
     END
 END
