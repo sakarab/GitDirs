@@ -45,8 +45,6 @@ struct IniStrings
 struct ViewState
 {
     int     SortColumn = -1;
-    //CRect   WindowSize;
-    //int     WindowState;
 
     void Save();
     void Load();

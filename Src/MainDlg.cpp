@@ -183,6 +183,10 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     mListView.InsertColumn( static_cast<int>(ListColumn::uncommited), TEXT( "Uncommited" ), LVCFMT_CENTER, 80, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::needs), TEXT( "Update" ), LVCFMT_CENTER, 80, 0 );
 
+    ccwin::TIniFile     ini( GetIniFileName() );
+
+    CFormSize::Load( ini );
+
     ReloadIni();
     mViewState.Load();
     if ( mViewState.SortColumn >= 0 )
@@ -198,6 +202,9 @@ LRESULT CMainDlg::OnDestroy( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     pLoop->RemoveMessageFilter( this );
     pLoop->RemoveIdleHandler( this );
 
+    ccwin::TIniFile     ini( GetIniFileName() );
+
+    CFormSize::Save( ini );
     mViewState.Save();
 
     return 0;
@@ -438,6 +445,11 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::success), lvitem.iItem );
     }
     return result;
+}
+
+CMainDlg::CMainDlg()
+    : CFormSize( std::wstring( L"FormSize" ), std::wstring( L"CMainDlg_" ) )
+{
 }
 
 std::wstring CMainDlg::ListView_GetText( int idx, ListColumn col )
