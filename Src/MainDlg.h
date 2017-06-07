@@ -119,7 +119,7 @@ class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
 private:
     typedef std::pair<int, CMainDlg *>      ListCompare_lParamSort;
     typedef std::unique_ptr<std::wstring>   unique_string;
-    enum class ListColumn                   { name, path, branch, uncommited, needs };
+    enum class ListColumn                   { name, path, n_repos, branch, uncommited, needs };
     enum class ListEditResult               { error, success, cancel };
 private:
     HACCEL              mHAccel;
@@ -142,6 +142,7 @@ private:
     void SortList( int column );
     bool UniqueName( int idx, const std::wstring& name );
     void Throw_NoUniqueName( const std::wstring& name );
+    void RefreshRepoStateAndView( GitDirStateList& state_list );
 
     static int CALLBACK List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 

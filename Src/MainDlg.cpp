@@ -114,6 +114,19 @@ void CMainDlg::Throw_NoUniqueName( const std::wstring& name )
     throw cclib::BaseException( msg );
 }
 
+void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
+{
+    GitGetRepositoriesState( state_list );
+
+    for ( GitDirStateList::value_type item : state_list )
+    {
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::n_repos), boost::str( boost::wformat( L"%1%" ) % item.NRepos ).c_str() );
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
+        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::needs), item.NeedsUpdate ? L"Yes" : L"No" );
+    }
+}
+
 //static
 int CALLBACK CMainDlg::List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort )
 {
@@ -179,6 +192,7 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     mListView.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT );
     mListView.InsertColumn( static_cast<int>(ListColumn::name), TEXT( "Name" ), LVCFMT_LEFT, 200, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::path), TEXT( "Directory" ), LVCFMT_LEFT, 260, 0 );
+    mListView.InsertColumn( static_cast<int>(ListColumn::n_repos), TEXT( "NR" ), LVCFMT_CENTER, 40, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::branch), TEXT( "Branch" ), LVCFMT_LEFT, 140, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::uncommited), TEXT( "Uncommited" ), LVCFMT_CENTER, 80, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::needs), TEXT( "Update" ), LVCFMT_CENTER, 80, 0 );
@@ -304,15 +318,7 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
 
     for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
         state_list.push_back( GitDirStateItem( n, ListView_GetText_Checked( n, ListColumn::path ).c_str() ) );
-
-    GitGetRepositoriesState( state_list );
-
-    for ( GitDirStateList::value_type item : state_list )
-    {
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::needs), item.NeedsUpdate ? L"Yes" : L"No" );
-    }
+    RefreshRepoStateAndView( state_list );
     return LRESULT();
 }
 
@@ -353,14 +359,7 @@ LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND
         GitDirStateList     state_list;
 
         state_list.push_back( GitDirStateItem( idx, ListView_GetText_Checked( idx, ListColumn::path ) ) );
-
-        GitGetRepositoriesState( state_list );
-
-        GitDirStateItem&    item = state_list.front();
-
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::needs), item.NeedsUpdate ? L"Yes" : L"No" );
+        RefreshRepoStateAndView( state_list );
     }
     return 0;
 }

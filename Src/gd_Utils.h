@@ -71,10 +71,11 @@ struct GitDirStateItem
     int             VisualIndex;
     std::wstring    Directory;
     std::string     Branch;
+    int             NRepos;
     bool            Uncommited;
     bool            NeedsUpdate;
     GitDirStateItem( int visual_index, const std::wstring& dir )
-        : VisualIndex( visual_index ), Directory( dir ), Branch(), Uncommited(), NeedsUpdate()
+        : VisualIndex( visual_index ), Directory( dir ), Branch(), NRepos(), Uncommited(), NeedsUpdate()
     {}
 };
 

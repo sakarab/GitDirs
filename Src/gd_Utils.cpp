@@ -41,6 +41,7 @@ namespace
         std::vector<git2::BranchInfo>   branch_list = libgit.ListBranches();
         std::vector<std::string>        remotes_list = libgit.ListRemotes();
 
+        state_item.NRepos = remotes_list.size();
         for ( git2::BranchInfo branch : branch_list )
         {
             if ( branch.Type() != GIT_BRANCH_LOCAL )
