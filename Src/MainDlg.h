@@ -31,6 +31,7 @@
 #include <predef_cc.h>
 #include "gd_Utils.h"
 #include <winClasses.h>
+#include <wtlUtils.h>
 
 //=======================================================================
 //==============    CHDrop
@@ -112,6 +113,7 @@ public:
 
 class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
                  public CDialogResize<CMainDlg>,
+                 public ccwtl::CFormSize<CMainDlg>,
                  public CMessageFilter, public CIdleHandler
 {
 private:
@@ -199,6 +201,7 @@ private:
         NOTIFY_HANDLER( IDC_LIST, LVN_COLUMNCLICK, OnList_ColumnClick );
         NOTIFY_HANDLER( IDC_LIST, LVN_BEGINLABELEDIT, OnList_BeginLabelEdit );
         NOTIFY_HANDLER( IDC_LIST, LVN_ENDLABELEDIT, OnList_EndLabelEdit );
+        CHAIN_MSG_MAP( ccwtl::CFormSize<CMainDlg> );
         CHAIN_MSG_MAP( CDialogResize<CMainDlg> );
     END_MSG_MAP()
 
@@ -210,6 +213,8 @@ private:
     END_UPDATE_UI_MAP()
 public:
 	enum { IDD = IDD_MAINDLG };
+
+    CMainDlg();
 };
 
 #endif
