@@ -57,6 +57,9 @@
     <ResourceCompile Include="..\Src\GitDirs.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+    <ResourceCompile Include="..\Src\version.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="GetDirs.props" />

@@ -38,11 +38,10 @@ END
 
 3 TEXTINCLUDE 
 BEGIN
-    "\0"
+    "#include ""winBindingTest_v.rc""\0"
 END
 
 #endif    // APSTUDIO_INVOKED
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -121,44 +120,6 @@ BEGIN
     "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
     "R",            ID_POPUP_REFRESHSTATE,  VIRTKEY, CONTROL, NOINVERT
     VK_F2,          ID_EDIT_EDITNAME,       VIRTKEY, NOINVERT
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Version
-//
-
-VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
- FILEFLAGSMASK 0x3fL
-#ifdef _DEBUG
- FILEFLAGS 0x1L
-#else
- FILEFLAGS 0x0L
-#endif
- FILEOS 0x4L
- FILETYPE 0x2L
- FILESUBTYPE 0x0L
-BEGIN
-    BLOCK "StringFileInfo"
-    BEGIN
-        BLOCK "040904B0"
-        BEGIN
-            VALUE "FileDescription", "GitDirs Module"
-            VALUE "FileVersion", "1, 0, 0, 1"
-            VALUE "InternalName", "GitDirs"
-            VALUE "LegalCopyright", "Copyright 2016"
-            VALUE "OriginalFilename", "GitDirs.exe"
-            VALUE "ProductName", "GitDirs Module"
-            VALUE "ProductVersion", "1, 0, 0, 1"
-        END
-    END
-    BLOCK "VarFileInfo"
-    BEGIN
-        VALUE "Translation", 0x409, 1200
-    END
 END
 
 

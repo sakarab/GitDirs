@@ -207,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Src\GitDirs.rc" />
+    <ResourceCompile Include="..\Src\version.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\LICENSE" />
