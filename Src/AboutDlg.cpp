@@ -21,6 +21,7 @@
 
 #include "stdafx.h"
 #include "AboutDlg.h"
+#include <winVersion.h>
 #include <boost/format.hpp>
 
 LRESULT CAboutDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ )
@@ -34,7 +35,8 @@ LRESULT CAboutDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     CStatic         label;
 
     label.Attach( GetDlgItem( IDC_INFO_TEXT ) );
-    label.SetWindowText( boost::str( boost::wformat( L"%1%\nVersion v1.0\n(c) Copyright 2016 - %2%" ) % mAppName % ttime.wYear ).c_str() );
+    label.SetWindowText( boost::str( boost::wformat( L"%1%\nVersion v%2%\n(c) Copyright 2016 - %3%" )
+                                                     % mAppName % ccwin::GetFileVersionStr( ccwin::get_module_handle() ) % ttime.wYear ).c_str() );
     return TRUE;
 }
 
