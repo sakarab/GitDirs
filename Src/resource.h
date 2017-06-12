@@ -9,7 +9,6 @@
 #define IDR_MENU_POPUP                  206
 #define IDC_LIST                        1000
 #define IDC_INFO_TEXT                   1001
-#define ID_FILE_ABOUT                   32775
 #define ID_FILE_QUIT                    32776
 #define ID_EDIT_OPTIONS                 32784
 #define ID_GIT_PULL                     32785
@@ -27,7 +26,6 @@
 #define ID_EDIT_EDITNAME                32814
 #define ID_EDIT_DELETE_2                32821
 #define ID_GIT_VIEWLOG                  32822
-#define ID_UNUSED_VIEWLOG               32823
 
 // Next default values for new objects
 // 
