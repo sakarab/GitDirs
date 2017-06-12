@@ -35,7 +35,7 @@ LRESULT CAboutDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     CStatic         label;
 
     label.Attach( GetDlgItem( IDC_INFO_TEXT ) );
-    label.SetWindowText( boost::str( boost::wformat( L"%1%\nVersion v%2%\n(c) Copyright 2016 - %3%" )
+    label.SetWindowText( boost::str( boost::wformat( L"%1%\nVersion v%2%\n(c) Copyright 2016 - %3%\nThis is a GPL v3 software" )
                                                      % mAppName % ccwin::GetFileVersionStr( ccwin::get_module_handle() ) % ttime.wYear ).c_str() );
     return TRUE;
 }
