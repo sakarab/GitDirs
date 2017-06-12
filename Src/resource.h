@@ -26,13 +26,15 @@
 #define ID_HELP_ABOUT                   32813
 #define ID_EDIT_EDITNAME                32814
 #define ID_EDIT_DELETE_2                32821
+#define ID_GIT_VIEWLOG                  32822
+#define ID_UNUSED_VIEWLOG               32823
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
-#define _APS_NEXT_COMMAND_VALUE         32822
+#define _APS_NEXT_COMMAND_VALUE         32828
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

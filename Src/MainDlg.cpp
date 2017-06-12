@@ -335,7 +335,7 @@ LRESULT CMainDlg::OnEdit_Delete( WORD, WORD, HWND, BOOL & )
 {
     int         idx = mListView.GetSelectedIndex();
 
-    if ( idx >= 0 && MessageBox( L"Delete Seleted Message?", L"Confirm", MB_ICONQUESTION | MB_OKCANCEL ) != IDOK )
+    if ( idx >= 0 && MessageBox( L"Delete Seleted Message?", L"Confirm", MB_ICONQUESTION | MB_OKCANCEL ) == IDOK )
     {
         ccwin::TIniFile     ini( GetIniFileName() );
 
@@ -397,6 +397,15 @@ LRESULT CMainDlg::OnGit_Push( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
     if ( !sstr.empty() )
         ccwin::ExecuteProgram( MakeCommand( L"push", sstr.c_str() ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnGit_ViewLog( WORD, WORD, HWND, BOOL & )
+{
+    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
+
+    if ( !sstr.empty() )
+        ccwin::ExecuteProgram( MakeCommand( L"log", sstr.c_str() ) );
     return LRESULT();
 }
 

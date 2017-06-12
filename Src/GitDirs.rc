@@ -38,7 +38,7 @@ END
 
 3 TEXTINCLUDE 
 BEGIN
-    "#include ""winBindingTest_v.rc""\0"
+    "#include ""version.rc""\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -114,13 +114,16 @@ END
 
 IDR_MAINFRAME ACCELERATORS
 BEGIN
+    VK_F2,          ID_EDIT_EDITNAME,       VIRTKEY, NOINVERT
     "O",            ID_FILE_OPENINEXPLORER, VIRTKEY, CONTROL, NOINVERT
     "Q",            ID_FILE_QUIT,           VIRTKEY, CONTROL, NOINVERT
     "M",            ID_GIT_CHECKFORMODIFICATIONS, VIRTKEY, CONTROL, NOINVERT
     "F",            ID_GIT_FETCH,           VIRTKEY, CONTROL, NOINVERT
     "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
     "R",            ID_POPUP_REFRESHSTATE,  VIRTKEY, CONTROL, NOINVERT
-    VK_F2,          ID_EDIT_EDITNAME,       VIRTKEY, NOINVERT
+    "L",            ID_GIT_PULL,            VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_GIT_PUSH,            VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_GIT_VIEWLOG,         VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -267,10 +270,11 @@ BEGIN
     END
     POPUP "&Git"
     BEGIN
-        MENUITEM "Pull...",                     ID_GIT_PULL
+        MENUITEM "Pull...\tCtrl+L",             ID_GIT_PULL
         MENUITEM "Fetch...\tCtrl+F",            ID_GIT_FETCH
-        MENUITEM "Push...",                     ID_GIT_PUSH
+        MENUITEM "Push...\tCtrl+S",             ID_GIT_PUSH
         MENUITEM SEPARATOR
+        MENUITEM "View Log...\tCtrl+V",         ID_GIT_VIEWLOG
         MENUITEM "Check for Modifications...\tCtrl+M", ID_GIT_CHECKFORMODIFICATIONS
         MENUITEM "Revision Grapph...\tCtrl+G",  ID_GIT_REVISIONGRAPPH
     END
@@ -284,10 +288,11 @@ IDR_MENU_POPUP MENU
 BEGIN
     POPUP "Unused"
     BEGIN
-        MENUITEM "Pull...",                     ID_GIT_PULL
+        MENUITEM "Pull...\tCtrl+L",             ID_GIT_PULL
         MENUITEM "Fetch...\tCtrl+F",            ID_GIT_FETCH
-        MENUITEM "Push...",                     ID_GIT_PUSH
+        MENUITEM "Push...\tCtrl+S",             ID_GIT_PUSH
         MENUITEM SEPARATOR
+        MENUITEM "View Log...\tCtrl+V",         ID_GIT_VIEWLOG
         MENUITEM "Check for Modifications...\tCtrl+M", ID_GIT_CHECKFORMODIFICATIONS
         MENUITEM "Revision Grapph...\tCtrl+G",  ID_GIT_REVISIONGRAPPH
         MENUITEM SEPARATOR
