@@ -345,6 +345,27 @@ LRESULT CMainDlg::OnEdit_Delete( WORD, WORD, HWND, BOOL & )
     return LRESULT();
 }
 
+LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
+{
+    DWORD   style = mListView.GetExtendedListViewStyle();
+    bool    state = (UIGetState( ID_EDIT_SHOWCHECKBOXES ) & UPDUI_CHECKED) != 0;
+
+    state = !state;
+    if ( state )
+        mListView.SetExtendedListViewStyle( style | LVS_EX_CHECKBOXES );
+    else
+        mListView.SetExtendedListViewStyle( style & ~LVS_EX_CHECKBOXES );
+    UISetCheck( ID_EDIT_SHOWCHECKBOXES, state );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
+{
+    for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
+        mListView.SetCheckState( n, false );
+    return LRESULT();
+}
+
 LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
     return 0;

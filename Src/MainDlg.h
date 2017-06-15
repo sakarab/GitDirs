@@ -165,6 +165,8 @@ private:
     LRESULT OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_EditName( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_Delete( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnEdit_ShowCheckBoxes( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnEdit_ClearCheckBoxes( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -193,6 +195,8 @@ private:
         COMMAND_ID_HANDLER( ID_FILE_REFRESHREPOSITORYSTATE, OnFile_RefreshRepositoryState );
         COMMAND_ID_HANDLER( ID_EDIT_EDITNAME, OnEdit_EditName );
         COMMAND_ID_HANDLER( ID_EDIT_DELETE_2, OnEdit_Delete );
+        COMMAND_ID_HANDLER( ID_EDIT_SHOWCHECKBOXES, OnEdit_ShowCheckBoxes );
+        COMMAND_ID_HANDLER( ID_EDIT_CLEARCHECKBOXES, OnEdit_ClearCheckBoxes );
         COMMAND_ID_HANDLER( ID_EDIT_OPTIONS, OnEdit_Options );
         COMMAND_ID_HANDLER( ID_POPUP_REFRESHSTATE, OnPopup_RefreshState );
         COMMAND_ID_HANDLER( ID_GIT_CHECKFORMODIFICATIONS, OnGit_CheckForModifications );
@@ -206,6 +210,7 @@ private:
         NOTIFY_HANDLER( IDC_LIST, LVN_ENDLABELEDIT, OnList_EndLabelEdit );
         CHAIN_MSG_MAP( ccwtl::CFormSize<CMainDlg> );
         CHAIN_MSG_MAP( CDialogResize<CMainDlg> );
+        CHAIN_MSG_MAP( CUpdateUI<CMainDlg> );
     END_MSG_MAP()
 
     BEGIN_DLGRESIZE_MAP( CMainDlg )
@@ -213,6 +218,7 @@ private:
     END_DLGRESIZE_MAP()
 
     BEGIN_UPDATE_UI_MAP( CMainDlg )
+        UPDATE_ELEMENT( ID_EDIT_SHOWCHECKBOXES, UPDUI_MENUPOPUP )
     END_UPDATE_UI_MAP()
 public:
 	enum { IDD = IDD_MAINDLG };

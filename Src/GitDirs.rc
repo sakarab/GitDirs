@@ -266,6 +266,9 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Delete...",                  ID_EDIT_DELETE_2
         MENUITEM SEPARATOR
+        MENUITEM "Show Check Boxes",            ID_EDIT_SHOWCHECKBOXES
+        MENUITEM "Clear Check Boxes",           ID_EDIT_CLEARCHECKBOXES
+        MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_EDIT_OPTIONS
     END
     POPUP "&Git"
