@@ -42,12 +42,12 @@ namespace
         std::vector<std::string>        remotes_list = libgit.ListRemotes();
 
         state_item.NRepos = remotes_list.size();
-        for ( git2::BranchInfo branch : branch_list )
+        for ( git2::BranchInfo& branch : branch_list )
         {
             if ( branch.Type() != GIT_BRANCH_LOCAL )
                 continue;
 
-            for ( std::string name : remotes_list )
+            for ( std::string& name : remotes_list )
             {
                 std::string     remote_name = boost::str( boost::format( "%1%/%2%" ) % name % branch.Name() );
 
@@ -158,7 +158,7 @@ void SaveMarks( const std::vector<std::wstring>& marks )
     ccwin::TIniFile             ini( GetIniFileName() );
     ccwin::TStringList          slist;
 
-    for ( std::wstring sstr : marks )
+    for ( const std::wstring& sstr : marks )
         slist.Add( sstr );
     ini.WriteString( IniStrings::ViewState, IniStrings::Marks, slist.DelimitedText( L',' ).c_str() );
 }

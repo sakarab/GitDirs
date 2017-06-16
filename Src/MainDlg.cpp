@@ -126,7 +126,7 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
 {
     GitGetRepositoriesState( state_list );
 
-    for ( GitDirStateList::value_type item : state_list )
+    for ( const GitDirStateList::value_type& item : state_list )
     {
         mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::n_repos), boost::str( boost::wformat( L"%1%" ) % item.NRepos ).c_str() );
         mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
