@@ -372,7 +372,7 @@ LRESULT CMainDlg::OnEdit_Delete( WORD, WORD, HWND, BOOL & )
 {
     int         idx = mListView.GetSelectedIndex();
 
-    if ( idx >= 0 && MessageBox( L"Delete Seleted Message?", L"Confirm", MB_ICONQUESTION | MB_OKCANCEL ) == IDOK )
+    if ( idx >= 0 && MessageBox( L"Delete selected repository link?\nRepository will remain intact.", L"Confirm", MB_ICONQUESTION | MB_OKCANCEL ) == IDOK )
     {
         ccwin::TIniFile     ini( GetIniFileName() );
 
