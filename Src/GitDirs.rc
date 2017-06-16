@@ -119,11 +119,12 @@ BEGIN
     "Q",            ID_FILE_QUIT,           VIRTKEY, CONTROL, NOINVERT
     "M",            ID_GIT_CHECKFORMODIFICATIONS, VIRTKEY, CONTROL, NOINVERT
     "F",            ID_GIT_FETCH,           VIRTKEY, CONTROL, NOINVERT
-    "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
-    "R",            ID_POPUP_REFRESHSTATE,  VIRTKEY, CONTROL, NOINVERT
     "L",            ID_GIT_PULL,            VIRTKEY, CONTROL, NOINVERT
-    "S",            ID_GIT_PUSH,            VIRTKEY, CONTROL, NOINVERT
+    "H",            ID_GIT_PUSH,            VIRTKEY, CONTROL, NOINVERT
+    "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
     "V",            ID_GIT_VIEWLOG,         VIRTKEY, CONTROL, NOINVERT
+    "R",            ID_POPUP_REFRESHSTATE,  VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_GIT_COMMIT,          VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -275,7 +276,9 @@ BEGIN
     BEGIN
         MENUITEM "Pull...\tCtrl+L",             ID_GIT_PULL
         MENUITEM "Fetch...\tCtrl+F",            ID_GIT_FETCH
-        MENUITEM "Push...\tCtrl+S",             ID_GIT_PUSH
+        MENUITEM "Push...\tCtrl+H",             ID_GIT_PUSH
+        MENUITEM SEPARATOR
+        MENUITEM "Commit...\tCtrl+C",           ID_GIT_COMMIT
         MENUITEM SEPARATOR
         MENUITEM "View Log...\tCtrl+V",         ID_GIT_VIEWLOG
         MENUITEM "Check for Modifications...\tCtrl+M", ID_GIT_CHECKFORMODIFICATIONS
@@ -293,7 +296,9 @@ BEGIN
     BEGIN
         MENUITEM "Pull...\tCtrl+L",             ID_GIT_PULL
         MENUITEM "Fetch...\tCtrl+F",            ID_GIT_FETCH
-        MENUITEM "Push...\tCtrl+S",             ID_GIT_PUSH
+        MENUITEM "Push...\tCtrl+H",             ID_GIT_PUSH
+        MENUITEM SEPARATOR
+        MENUITEM "Commit...\tCtrl+C",           ID_GIT_COMMIT
         MENUITEM SEPARATOR
         MENUITEM "View Log...\tCtrl+V",         ID_GIT_VIEWLOG
         MENUITEM "Check for Modifications...\tCtrl+M", ID_GIT_CHECKFORMODIFICATIONS

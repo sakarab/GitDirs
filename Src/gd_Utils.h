@@ -37,6 +37,7 @@ struct IniStrings
     static const wchar_t *ViewState;
     // keys
     static const wchar_t *SortColumn;
+    static const wchar_t *Marks;
 };
 
 //=======================================================================
@@ -86,6 +87,8 @@ GitDirList ReadFolderList();
 std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
 void GitGetRepositoriesState( GitDirStateList& state_list );
 std::wstring GetIniFileName();
+std::vector<std::wstring> LoadMarks();
+void SaveMarks( const std::vector<std::wstring>& marks );
 
 namespace git2
 {

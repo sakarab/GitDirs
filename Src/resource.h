@@ -28,13 +28,15 @@
 #define ID_GIT_VIEWLOG                  32822
 #define ID_EDIT_SHOWCHECKBOXES          32828
 #define ID_EDIT_CLEARCHECKBOXES         32829
+#define ID_GIT_COMMIT                   32830
+#define ID_UNUSED_COMMIT                32831
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
-#define _APS_NEXT_COMMAND_VALUE         32830
+#define _APS_NEXT_COMMAND_VALUE         32834
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

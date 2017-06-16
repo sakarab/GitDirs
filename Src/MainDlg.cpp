@@ -45,6 +45,14 @@ BOOL CMainDlg::PreTranslateMessage( MSG* pMsg )
 
 void CMainDlg::CloseDialog( int nVal )
 {
+    try
+    {
+        SaveMarks();
+    }
+    catch ( const std::exception& ex )
+    {
+        GlobalHandleException( ex );
+    }
     DestroyWindow();
     ::PostQuitMessage( nVal );
 }
@@ -125,6 +133,35 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
         mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
         mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::needs), item.NeedsUpdate ? L"Yes" : L"No" );
     }
+}
+
+void CMainDlg::LoadMarks()
+{
+    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) == 0 )
+        return;
+
+    std::vector<std::wstring>   slist = ::LoadMarks();
+
+    for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
+    {
+        std::wstring    name = ListView_GetText( n, ListColumn::name );
+
+        if ( std::find( slist.begin(), slist.end(), name ) != slist.end() )
+            mListView.SetCheckState( n, true );
+    }
+}
+
+void CMainDlg::SaveMarks()
+{
+    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) == 0 )
+        return;
+
+    std::vector<std::wstring>   slist;
+
+    for ( int n = 0, eend = mListView.GetItemCount(); n < eend; ++n )
+        if ( mListView.GetCheckState( n ) )
+            slist.push_back( ListView_GetText( n, ListColumn::name ) );
+    ::SaveMarks( slist );
 }
 
 //static
@@ -352,17 +389,24 @@ LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
 
     state = !state;
     if ( state )
+    {
         mListView.SetExtendedListViewStyle( style | LVS_EX_CHECKBOXES );
+        LoadMarks();
+    }
     else
+    {
+        SaveMarks();
         mListView.SetExtendedListViewStyle( style & ~LVS_EX_CHECKBOXES );
+    }
     UISetCheck( ID_EDIT_SHOWCHECKBOXES, state );
     return LRESULT();
 }
 
 LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
 {
-    for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
-        mListView.SetCheckState( n, false );
+    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) != 0 )
+        for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
+            mListView.SetCheckState( n, false );
     return LRESULT();
 }
 
@@ -418,6 +462,15 @@ LRESULT CMainDlg::OnGit_Push( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
     if ( !sstr.empty() )
         ccwin::ExecuteProgram( MakeCommand( L"push", sstr.c_str() ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnGit_Commit( WORD, WORD, HWND, BOOL & )
+{
+    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
+
+    if ( !sstr.empty() )
+        ccwin::ExecuteProgram( MakeCommand( L"commit", sstr.c_str() ) );
     return LRESULT();
 }
 

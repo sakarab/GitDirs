@@ -143,6 +143,8 @@ private:
     bool UniqueName( int idx, const std::wstring& name );
     void Throw_NoUniqueName( const std::wstring& name );
     void RefreshRepoStateAndView( GitDirStateList& state_list );
+    void LoadMarks();
+    void SaveMarks();
 
     static int CALLBACK List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
@@ -173,6 +175,7 @@ private:
     LRESULT OnGit_Fetch( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_Pull( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_Push( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnGit_Commit( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_ViewLog( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     HRESULT OnList_ColumnClick( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
@@ -203,6 +206,7 @@ private:
         COMMAND_ID_HANDLER( ID_GIT_FETCH, OnGit_Fetch );
         COMMAND_ID_HANDLER( ID_GIT_PULL, OnGit_Pull );
         COMMAND_ID_HANDLER( ID_GIT_PUSH, OnGit_Push );
+        COMMAND_ID_HANDLER( ID_GIT_COMMIT, OnGit_Commit );
         COMMAND_ID_HANDLER( ID_GIT_VIEWLOG, OnGit_ViewLog );
         COMMAND_ID_HANDLER( ID_GIT_REVISIONGRAPPH, OnGit_RevisionGraph );
         NOTIFY_HANDLER( IDC_LIST, LVN_COLUMNCLICK, OnList_ColumnClick );

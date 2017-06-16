@@ -115,6 +115,7 @@ namespace
 const wchar_t * IniStrings::Repositories = L"Repositories";
 const wchar_t * IniStrings::ViewState = L"ViewState";
 const wchar_t * IniStrings::SortColumn = L"SortColumn";
+const wchar_t * IniStrings::Marks = L"Marks";
 
 //=======================================================================
 //==============    ViewState
@@ -138,6 +139,28 @@ std::wstring GetIniFileName()
     ccwin::TCommonDirectories   dirs;
 
     return ccwin::IncludeTrailingPathDelimiter( dirs.AppDataDirectory_UserLocal() ).append( L"GitDirs.ini" );
+}
+
+std::vector<std::wstring> LoadMarks()
+{
+    ccwin::TIniFile             ini( GetIniFileName() );
+    ccwin::TStringList          slist;
+    std::vector<std::wstring>   result;
+
+    slist.DelimitedText( ini.ReadString( IniStrings::ViewState, IniStrings::Marks, L"" ), L',' );
+    for ( int n = 0, eend = slist.Count(); n < eend; ++n )
+        result.push_back( slist[n] );
+    return result;
+}
+
+void SaveMarks( const std::vector<std::wstring>& marks )
+{
+    ccwin::TIniFile             ini( GetIniFileName() );
+    ccwin::TStringList          slist;
+
+    for ( std::wstring sstr : marks )
+        slist.Add( sstr );
+    ini.WriteString( IniStrings::ViewState, IniStrings::Marks, slist.DelimitedText( L',' ).c_str() );
 }
 
 GitDirList ReadFolderList()
