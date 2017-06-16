@@ -47,6 +47,9 @@
     <ClInclude Include="..\Src\gd_Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\version_common_rc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Src\res\GitDirs.ico">
@@ -55,6 +58,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Src\GitDirs.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="..\Src\version.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
