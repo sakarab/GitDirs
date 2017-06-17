@@ -1,0 +1,86 @@
+From 68f0f26fe9634dc91318f5e64f56fe28dd1994c6 Mon Sep 17 00:00:00 2001
+From: Sam <sam@dummy.com>
+Date: Sat, 17 Jun 2017 12:51:40 +0300
+Subject: [PATCH] XP patch
+
+---
+ include/git2/common.h    | 8 ++++++--
+ src/path.c               | 8 ++++++--
+ src/win32/utf-conv.h     | 4 ++++
+ src/win32/win32-compat.h | 2 ++
+ 4 files changed, 18 insertions(+), 4 deletions(-)
+
+diff --git a/include/git2/common.h b/include/git2/common.h
+index d7428d8..f381c5b 100644
+--- a/include/git2/common.h
++++ b/include/git2/common.h
+@@ -43,9 +43,13 @@ typedef size_t size_t;
+ 			 __attribute__((visibility("default"))) \
+ 			 type
+ #elif defined(_MSC_VER)
+-# define GIT_EXTERN(type) __declspec(dllexport) type
++    #if defined (git2_EXPORTS)
++        #define GIT_EXTERN(type) __declspec(dllexport) type
++    #else
++        #define GIT_EXTERN(type) type
++    #endif
+ #else
+-# define GIT_EXTERN(type) extern type
++    #define GIT_EXTERN(type) extern type
+ #endif
+ 
+ /** Declare a function's takes printf style arguments. */
+diff --git a/src/path.c b/src/path.c
+index 1fd14fc..313aa89 100644
+--- a/src/path.c
++++ b/src/path.c
+@@ -1137,8 +1137,12 @@ int git_path_diriter_init(
+ 
+ 	diriter->handle = FindFirstFileExW(
+ 		path_filter,
+-		is_win7_or_later ? FindExInfoBasic : FindExInfoStandard,
+-		&diriter->current,
++#if !defined(WINDOWS_XP_BUILD)
++        is_win7_or_later ? FindExInfoBasic : FindExInfoStandard,
++#else
++        FindExInfoStandard,
++#endif
++        &diriter->current,
+ 		FindExSearchNameMatch,
+ 		NULL,
+ 		is_win7_or_later ? FIND_FIRST_EX_LARGE_FETCH : 0);
+diff --git a/src/win32/utf-conv.h b/src/win32/utf-conv.h
+index 33b95f5..1057d9e 100644
+--- a/src/win32/utf-conv.h
++++ b/src/win32/utf-conv.h
+@@ -10,9 +10,13 @@
+ #include <wchar.h>
+ #include "common.h"
+ 
++#if ! defined(WINDOWS_XP_BUILD)
+ #ifndef WC_ERR_INVALID_CHARS
+ # define WC_ERR_INVALID_CHARS	0x80
+ #endif
++#else
++# define WC_ERR_INVALID_CHARS	0x0
++#endif
+ 
+ /**
+  * Converts a UTF-8 string to wide characters.
+diff --git a/src/win32/win32-compat.h b/src/win32/win32-compat.h
+index f888fd6..e07320c 100644
+--- a/src/win32/win32-compat.h
++++ b/src/win32/win32-compat.h
+@@ -7,7 +7,9 @@
+ #ifndef INCLUDE_win32_compat__
+ #define INCLUDE_win32_compat__
+ 
++#if (_MSC_VER > 1500)
+ #include <stdint.h>
++#endif
+ #include <time.h>
+ #include <wchar.h>
+ #include <sys/stat.h>
+-- 
+2.8.2.windows.1
+
