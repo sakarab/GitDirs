@@ -404,9 +404,10 @@ LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
 {
-    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) != 0 )
-        for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
-            mListView.SetCheckState( n, false );
+    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) == 0 )
+        ::SaveMarks( std::vector<std::wstring>() );
+    else for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
+        mListView.SetCheckState( n, false );
     return LRESULT();
 }
 
