@@ -28,6 +28,7 @@
 
 class CAboutDlg : public CDialogImpl<CAboutDlg>
 {
+private:
     std::wstring    mAppName;
 
     // Handler prototypes (uncomment arguments if needed):
@@ -46,7 +47,7 @@ class CAboutDlg : public CDialogImpl<CAboutDlg>
 public:
     CAboutDlg( const std::wstring& app_name );
 
-	enum { IDD = IDD_ABOUTBOX };
+    enum { IDD = IDD_ABOUTBOX };
 };
 
 #endif
