@@ -118,13 +118,14 @@ BEGIN
     "O",            ID_FILE_OPENINEXPLORER, VIRTKEY, CONTROL, NOINVERT
     "Q",            ID_FILE_QUIT,           VIRTKEY, CONTROL, NOINVERT
     "M",            ID_GIT_CHECKFORMODIFICATIONS, VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_GIT_COMMIT,          VIRTKEY, CONTROL, NOINVERT
     "F",            ID_GIT_FETCH,           VIRTKEY, CONTROL, NOINVERT
     "L",            ID_GIT_PULL,            VIRTKEY, CONTROL, NOINVERT
     "H",            ID_GIT_PUSH,            VIRTKEY, CONTROL, NOINVERT
     "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
     "V",            ID_GIT_VIEWLOG,         VIRTKEY, CONTROL, NOINVERT
     "R",            ID_POPUP_REFRESHSTATE,  VIRTKEY, CONTROL, NOINVERT
-    "C",            ID_GIT_COMMIT,          VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          ID_EDIT_SHOWCHECKBOXES, VIRTKEY, NOINVERT
 END
 
 
@@ -267,7 +268,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Delete...",                  ID_EDIT_DELETE_2
         MENUITEM SEPARATOR
-        MENUITEM "Show Check Boxes",            ID_EDIT_SHOWCHECKBOXES
+        MENUITEM "Show Check Boxes\tF5",        ID_EDIT_SHOWCHECKBOXES
         MENUITEM "Clear Check Boxes",           ID_EDIT_CLEARCHECKBOXES
         MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_EDIT_OPTIONS
