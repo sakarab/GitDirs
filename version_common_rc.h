@@ -9,7 +9,7 @@
 #define IMajor          1
 #define IMinor          0
 #define IRelease        1
-#define IBuild          17
+#define IBuild          18
 
 #define SMajor          RC_TO_STRING(IMajor)
 #define SMinor          RC_TO_STRING(IMinor)

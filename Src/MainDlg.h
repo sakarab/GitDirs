@@ -127,6 +127,7 @@ private:
     CMenu               mMainMenu;
     ViewState           mViewState;
     unique_string       mOldEditName;
+    bool                mEscapeExit = false;
 
     void GlobalHandleException( const std::exception& ex );
     virtual BOOL PreTranslateMessage( MSG* pMsg );

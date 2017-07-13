@@ -40,6 +40,8 @@ BOOL CMainDlg::PreTranslateMessage( MSG* pMsg )
 {
     if ( mHAccel != NULL && ::TranslateAccelerator( m_hWnd, mHAccel, pMsg ) )
         return TRUE;
+    if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == 0x1B )
+        mEscapeExit = true;
     return CWindow::IsDialogMessage( pMsg );
 }
 
@@ -314,7 +316,10 @@ LRESULT CMainDlg::OnOK( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& 
 
 LRESULT CMainDlg::OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    CloseDialog( wID );
+    if ( mEscapeExit )
+        mEscapeExit = false;
+    else
+        CloseDialog( wID );
     return 0;
 }
 
