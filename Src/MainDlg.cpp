@@ -22,10 +22,11 @@
 #include "stdafx.h"
 #include "MainDlg.h"
 #include "AboutDlg.h"
-#include <winOSUtils.h>
 #include <atlmisc.h>
-#include <boost/format.hpp>
+#include <smException.h>
+#include <winOSUtils.h>
 #include <winUtils.h>
+#include <boost/format.hpp>
 #include <boost/scope_exit.hpp>
 
 //=======================================================================
