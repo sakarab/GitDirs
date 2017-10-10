@@ -128,6 +128,7 @@ private:
     ViewState           mViewState;
     unique_string       mOldEditName;
     bool                mEscapeExit = false;
+    bool                mInLabelEdit = false;
 
     void GlobalHandleException( const std::exception& ex );
     virtual BOOL PreTranslateMessage( MSG* pMsg );

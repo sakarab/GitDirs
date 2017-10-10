@@ -39,7 +39,7 @@ void CMainDlg::GlobalHandleException( const std::exception& ex )
 
 BOOL CMainDlg::PreTranslateMessage( MSG* pMsg )
 {
-    if ( mHAccel != NULL && ::TranslateAccelerator( m_hWnd, mHAccel, pMsg ) )
+    if ( !mInLabelEdit && mHAccel != NULL && ::TranslateAccelerator( m_hWnd, mHAccel, pMsg ) )
         return TRUE;
     if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == 0x1B )
         mEscapeExit = true;
@@ -511,6 +511,7 @@ HRESULT CMainDlg::OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*b
     LVITEM      lvitem = reinterpret_cast<NMLVDISPINFO *>(pnmh)->item;
 
     mOldEditName = std::make_unique<std::wstring>( ListView_GetText( lvitem.iItem, ListColumn::name ) );
+    mInLabelEdit = true;
     return FALSE;
 }
 
@@ -533,6 +534,7 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
     {
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::success), lvitem.iItem );
     }
+    mInLabelEdit = false;
     return result;
 }
 
