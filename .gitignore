@@ -9,3 +9,6 @@ Release_*
 ipch
 .vs
 /CommonData
+vs2017.props
+Dbg_100.props
+Rel_100.props
