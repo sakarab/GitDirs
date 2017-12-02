@@ -24,14 +24,15 @@
 #if !defined(GITDIRS_MAINDLG_H)
 #define GITDIRS_MAINDLG_H
 
-#include "resource.h"
 #include <atlframe.h>
 #include <wtl_msg_map.h>
 #include <utility>
 #include <predef_cc.h>
-#include "gd_Utils.h"
 #include <winClasses.h>
 #include <wtlUtils.h>
+#include "resource.h"
+#include "gd_Utils.h"
+#include "ListData.h"
 
 //=======================================================================
 //==============    CHDrop
@@ -122,6 +123,7 @@ private:
     enum class ListColumn                   { name, path, n_repos, branch, uncommited, needs };
     enum class ListEditResult               { error, success, cancel };
 private:
+    ListData            mData;
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
     CMenu               mMainMenu;

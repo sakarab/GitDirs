@@ -43,3 +43,19 @@ ListData::ListData()
 
 ListData::~ListData()
 {}
+
+void ListData::LoadFromIni( const std::wstring & ini_fname )
+{}
+
+void ListData::SaveToIni( const std::wstring & ini_fname )
+{}
+
+const ListDataItem & ListData::Item( Container::size_type idx ) const
+{
+    return mData[idx];
+}
+
+ListDataItem & ListData::Item( Container::size_type idx )
+{
+    return mData[idx];
+}

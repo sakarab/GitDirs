@@ -536,34 +536,33 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
     return result;
 }
 
+void CopyItemText( LV_ITEM& lv_item, const wchar_t *text )
+{
+    lstrcpyn( lv_item.pszText, text, lv_item.cchTextMax );
+}
+
 LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ )
 {
-    NMLVDISPINFO    *pDispInfo = reinterpret_cast<NMLVDISPINFO *>(pNMHDR);
-    LV_ITEM &       pItem = pDispInfo->item;
-    int             itemid = pItem.iItem;           //Which item number?
+    NMLVDISPINFO            *pDispInfo = reinterpret_cast<NMLVDISPINFO *>(pNMHDR);
+    LV_ITEM &               lv_item = pDispInfo->item;
+    int                     itemid = lv_item.iItem;           //Which item number?
+    const ListDataItem&     item = mData.Item( itemid );
 
     //Do the list need text information?
-    if ( pItem.mask & LVIF_TEXT )
+    if ( lv_item.mask & LVIF_TEXT )
     {
-        CString         text;
 
         //Which column?
-        if ( pItem.iSubItem == 0 )
-        {
-            //text = m_database[itemid].m_name;
-        }
-        else if ( pItem.iSubItem == 1 )
-        {
-            //text = m_database[itemid].m_slogan;
-        }
-
-        //Copy the text to the LV_ITEM structure
-        //Maximum number of characters is in pItem->cchTextMax
-        lstrcpyn( pItem.pszText, text, pItem.cchTextMax );
+        if ( lv_item.iSubItem == 0 )
+            CopyItemText( lv_item, item.Name().c_str() );
+        else if ( lv_item.iSubItem == 1 )
+            CopyItemText( lv_item, item.Directory().c_str() );
+        else if ( lv_item.iSubItem == 2 )
+            CopyItemText( lv_item, item.Branch().c_str() );
     }
 
     //Do the list need image information?
-    if ( pItem.mask & LVIF_IMAGE )
+    if ( lv_item.mask & LVIF_IMAGE )
     {
         //Set which image to use
         //pItem.iImage = m_database[itemid].m_image;
@@ -572,22 +571,15 @@ LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bH
         if ( mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES )
         {
             //To enable check box, we have to enable state mask...
-            pItem.mask |= LVIF_STATE;
-            pItem.stateMask = LVIS_STATEIMAGEMASK;
+            lv_item.mask |= LVIF_STATE;
+            lv_item.stateMask = LVIS_STATEIMAGEMASK;
 
-            //if ( m_database[itemid].m_checked )
-            //{
-            //    //Turn check box on
-            //    pItem->state = INDEXTOSTATEIMAGEMASK( 2 );
-            //}
-            //else
-            //{
-            //    //Turn check box off
-            //    pItem->state = INDEXTOSTATEIMAGEMASK( 1 );
-            //}
+            if ( item.Checked() )
+                lv_item.state = INDEXTOSTATEIMAGEMASK( 2 );          //Turn check box on
+            else
+                lv_item.state = INDEXTOSTATEIMAGEMASK( 1 );          //Turn check box off
         }
     }
-
     return 0;
 }
 

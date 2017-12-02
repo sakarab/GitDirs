@@ -25,6 +25,7 @@
 #define GITDIRS_LISTDATA_H
 
 #include "gd_Utils.h"
+#include <vector>
 
 //=======================================================================
 //==============    ListDataItem
@@ -34,12 +35,18 @@ class ListDataItem
 private:
     GitDirItem      mDataItem;
     std::wstring    mBranch;
-    int             mNRepos;
-    bool            mUncommited;
-    bool            mNeedsUpdate;
+    int             mNRepos = 0;
+    bool            mUncommited = false;
+    bool            mNeedsUpdate = false;
+    bool            mChecked = false;
 public:
     explicit ListDataItem( const GitDirItem& item );
     ~ListDataItem();
+
+    const std::wstring& Name() const            { return mDataItem.Name(); }
+    const std::wstring& Directory() const       { return mDataItem.Directory(); }
+    const std::wstring& Branch() const          { return mBranch; }
+    bool Checked() const                        { return mChecked; }
 };
 
 //=======================================================================
@@ -47,12 +54,20 @@ public:
 //=======================================================================
 class ListData
 {
-public:
-
 private:
+    typedef std::vector<ListDataItem>       Container;
+private:
+    Container       mData;
 public:
     ListData();
     ~ListData();
+
+    void LoadFromIni( const std::wstring& ini_fname );
+    void SaveToIni( const std::wstring& ini_fname );
+
+    const ListDataItem& Item( Container::size_type idx ) const;
+    ListDataItem& Item( Container::size_type idx );
+
 };
 
 #endif
