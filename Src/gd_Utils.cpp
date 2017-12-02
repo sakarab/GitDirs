@@ -107,15 +107,74 @@ namespace
         GetDirectoryStateUncommited( libgit, state_item );
         GetDirectoryStateNeeds( libgit, state_item );
     }
+
+    std::vector<std::wstring> LoadDelimitedTextFromIni( const wchar_t *section, const wchar_t *key )
+    {
+        ccwin::TIniFile             ini( GetIniFileName() );
+        ccwin::TStringList          slist;
+        std::vector<std::wstring>   result;
+
+        slist.DelimitedText( ini.ReadString( section, key, L"" ), L',' );
+        for ( int n = 0, eend = slist.Count(); n < eend; ++n )
+            result.push_back( slist[n] );
+        return result;
+    }
+
+    void SaveDelimitedTextToIni( const wchar_t *section, const wchar_t *key, const std::vector<std::wstring>& values )
+    {
+        ccwin::TIniFile             ini( GetIniFileName() );
+        ccwin::TStringList          slist;
+
+        for ( const std::wstring& sstr : values )
+            slist.Add( sstr );
+        ini.WriteString( section, key, slist.DelimitedText( L',' ).c_str() );
+    }
+
+    void UpgradeDB( const std::wstring& ini_fname )
+    {
+        static bool         upgraded = false;
+        const int           LastDataVersion = 1;
+
+        if ( upgraded )
+            return;
+
+        ccwin::TIniFile     ini( ini_fname );
+        int                 version = ini.ReadInteger( L"Version", L"Version", 0 );
+
+        while ( version < LastDataVersion )
+        {
+            switch ( version )
+            {
+                case 0 :
+                {
+                    std::wstring    marks = ini.ReadString( IniSections::ViewState, L"Marks", L"" );
+
+                    if ( !marks.empty() )
+                    {
+                        ini.WriteString( IniSections::Data, IniKeys::Data_Marks, marks.c_str() );
+                        ini.EraseKey( IniSections::ViewState, L"Marks" );
+                    }
+                    break;
+                }
+            }
+            ++version;
+            ini.WriteInteger( L"Version", L"Version", version );
+        }
+        upgraded = true;
+    }
+
 }
 
 //=======================================================================
 //==============    IniStrings
 //=======================================================================
-const wchar_t * IniStrings::Repositories = L"Repositories";
-const wchar_t * IniStrings::ViewState = L"ViewState";
-const wchar_t * IniStrings::SortColumn = L"SortColumn";
-const wchar_t * IniStrings::Marks = L"Marks";
+const wchar_t * IniSections::Repositories = L"Repositories";
+const wchar_t * IniSections::ViewState = L"ViewState";
+const wchar_t * IniSections::Data = L"Data";
+const wchar_t * IniKeys::ViewState_SortColumn = L"SortColumn";
+const wchar_t * IniKeys::ViewState_Groups = L"Groups";
+const wchar_t * IniKeys::Data_Marks = L"Marks";
+const wchar_t * IniKeys::Data_Groups = L"Groups";
 
 //=======================================================================
 //==============    ViewState
@@ -124,43 +183,43 @@ void ViewState::Save()
 {
     ccwin::TIniFile             ini( GetIniFileName() );
 
-    ini.WriteInteger( IniStrings::ViewState, IniStrings::SortColumn, SortColumn );
+    ini.WriteInteger( IniSections::ViewState, IniKeys::ViewState_SortColumn, SortColumn );
 }
 
 void ViewState::Load()
 {
     ccwin::TIniFile             ini( GetIniFileName() );
 
-    SortColumn = ini.ReadInteger( IniStrings::ViewState, IniStrings::SortColumn, -1 );
+    SortColumn = ini.ReadInteger( IniSections::ViewState, IniKeys::ViewState_SortColumn, -1 );
 }
 
 std::wstring GetIniFileName()
 {
     ccwin::TCommonDirectories   dirs;
+    std::wstring                result = ccwin::IncludeTrailingPathDelimiter( dirs.AppDataDirectory_UserLocal() ).append( L"GitDirs.ini" );
 
-    return ccwin::IncludeTrailingPathDelimiter( dirs.AppDataDirectory_UserLocal() ).append( L"GitDirs.ini" );
+    UpgradeDB( result );
+    return result;
 }
 
 std::vector<std::wstring> LoadMarks()
 {
-    ccwin::TIniFile             ini( GetIniFileName() );
-    ccwin::TStringList          slist;
-    std::vector<std::wstring>   result;
+    return LoadDelimitedTextFromIni( IniSections::Data, IniKeys::Data_Marks );
+}
 
-    slist.DelimitedText( ini.ReadString( IniStrings::ViewState, IniStrings::Marks, L"" ), L',' );
-    for ( int n = 0, eend = slist.Count(); n < eend; ++n )
-        result.push_back( slist[n] );
-    return result;
+std::vector<std::wstring> LoadGroups()
+{
+    return LoadDelimitedTextFromIni( IniSections::Data, IniKeys::Data_Groups );
 }
 
 void SaveMarks( const std::vector<std::wstring>& marks )
 {
-    ccwin::TIniFile             ini( GetIniFileName() );
-    ccwin::TStringList          slist;
+    SaveDelimitedTextToIni( IniSections::Data, IniKeys::Data_Marks, marks );
+}
 
-    for ( const std::wstring& sstr : marks )
-        slist.Add( sstr );
-    ini.WriteString( IniStrings::ViewState, IniStrings::Marks, slist.DelimitedText( L',' ).c_str() );
+void SaveGroups( const std::vector<std::wstring>& groups )
+{
+    SaveDelimitedTextToIni( IniSections::Data, IniKeys::Data_Groups, groups );
 }
 
 GitDirList ReadFolderList()
@@ -168,12 +227,16 @@ GitDirList ReadFolderList()
     ccwin::TIniFile             ini( GetIniFileName() );
     ccwin::TStringList          slist;
 
-    ini.ReadSectionKeys( IniStrings::Repositories, slist );
+    ini.ReadSectionKeys( IniSections::Repositories, slist );
 
     GitDirList                  result;
 
     for ( int n = 0, eend = slist.Count() ; n < eend ; ++n )
-        result.push_back( GitDirItem( slist[n], ini.ReadString( IniStrings::Repositories, slist[n].c_str(), L"" ) ) );
+    {
+        const std::wstring&     sstr = slist[n];
+
+        result.push_back( GitDirItem( sstr, ini.ReadString( IniSections::Repositories, sstr.c_str(), L"" ), std::wstring() ) );
+    }
     return result;
 }
 
@@ -188,6 +251,15 @@ void GitGetRepositoriesState( GitDirStateList& state_list )
 
     for ( GitDirStateList::value_type& item : state_list )
         GetDirectoryState( libgit, item );
+}
+
+//=======================================================================
+//==============    GitDirItem
+//=======================================================================
+GitDirItem::GitDirItem( const std::wstring& name, const std::wstring& dir, const std::wstring& groups )
+    : mName( name ), mDirectory( dir )
+{
+    ccwin::TStringList      slist;
 }
 
 namespace git2

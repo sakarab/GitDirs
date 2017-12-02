@@ -80,7 +80,7 @@ void CMainDlg::AddFile( const std::wstring& fname )
 
     ccwin::TIniFile     ini( GetIniFileName() );
 
-    ini.WriteString( IniStrings::Repositories, skey.c_str(), svalue.c_str() );
+    ini.WriteString( IniSections::Repositories, skey.c_str(), svalue.c_str() );
 }
 
 void CMainDlg::ReloadIni()
@@ -89,7 +89,7 @@ void CMainDlg::ReloadIni()
 
     mViewState.SortColumn = -1;
     for ( GitDirList::iterator it = slist.begin(), eend = slist.end() ; it != eend ; ++it )
-        AddListLine( it->Name, it->Directory );
+        AddListLine( it->Name(), it->Directory() );
 }
 
 void CMainDlg::SortList( int column )
@@ -288,8 +288,8 @@ LRESULT CMainDlg::OnListEditResult( UINT, WPARAM wParam, LPARAM lParam, BOOL & )
         {   // delete old key, save new
             ccwin::TIniFile             ini( GetIniFileName() );
 
-            ini.EraseKey( IniStrings::Repositories, mOldEditName->c_str() );
-            ini.WriteString( IniStrings::Repositories,
+            ini.EraseKey( IniSections::Repositories, mOldEditName->c_str() );
+            ini.WriteString( IniSections::Repositories,
                              ListView_GetText( lParam, ListColumn::name ).c_str(),
                              ListView_GetText( lParam, ListColumn::path ).c_str() );
             break;
@@ -380,7 +380,7 @@ LRESULT CMainDlg::OnEdit_Delete( WORD, WORD, HWND, BOOL & )
     {
         ccwin::TIniFile     ini( GetIniFileName() );
 
-        ini.EraseKey( IniStrings::Repositories, ListView_GetText( idx, ListColumn::name ).c_str() );
+        ini.EraseKey( IniSections::Repositories, ListView_GetText( idx, ListColumn::name ).c_str() );
         mListView.DeleteItem( idx );
     }
     return LRESULT();

@@ -30,14 +30,19 @@
 //=======================================================================
 //==============    IniStrings
 //=======================================================================
-struct IniStrings
+struct IniSections
 {
-    // sections
     static const wchar_t *Repositories;
     static const wchar_t *ViewState;
-    // keys
-    static const wchar_t *SortColumn;
-    static const wchar_t *Marks;
+    static const wchar_t *Data;
+};
+
+struct IniKeys
+{
+    static const wchar_t *ViewState_SortColumn;
+    static const wchar_t *ViewState_Groups;
+    static const wchar_t *Data_Marks;
+    static const wchar_t *Data_Groups;
 };
 
 //=======================================================================
@@ -54,14 +59,18 @@ struct ViewState
 //=======================================================================
 //==============    GitDirItem
 //=======================================================================
-struct GitDirItem
+class GitDirItem
 {
-    std::wstring    Name;
-    std::wstring    Directory;
-    GitDirItem( const std::wstring& name, const std::wstring& dir )
-        : Name( name ), Directory( dir )
-    {
-    }
+private:
+    std::wstring                mName;
+    std::wstring                mDirectory;
+    std::vector<std::wstring>   mGroups;
+public:
+    GitDirItem( const std::wstring& name, const std::wstring& dir, const std::wstring& groups );
+
+    const std::wstring& Name() const            { return mName; }
+    const std::wstring& Directory() const       { return mDirectory; }
+
 };
 
 //=======================================================================
@@ -88,7 +97,9 @@ std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
 void GitGetRepositoriesState( GitDirStateList& state_list );
 std::wstring GetIniFileName();
 std::vector<std::wstring> LoadMarks();
+std::vector<std::wstring> LoadGroups();
 void SaveMarks( const std::vector<std::wstring>& marks );
+void SaveGroups( const std::vector<std::wstring>& marks );
 
 namespace git2
 {
