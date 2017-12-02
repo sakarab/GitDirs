@@ -24,11 +24,31 @@
 #if !defined(GITDIRS_LISTDATA_H)
 #define GITDIRS_LISTDATA_H
 
+#include "gd_Utils.h"
+
+//=======================================================================
+//==============    ListDataItem
+//=======================================================================
+class ListDataItem
+{
+private:
+    GitDirItem      mDataItem;
+    std::wstring    mBranch;
+    int             mNRepos;
+    bool            mUncommited;
+    bool            mNeedsUpdate;
+public:
+    explicit ListDataItem( const GitDirItem& item );
+    ~ListDataItem();
+};
+
 //=======================================================================
 //==============    ListData
 //=======================================================================
 class ListData
 {
+public:
+
 private:
 public:
     ListData();

@@ -539,6 +539,54 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
 LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ )
 {
     NMLVDISPINFO    *pDispInfo = reinterpret_cast<NMLVDISPINFO *>(pNMHDR);
+    LV_ITEM &       pItem = pDispInfo->item;
+    int             itemid = pItem.iItem;           //Which item number?
+
+    //Do the list need text information?
+    if ( pItem.mask & LVIF_TEXT )
+    {
+        CString         text;
+
+        //Which column?
+        if ( pItem.iSubItem == 0 )
+        {
+            //text = m_database[itemid].m_name;
+        }
+        else if ( pItem.iSubItem == 1 )
+        {
+            //text = m_database[itemid].m_slogan;
+        }
+
+        //Copy the text to the LV_ITEM structure
+        //Maximum number of characters is in pItem->cchTextMax
+        lstrcpyn( pItem.pszText, text, pItem.cchTextMax );
+    }
+
+    //Do the list need image information?
+    if ( pItem.mask & LVIF_IMAGE )
+    {
+        //Set which image to use
+        //pItem.iImage = m_database[itemid].m_image;
+
+        //Show check box?
+        if ( mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES )
+        {
+            //To enable check box, we have to enable state mask...
+            pItem.mask |= LVIF_STATE;
+            pItem.stateMask = LVIS_STATEIMAGEMASK;
+
+            //if ( m_database[itemid].m_checked )
+            //{
+            //    //Turn check box on
+            //    pItem->state = INDEXTOSTATEIMAGEMASK( 2 );
+            //}
+            //else
+            //{
+            //    //Turn check box off
+            //    pItem->state = INDEXTOSTATEIMAGEMASK( 1 );
+            //}
+        }
+    }
 
     return 0;
 }

@@ -24,6 +24,20 @@
 
 // https://www.codeproject.com/articles/7891/using-virtual-lists
 
+
+//=======================================================================
+//==============    ListDataItem
+//=======================================================================
+ListDataItem::ListDataItem( const GitDirItem & item )
+    : mDataItem( item ), mBranch(), mNRepos(), mUncommited(), mNeedsUpdate()
+{}
+
+ListDataItem::~ListDataItem()
+{}
+
+//=======================================================================
+//==============    ListData
+//=======================================================================
 ListData::ListData()
 {}
 
