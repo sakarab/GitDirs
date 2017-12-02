@@ -189,15 +189,13 @@ LRESULT CMainDlg::OnContextMenu( UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
     if ( reinterpret_cast<HWND>(wParam) != mListView.m_hWnd )
         return 0;
 
-    WTL::CPoint     point( GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) );
+    WTL::CPoint     pt( GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) );
     CMenu           menu;
 
     menu.LoadMenu( IDR_MENU_POPUP );
 
     CMenuHandle     menuPopup = menu.GetSubMenu( 0 );
-    CPoint          pt;
 
-    GetCursorPos( &pt );
     menuPopup.TrackPopupMenuEx( TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_TOPALIGN | TPM_VERTICAL, pt.x, pt.y, this->m_hWnd );
     return 0;
 }
