@@ -536,6 +536,13 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
     return result;
 }
 
+LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ )
+{
+    NMLVDISPINFO    *pDispInfo = reinterpret_cast<NMLVDISPINFO *>(pNMHDR);
+
+    return 0;
+}
+
 CMainDlg::CMainDlg()
     : CFormSize( std::wstring( L"FormSize" ), std::wstring( L"CMainDlg_" ) )
 {

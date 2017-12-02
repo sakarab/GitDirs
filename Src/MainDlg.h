@@ -183,8 +183,9 @@ private:
     HRESULT OnList_ColumnClick( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
     HRESULT OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
     HRESULT OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
+    LRESULT OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ );
 
-    BEGIN_MSG_MAP_XX( CMainDlg )
+    BEGIN_MSG_MAP( CMainDlg )
         MESSAGE_HANDLER( WM_INITDIALOG, OnInitDialog );
         MESSAGE_HANDLER( WM_DESTROY, OnDestroy );
         MESSAGE_HANDLER( WM_CONTEXTMENU, OnContextMenu );
@@ -214,6 +215,7 @@ private:
         NOTIFY_HANDLER( IDC_LIST, LVN_COLUMNCLICK, OnList_ColumnClick );
         NOTIFY_HANDLER( IDC_LIST, LVN_BEGINLABELEDIT, OnList_BeginLabelEdit );
         NOTIFY_HANDLER( IDC_LIST, LVN_ENDLABELEDIT, OnList_EndLabelEdit );
+        NOTIFY_HANDLER( IDC_LIST, LVN_GETDISPINFO, OnList_GetDispInfo );
         CHAIN_MSG_MAP( ccwtl::CFormSize<CMainDlg> );
         CHAIN_MSG_MAP( CDialogResize<CMainDlg> );
         CHAIN_MSG_MAP( CUpdateUI<CMainDlg> );
