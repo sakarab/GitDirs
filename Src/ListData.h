@@ -45,8 +45,10 @@ public:
 
     const std::wstring& Name() const            { return mDataItem.Name(); }
     const std::wstring& Directory() const       { return mDataItem.Directory(); }
+    const WStringList& Groups() const           { return mDataItem.Groups(); }
     const std::wstring& Branch() const          { return mBranch; }
     bool Checked() const                        { return mChecked; }
+    void Checked( bool value )                  { mChecked = value; }
 };
 
 //=======================================================================

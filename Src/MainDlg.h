@@ -136,6 +136,7 @@ private:
     virtual BOOL PreTranslateMessage( MSG* pMsg );
     virtual BOOL OnIdle();
     void CloseDialog( int nVal );
+    bool ListView_IsCheckBoxesVisible() const;
     std::wstring ListView_GetText( int idx, ListColumn col );
     std::wstring ListView_GetText_Checked( int idx, ListColumn col );
     std::wstring ListView_GetSelectedText( ListColumn col );

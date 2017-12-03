@@ -45,10 +45,46 @@ ListData::~ListData()
 {}
 
 void ListData::LoadFromIni( const std::wstring & ini_fname )
-{}
+{
+    ccwin::TIniFile             ini( ini_fname );
+    ccwin::TStringList          slist;
+
+    ini.ReadSectionKeys( IniSections::Repositories, slist );
+    for ( int n = 0, eend = slist.Count() ; n < eend ; ++n )
+    {
+        const std::wstring&     key = slist[n];
+        const std::wstring      value = ini.ReadString( IniSections::Repositories, key.c_str(), L"" );
+
+        if ( !value.empty() )
+        {
+            const std::wstring      groups = ini.ReadString( IniSections::Repositories_Groups, key.c_str(), L"" );
+
+            mData.push_back( ListDataItem( GitDirItem( key, value, groups ) ) );
+        }
+    }
+
+    WStringList                 marks = LoadMarks();
+
+    for ( ListDataItem& item : mData )
+        item.Checked( std::find( marks.begin(), marks.end(), item.Name() ) != marks.end() );
+}
 
 void ListData::SaveToIni( const std::wstring & ini_fname )
-{}
+{
+    ccwin::TIniFile             ini( ini_fname );
+
+    ini.EraseSection( IniSections::Repositories );
+    for ( ListDataItem& item : mData )
+    {
+        ini.WriteString( IniSections::Repositories, item.Name().c_str(), item.Directory().c_str() );
+
+        if ( item.Groups().empty() )
+            ini.EraseKey( IniSections::Repositories_Groups, item.Name().c_str() );
+        else
+            ini.WriteString( IniSections::Repositories_Groups, item.Name().c_str(), ListToDelimitedText( item.Groups(), L',' ).c_str() );
+    }
+    ini.WriteInteger( L"Version", L"Version", LastDataVersion );
+}
 
 const ListDataItem & ListData::Item( Container::size_type idx ) const
 {

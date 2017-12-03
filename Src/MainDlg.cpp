@@ -60,6 +60,11 @@ void CMainDlg::CloseDialog( int nVal )
     ::PostQuitMessage( nVal );
 }
 
+bool CMainDlg::ListView_IsCheckBoxesVisible() const
+{
+    return (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) && (mListView.GetStyle() & LVS_REPORT);
+}
+
 void CMainDlg::AddListLine( const std::wstring& name, const std::wstring& directory )
 {
     int     list_count = mListView.GetItemCount();
@@ -143,7 +148,7 @@ void CMainDlg::LoadMarks()
     if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) == 0 )
         return;
 
-    std::vector<std::wstring>   slist = ::LoadMarks();
+    WStringList         slist = ::LoadMarks();
 
     for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
     {
@@ -159,7 +164,7 @@ void CMainDlg::SaveMarks()
     if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) == 0 )
         return;
 
-    std::vector<std::wstring>   slist;
+    WStringList     slist;
 
     for ( int n = 0, eend = mListView.GetItemCount(); n < eend; ++n )
         if ( mListView.GetCheckState( n ) )
@@ -409,7 +414,7 @@ LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
 LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
 {
     if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) == 0 )
-        ::SaveMarks( std::vector<std::wstring>() );
+        ::SaveMarks( WStringList() );
     else for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
         mListView.SetCheckState( n, false );
     return LRESULT();
@@ -551,7 +556,6 @@ LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bH
     //Do the list need text information?
     if ( lv_item.mask & LVIF_TEXT )
     {
-
         //Which column?
         if ( lv_item.iSubItem == 0 )
             CopyItemText( lv_item, item.Name().c_str() );
@@ -568,7 +572,7 @@ LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bH
         //pItem.iImage = m_database[itemid].m_image;
 
         //Show check box?
-        if ( mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES )
+        if ( ListView_IsCheckBoxesVisible() )
         {
             //To enable check box, we have to enable state mask...
             lv_item.mask |= LVIF_STATE;
@@ -586,6 +590,7 @@ LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bH
 CMainDlg::CMainDlg()
     : CFormSize( std::wstring( L"FormSize" ), std::wstring( L"CMainDlg_" ) )
 {
+    mData.LoadFromIni( GetIniFileName() );
 }
 
 std::wstring CMainDlg::ListView_GetText( int idx, ListColumn col )

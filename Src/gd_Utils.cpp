@@ -108,32 +108,23 @@ namespace
         GetDirectoryStateNeeds( libgit, state_item );
     }
 
-    std::vector<std::wstring> LoadDelimitedTextFromIni( const wchar_t *section, const wchar_t *key )
+    WStringList LoadDelimitedTextFromIni( const wchar_t *section, const wchar_t *key )
     {
         ccwin::TIniFile             ini( GetIniFileName() );
-        ccwin::TStringList          slist;
-        std::vector<std::wstring>   result;
 
-        slist.DelimitedText( ini.ReadString( section, key, L"" ), L',' );
-        for ( int n = 0, eend = slist.Count(); n < eend; ++n )
-            result.push_back( slist[n] );
-        return result;
+        return DelimitedTextToList( ini.ReadString( section, key, L"" ), L',' );
     }
 
-    void SaveDelimitedTextToIni( const wchar_t *section, const wchar_t *key, const std::vector<std::wstring>& values )
+    void SaveDelimitedTextToIni( const wchar_t *section, const wchar_t *key, const WStringList& values )
     {
         ccwin::TIniFile             ini( GetIniFileName() );
-        ccwin::TStringList          slist;
 
-        for ( const std::wstring& sstr : values )
-            slist.Add( sstr );
-        ini.WriteString( section, key, slist.DelimitedText( L',' ).c_str() );
+        ini.WriteString( section, key, ListToDelimitedText( values, L',' ).c_str() );
     }
 
     void UpgradeDB( const std::wstring& ini_fname )
     {
         static bool         upgraded = false;
-        const int           LastDataVersion = 1;
 
         if ( upgraded )
             return;
@@ -169,6 +160,7 @@ namespace
 //==============    IniStrings
 //=======================================================================
 const wchar_t * IniSections::Repositories = L"Repositories";
+const wchar_t * IniSections::Repositories_Groups = L"Repositories_Groups";
 const wchar_t * IniSections::ViewState = L"ViewState";
 const wchar_t * IniSections::Data = L"Data";
 const wchar_t * IniKeys::ViewState_SortColumn = L"SortColumn";
@@ -202,22 +194,42 @@ std::wstring GetIniFileName()
     return result;
 }
 
-std::vector<std::wstring> LoadMarks()
+WStringList DelimitedTextToList( const std::wstring& text, const wchar_t delimiter )
+{
+    ccwin::TStringList      slist;
+    WStringList             result;
+
+    slist.DelimitedText( text, delimiter );
+    for ( int n = 0, eend = slist.Count(); n < eend; ++n )
+        result.push_back( slist[n] );
+    return result;
+}
+
+std::wstring ListToDelimitedText( const WStringList & list, const wchar_t delimiter )
+{
+    ccwin::TStringList          slist;
+
+    for ( const std::wstring& sstr : list )
+        slist.Add( sstr );
+    return slist.DelimitedText( delimiter );
+}
+
+WStringList LoadMarks()
 {
     return LoadDelimitedTextFromIni( IniSections::Data, IniKeys::Data_Marks );
 }
 
-std::vector<std::wstring> LoadGroups()
+WStringList LoadGroups()
 {
     return LoadDelimitedTextFromIni( IniSections::Data, IniKeys::Data_Groups );
 }
 
-void SaveMarks( const std::vector<std::wstring>& marks )
+void SaveMarks( const WStringList& marks )
 {
     SaveDelimitedTextToIni( IniSections::Data, IniKeys::Data_Marks, marks );
 }
 
-void SaveGroups( const std::vector<std::wstring>& groups )
+void SaveGroups( const WStringList& groups )
 {
     SaveDelimitedTextToIni( IniSections::Data, IniKeys::Data_Groups, groups );
 }
@@ -257,9 +269,8 @@ void GitGetRepositoriesState( GitDirStateList& state_list )
 //==============    GitDirItem
 //=======================================================================
 GitDirItem::GitDirItem( const std::wstring& name, const std::wstring& dir, const std::wstring& groups )
-    : mName( name ), mDirectory( dir )
+    : mName( name ), mDirectory( dir ), mGroups( DelimitedTextToList( groups, L',' ) )
 {
-    ccwin::TStringList      slist;
 }
 
 namespace git2

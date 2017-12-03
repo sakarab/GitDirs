@@ -27,12 +27,17 @@
 #include <vector>
 #include <git2.h>
 
+typedef std::vector<std::wstring>   WStringList;
+
+const int           LastDataVersion = 1;
+
 //=======================================================================
 //==============    IniStrings
 //=======================================================================
 struct IniSections
 {
     static const wchar_t *Repositories;
+    static const wchar_t *Repositories_Groups;
     static const wchar_t *ViewState;
     static const wchar_t *Data;
 };
@@ -62,15 +67,15 @@ struct ViewState
 class GitDirItem
 {
 private:
-    std::wstring                mName;
-    std::wstring                mDirectory;
-    std::vector<std::wstring>   mGroups;
+    std::wstring        mName;
+    std::wstring        mDirectory;
+    WStringList         mGroups;
 public:
     GitDirItem( const std::wstring& name, const std::wstring& dir, const std::wstring& groups );
 
     const std::wstring& Name() const            { return mName; }
     const std::wstring& Directory() const       { return mDirectory; }
-
+    const WStringList& Groups() const           { return mGroups; }
 };
 
 //=======================================================================
@@ -96,10 +101,14 @@ GitDirList ReadFolderList();
 std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
 void GitGetRepositoriesState( GitDirStateList& state_list );
 std::wstring GetIniFileName();
-std::vector<std::wstring> LoadMarks();
-std::vector<std::wstring> LoadGroups();
-void SaveMarks( const std::vector<std::wstring>& marks );
-void SaveGroups( const std::vector<std::wstring>& marks );
+
+WStringList DelimitedTextToList( const std::wstring& text, const wchar_t delimiter );
+std::wstring ListToDelimitedText( const WStringList& list, const wchar_t delimiter );
+
+WStringList LoadMarks();
+WStringList LoadGroups();
+void SaveMarks( const WStringList& marks );
+void SaveGroups( const WStringList& marks );
 
 namespace git2
 {
