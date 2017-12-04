@@ -101,6 +101,7 @@ GitDirList ReadFolderList();
 std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
 void GitGetRepositoriesState( GitDirStateList& state_list );
 std::wstring GetIniFileName();
+void Throw_NoUniqueName( const std::wstring& name );
 
 WStringList DelimitedTextToList( const std::wstring& text, const wchar_t delimiter );
 std::wstring ListToDelimitedText( const WStringList& list, const wchar_t delimiter );

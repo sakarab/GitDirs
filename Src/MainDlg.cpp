@@ -78,23 +78,15 @@ void CMainDlg::AddFile( const std::wstring& fname )
     std::wstring        skey = ccwin::ExtractFileName( fname );
     std::wstring        svalue = fname;
 
-    if ( !UniqueName( -1, skey ) )
-        Throw_NoUniqueName( skey );
-
-    AddListLine( skey, svalue );
-
-    ccwin::TIniFile     ini( GetIniFileName() );
-
-    ini.WriteString( IniSections::Repositories, skey.c_str(), svalue.c_str() );
+    mData.AddItem( skey, svalue );
+    mListView.UpdateWindow();
 }
 
 void CMainDlg::ReloadIni()
 {
-    GitDirList      slist = ReadFolderList();
-
-    mViewState.SortColumn = -1;
-    for ( GitDirList::iterator it = slist.begin(), eend = slist.end() ; it != eend ; ++it )
-        AddListLine( it->Name(), it->Directory() );
+    mData.Clear();
+    mData.LoadFromIni( GetIniFileName() );
+    mListView.SetItemCount( mData.Count() );
 }
 
 void CMainDlg::SortList( int column )
@@ -103,11 +95,8 @@ void CMainDlg::SortList( int column )
         ReloadIni();
     else
     {
-        ListCompare_lParamSort      sort_data;
-
-        sort_data.first = column;
-        sort_data.second = this;
-        mListView.SortItemsEx( List_Compare, reinterpret_cast<LPARAM>(&sort_data) );
+        mData.Sort( static_cast<ListColumn>(column) );
+        mListView.UpdateWindow();
     }
 }
 
@@ -121,13 +110,6 @@ bool CMainDlg::UniqueName( int idx, const std::wstring& name )
             return false;
     }
     return true;
-}
-
-void CMainDlg::Throw_NoUniqueName( const std::wstring& name )
-{
-    std::string     msg = boost::str( boost::format( "There already is an entry with the name '%1%'" ) % ccwin::NarrowStringStrict( name ) );
-
-    throw cclib::BaseException( msg );
 }
 
 void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
@@ -170,17 +152,6 @@ void CMainDlg::SaveMarks()
         if ( mListView.GetCheckState( n ) )
             slist.push_back( ListView_GetText( n, ListColumn::name ) );
     ::SaveMarks( slist );
-}
-
-//static
-int CALLBACK CMainDlg::List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort )
-{
-    ListCompare_lParamSort      *param = reinterpret_cast<ListCompare_lParamSort *>(lParamSort);
-    CString                     str1, str2;
-
-    param->second->mListView.GetItemText( lParam1, param->first, str1 );
-    param->second->mListView.GetItemText( lParam2, param->first, str2 );
-    return ccwin::case_insensitive_string_compare_ptr<wchar_t>()( static_cast<const wchar_t *>(str1), static_cast<const wchar_t *>(str2) );
 }
 
 BOOL CMainDlg::OnIdle()
@@ -590,42 +561,32 @@ LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bH
 CMainDlg::CMainDlg()
     : CFormSize( std::wstring( L"FormSize" ), std::wstring( L"CMainDlg_" ) )
 {
-    mData.LoadFromIni( GetIniFileName() );
 }
 
 std::wstring CMainDlg::ListView_GetText( int idx, ListColumn col )
 {
-    CString     sstr;
-
-    if ( idx >= 0 )
-        mListView.GetItemText( idx, static_cast<int>(col), sstr );
-    return std::wstring( static_cast<const wchar_t *>(sstr) );
+    if ( !mData.IndexInBounds( idx ) )
+        return std::wstring();
+    return mData.Item( idx ).GetText( col );
 }
 
 std::wstring CMainDlg::ListView_GetText_Checked( int idx, ListColumn col )
 {
     std::wstring    result = ListView_GetText( idx, col );
 
-    if ( !result.empty() && !ccwin::DirectoryExists( result ) )
+    if ( result.empty() )
+        throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nhas no directory assigned." ) % ccwin::NarrowStringStrict( result ) ) );
+    else if ( !ccwin::DirectoryExists( result ) )
         throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nis not present." ) % ccwin::NarrowStringStrict( result ) ) );
     return result;
 }
 
 std::wstring CMainDlg::ListView_GetSelectedText( ListColumn col )
 {
-    CString     sstr;
-    int         idx = mListView.GetSelectedIndex();
-
-    if ( idx >= 0 )
-        mListView.GetItemText( idx, static_cast<int>(col), sstr );
-    return std::wstring( static_cast<const wchar_t *>(sstr) );
+    return ListView_GetText( mListView.GetSelectedIndex(), col );
 }
 
 std::wstring CMainDlg::ListView_GetSelectedText_Checked( ListColumn col )
 {
-    std::wstring    result = ListView_GetSelectedText( col );
-
-    if ( !result.empty() && !ccwin::DirectoryExists( result ) )
-        throw std::runtime_error( "Repository is not present." );
-    return result;
+    return ListView_GetText_Checked( mListView.GetSelectedIndex(), col );
 }

@@ -27,6 +27,8 @@
 #include "gd_Utils.h"
 #include <vector>
 
+enum class ListColumn { name, path, n_repos, branch, uncommited, needs };
+
 //=======================================================================
 //==============    ListDataItem
 //=======================================================================
@@ -49,6 +51,8 @@ public:
     const std::wstring& Branch() const          { return mBranch; }
     bool Checked() const                        { return mChecked; }
     void Checked( bool value )                  { mChecked = value; }
+
+    std::wstring GetText( ListColumn col ) const;
 };
 
 //=======================================================================
@@ -61,15 +65,23 @@ private:
 private:
     Container       mData;
 public:
+    static const Container::size_type       npos = 0xFFFFFFFF;
+public:
     ListData();
     ~ListData();
 
     void LoadFromIni( const std::wstring& ini_fname );
     void SaveToIni( const std::wstring& ini_fname );
+    void Clear();
+    void Sort( ListColumn col );
+    void AddItem( const std::wstring& key, const std::wstring& value );
+    Container::size_type FindItem( const std::wstring& key ) const;
 
     const ListDataItem& Item( Container::size_type idx ) const;
     ListDataItem& Item( Container::size_type idx );
+    Container::size_type Count()                                    { return mData.size(); }
 
+    bool IndexInBounds( Container::size_type idx ) const            { return idx < mData.size(); }
 };
 
 #endif

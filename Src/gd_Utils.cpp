@@ -265,6 +265,13 @@ void GitGetRepositoriesState( GitDirStateList& state_list )
         GetDirectoryState( libgit, item );
 }
 
+void Throw_NoUniqueName( const std::wstring& name )
+{
+    std::string     msg = boost::str( boost::format( "There already is an entry with the name '%1%'" ) % ccwin::NarrowStringStrict( name ) );
+
+    throw cclib::BaseException( msg );
+}
+
 //=======================================================================
 //==============    GitDirItem
 //=======================================================================

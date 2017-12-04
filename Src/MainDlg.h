@@ -118,9 +118,7 @@ class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
                  public CMessageFilter, public CIdleHandler
 {
 private:
-    typedef std::pair<int, CMainDlg *>      ListCompare_lParamSort;
     typedef std::unique_ptr<std::wstring>   unique_string;
-    enum class ListColumn                   { name, path, n_repos, branch, uncommited, needs };
     enum class ListEditResult               { error, success, cancel };
 private:
     ListData            mData;
@@ -146,12 +144,9 @@ private:
     void ReloadIni();
     void SortList( int column );
     bool UniqueName( int idx, const std::wstring& name );
-    void Throw_NoUniqueName( const std::wstring& name );
     void RefreshRepoStateAndView( GitDirStateList& state_list );
     void LoadMarks();
     void SaveMarks();
-
-    static int CALLBACK List_Compare( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
     // Handler prototypes (uncomment arguments if needed):
     //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
