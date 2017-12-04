@@ -22,33 +22,42 @@
 #include "stdafx.h"
 #include "ListData.h"
 #include <smException.h>
+#include <boost/lexical_cast.hpp>
 
 // https://www.codeproject.com/articles/7891/using-virtual-lists
 
 //=======================================================================
 //==============    ListDataItem
 //=======================================================================
+const std::wstring ListDataItem::Yes = std::wstring( L"Yes" );
+const std::wstring ListDataItem::No  = std::wstring( L"No" );
+const std::wstring ListDataItem::Empty = std::wstring();
+
 ListDataItem::ListDataItem( const GitDirItem & item )
-    : mDataItem( item ), mBranch(), mNRepos(), mUncommited(), mNeedsUpdate()
+    : mDataItem( item ), mBranch(), mNRepos(), mNRepos_str( L"0" ), mUncommited(), mNeedsUpdate()
 {}
 
 ListDataItem::~ListDataItem()
 {}
 
-//enum class ListColumn { name, path, n_repos, branch, uncommited, needs };
+void ListDataItem::NRepos( int value )
+{
+    mNRepos_str = boost::lexical_cast<std::wstring>(value);
+    mNRepos = value;
+}
 
-std::wstring ListDataItem::GetText( ListColumn col ) const
+const std::wstring& ListDataItem::GetText( ListColumn col ) const
 {
     switch ( col )
     {
         case ListColumn::name       : return Name();
         case ListColumn::path       : return Directory();
-        case ListColumn::n_repos    : return std::wstring();
+        case ListColumn::n_repos    : return mNRepos_str;
         case ListColumn::branch     : return Branch();
-        case ListColumn::uncommited : return std::wstring();
-        case ListColumn::needs      : return std::wstring();
+        case ListColumn::uncommited : return mUncommited ? Yes : No;
+        case ListColumn::needs      : return mNeedsUpdate ? Yes : No;
     }
-    return std::wstring();
+    return Empty;
 }
 
 //=======================================================================
@@ -99,6 +108,14 @@ void ListData::SaveToIni( const std::wstring & ini_fname )
         else
             ini.WriteString( IniSections::Repositories_Groups, item.Name().c_str(), ListToDelimitedText( item.Groups(), L',' ).c_str() );
     }
+
+    WStringList                 marks;
+
+    for ( ListDataItem& item : mData )
+        if ( item.Checked() )
+            marks.push_back( item.Name() );
+    SaveMarks( marks );
+
     ini.WriteInteger( L"Version", L"Version", LastDataVersion );
 }
 
@@ -118,9 +135,17 @@ void ListData::Sort( ListColumn col )
 
 void ListData::AddItem( const std::wstring& key, const std::wstring& value )
 {
-    if ( FindItem( key ) != npos )
+    if ( !IsUniqueKey( key ) )
         Throw_NoUniqueName( key );
     mData.push_back( ListDataItem( GitDirItem( key, value, std::wstring() ) ) );
+}
+
+void ListData::DeleteItem( const std::wstring & key )
+{
+    Container::iterator     it = std::find_if( mData.begin(), mData.end(), [&key]( const Container::value_type& item ) { return item.Name() == key; } );
+
+    if ( it != mData.end() )
+        mData.erase( it );
 }
 
 ListData::Container::size_type ListData::FindItem( const std::wstring& key ) const

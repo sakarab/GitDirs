@@ -48,14 +48,6 @@ BOOL CMainDlg::PreTranslateMessage( MSG* pMsg )
 
 void CMainDlg::CloseDialog( int nVal )
 {
-    try
-    {
-        SaveMarks();
-    }
-    catch ( const std::exception& ex )
-    {
-        GlobalHandleException( ex );
-    }
     DestroyWindow();
     ::PostQuitMessage( nVal );
 }
@@ -91,9 +83,7 @@ void CMainDlg::ReloadIni()
 
 void CMainDlg::SortList( int column )
 {
-    if ( column < 0 )
-        ReloadIni();
-    else
+    if ( column >= 0 )
     {
         mData.Sort( static_cast<ListColumn>(column) );
         mListView.UpdateWindow();
@@ -123,35 +113,6 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
         mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
         mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::needs), item.NeedsUpdate ? L"Yes" : L"No" );
     }
-}
-
-void CMainDlg::LoadMarks()
-{
-    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) == 0 )
-        return;
-
-    WStringList         slist = ::LoadMarks();
-
-    for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
-    {
-        std::wstring    name = ListView_GetText( n, ListColumn::name );
-
-        if ( std::find( slist.begin(), slist.end(), name ) != slist.end() )
-            mListView.SetCheckState( n, true );
-    }
-}
-
-void CMainDlg::SaveMarks()
-{
-    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) == 0 )
-        return;
-
-    WStringList     slist;
-
-    for ( int n = 0, eend = mListView.GetItemCount(); n < eend; ++n )
-        if ( mListView.GetCheckState( n ) )
-            slist.push_back( ListView_GetText( n, ListColumn::name ) );
-    ::SaveMarks( slist );
 }
 
 BOOL CMainDlg::OnIdle()
@@ -261,15 +222,8 @@ LRESULT CMainDlg::OnListEditResult( UINT, WPARAM wParam, LPARAM lParam, BOOL & )
             Throw_NoUniqueName( *mOldEditName );
             break;
         case ListEditResult::success:
-        {   // delete old key, save new
-            ccwin::TIniFile             ini( GetIniFileName() );
-
-            ini.EraseKey( IniSections::Repositories, mOldEditName->c_str() );
-            ini.WriteString( IniSections::Repositories,
-                             ListView_GetText( lParam, ListColumn::name ).c_str(),
-                             ListView_GetText( lParam, ListColumn::path ).c_str() );
+            mListView.Update( static_cast<int>(lParam) );
             break;
-        }
     }
     return 0;
 }
@@ -371,11 +325,9 @@ LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
     if ( state )
     {
         mListView.SetExtendedListViewStyle( style | LVS_EX_CHECKBOXES );
-        LoadMarks();
     }
     else
     {
-        SaveMarks();
         mListView.SetExtendedListViewStyle( style & ~LVS_EX_CHECKBOXES );
     }
     UISetCheck( ID_EDIT_SHOWCHECKBOXES, state );
@@ -494,11 +446,11 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
     LVITEM      lvitem = reinterpret_cast<NMLVDISPINFO *>(pnmh)->item;
     HRESULT     result = TRUE;
 
-    if ( lvitem.pszText == nullptr )
+    if ( lvitem.pszText == nullptr || std::wstring( lvitem.pszText ) == *mOldEditName )
     {
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::cancel), 0 );
     }
-    else if ( !UniqueName( lvitem.iItem, lvitem.pszText ) )
+    else if ( !mData.IsUniqueKey( std::wstring( lvitem.pszText ) ) )
     {
         mOldEditName = std::make_unique<std::wstring>( std::wstring( lvitem.pszText ) );
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::error), 0 );
@@ -506,6 +458,7 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
     }
     else
     {
+        mData.Item( lvitem.iItem ).Name( std::wstring( lvitem.pszText ) );
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::success), lvitem.iItem );
     }
     mInLabelEdit = false;
@@ -526,15 +479,7 @@ LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bH
 
     //Do the list need text information?
     if ( lv_item.mask & LVIF_TEXT )
-    {
-        //Which column?
-        if ( lv_item.iSubItem == 0 )
-            CopyItemText( lv_item, item.Name().c_str() );
-        else if ( lv_item.iSubItem == 1 )
-            CopyItemText( lv_item, item.Directory().c_str() );
-        else if ( lv_item.iSubItem == 2 )
-            CopyItemText( lv_item, item.Branch().c_str() );
-    }
+        CopyItemText( lv_item, item.GetText( static_cast<ListColumn>(lv_item.iSubItem) ).c_str() );
 
     //Do the list need image information?
     if ( lv_item.mask & LVIF_IMAGE )

@@ -145,8 +145,6 @@ private:
     void SortList( int column );
     bool UniqueName( int idx, const std::wstring& name );
     void RefreshRepoStateAndView( GitDirStateList& state_list );
-    void LoadMarks();
-    void SaveMarks();
 
     // Handler prototypes (uncomment arguments if needed):
     //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

@@ -37,10 +37,15 @@ class ListDataItem
 private:
     GitDirItem      mDataItem;
     std::wstring    mBranch;
-    int             mNRepos = 0;
+    int             mNRepos;
+    std::wstring    mNRepos_str;
     bool            mUncommited = false;
     bool            mNeedsUpdate = false;
     bool            mChecked = false;
+
+    static const std::wstring Yes;
+    static const std::wstring No;
+    static const std::wstring Empty;
 public:
     explicit ListDataItem( const GitDirItem& item );
     ~ListDataItem();
@@ -50,9 +55,12 @@ public:
     const WStringList& Groups() const           { return mDataItem.Groups(); }
     const std::wstring& Branch() const          { return mBranch; }
     bool Checked() const                        { return mChecked; }
+    
     void Checked( bool value )                  { mChecked = value; }
+    void Name( const std::wstring& value )      { mDataItem.Name( value ); }
+    void NRepos( int value );
 
-    std::wstring GetText( ListColumn col ) const;
+    const std::wstring& GetText( ListColumn col ) const;
 };
 
 //=======================================================================
@@ -75,6 +83,7 @@ public:
     void Clear();
     void Sort( ListColumn col );
     void AddItem( const std::wstring& key, const std::wstring& value );
+    void DeleteItem( const std::wstring& key );
     Container::size_type FindItem( const std::wstring& key ) const;
 
     const ListDataItem& Item( Container::size_type idx ) const;
@@ -82,6 +91,7 @@ public:
     Container::size_type Count()                                    { return mData.size(); }
 
     bool IndexInBounds( Container::size_type idx ) const            { return idx < mData.size(); }
+    bool IsUniqueKey( const std::wstring& key )                     { return FindItem( key ) == npos; }
 };
 
 #endif

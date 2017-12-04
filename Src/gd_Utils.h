@@ -76,6 +76,8 @@ public:
     const std::wstring& Name() const            { return mName; }
     const std::wstring& Directory() const       { return mDirectory; }
     const WStringList& Groups() const           { return mGroups; }
+
+    void Name( const std::wstring& value )      { mName = value; }
 };
 
 //=======================================================================
