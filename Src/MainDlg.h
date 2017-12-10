@@ -121,7 +121,8 @@ private:
     typedef std::unique_ptr<std::wstring>   unique_string;
     enum class ListEditResult               { error, success, cancel };
 private:
-    ListData            mData;
+    ListData            mDataBase;
+    ListDataView        mDataView;
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
     CMenu               mMainMenu;

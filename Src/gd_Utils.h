@@ -36,8 +36,8 @@ const int           LastDataVersion = 1;
 //=======================================================================
 struct IniSections
 {
-    static const wchar_t *Repositories;
-    static const wchar_t *Repositories_Groups;
+    static const wchar_t *Repositories;             // repository_name=directory_on_disk
+    static const wchar_t *Repositories_Groups;      // group_name=list_of_repository_names
     static const wchar_t *ViewState;
     static const wchar_t *Data;
 };
@@ -45,9 +45,8 @@ struct IniSections
 struct IniKeys
 {
     static const wchar_t *ViewState_SortColumn;
-    static const wchar_t *ViewState_Groups;
+    static const wchar_t *ViewState_Group;
     static const wchar_t *Data_Marks;
-    static const wchar_t *Data_Groups;
 };
 
 //=======================================================================
@@ -96,10 +95,8 @@ struct GitDirStateItem
     {}
 };
 
-typedef std::vector<GitDirItem>         GitDirList;
 typedef std::vector<GitDirStateItem>    GitDirStateList;
 
-GitDirList ReadFolderList();
 std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
 void GitGetRepositoriesState( GitDirStateList& state_list );
 std::wstring GetIniFileName();
@@ -107,11 +104,6 @@ void Throw_NoUniqueName( const std::wstring& name );
 
 WStringList DelimitedTextToList( const std::wstring& text, const wchar_t delimiter );
 std::wstring ListToDelimitedText( const WStringList& list, const wchar_t delimiter );
-
-WStringList LoadMarks();
-WStringList LoadGroups();
-void SaveMarks( const WStringList& marks );
-void SaveGroups( const WStringList& marks );
 
 namespace git2
 {

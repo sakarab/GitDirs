@@ -26,8 +26,10 @@
 
 #include "gd_Utils.h"
 #include <vector>
+#include <map>
+#include <winClasses.h>
 
-enum class ListColumn { name, path, n_repos, branch, uncommited, needs };
+enum class ListColumn       { name, path, n_repos, branch, uncommited, needs };
 
 //=======================================================================
 //==============    ListDataItem
@@ -63,35 +65,88 @@ public:
     const std::wstring& GetText( ListColumn col ) const;
 };
 
+typedef std::shared_ptr<ListDataItem>       spListDataItem;
+
 //=======================================================================
 //==============    ListData
 //=======================================================================
 class ListData
 {
-private:
-    typedef std::vector<ListDataItem>       Container;
+public:
+    typedef std::map<std::wstring, spListDataItem>      Container;
+    typedef Container::iterator                         iterator;
+    typedef Container::const_iterator                   const_iterator;
 private:
     Container       mData;
 public:
     static const Container::size_type       npos = 0xFFFFFFFF;
+private:
+    // noncopyable
+    ListData( const ListData& src ) = delete;
+    ListData& operator = ( const ListData& src ) = delete;
 public:
     ListData();
     ~ListData();
 
-    void LoadFromIni( const std::wstring& ini_fname );
-    void SaveToIni( const std::wstring& ini_fname );
-    void Clear();
-    void Sort( ListColumn col );
-    void AddItem( const std::wstring& key, const std::wstring& value );
-    void DeleteItem( const std::wstring& key );
-    Container::size_type FindItem( const std::wstring& key ) const;
+    iterator begin()                         { return mData.begin(); }
+    const_iterator begin() const             { return mData.begin(); }
+    iterator end()                           { return mData.end(); }
+    const_iterator end() const               { return mData.end(); }
 
-    const ListDataItem& Item( Container::size_type idx ) const;
-    ListDataItem& Item( Container::size_type idx );
+    void LoadFromIni( ccwin::TIniFile& ini );
+    void SaveToIni( ccwin::TIniFile& ini );
+    void Clear();
+    void AddItem( const spListDataItem& item );
+    void DeleteItem( const std::wstring& key );
+    iterator FindItem( const std::wstring& key )                { return mData.find( key ); }
+    const_iterator FindItem( const std::wstring& key ) const    { return mData.find( key ); }
+
+    Container::size_type Count()                                { return mData.size(); }
+
+    bool IsUniqueKey( const std::wstring& key ) const           { return FindItem( key ) != mData.end(); }
+};
+
+//=======================================================================
+//==============    ListDataView
+//=======================================================================
+class ListDataView
+{
+private:
+    class str_cmp
+    {
+    private:
+        ccwin::case_insensitive_string_compare_ptr<wchar_t>     cmp;
+    public:
+        bool operator()( const spListDataItem& item_1, const spListDataItem& item_2 )
+        {
+            return cmp.operator()( item_1->Name().c_str(), item_2->Name().c_str() ) < 0;
+        }
+    };
+
+    typedef std::vector<spListDataItem>         Container;
+private:
+    Container       mData;
+    std::wstring    mGroup;
+    ListColumn      mSort = ListColumn::name;
+private:
+    // noncopyable
+    ListDataView( const ListDataView& src ) = delete;
+    ListDataView& operator = ( const ListDataView& src ) = delete;
+public:
+    explicit ListDataView();
+    ~ListDataView();
+
+    void LoadFromDb( const ListData& data, const std::wstring& group );
+    void Sort( ListColumn col );
+
+    void AddItem( ListData& data, const std::wstring& key, const std::wstring& value );
+    void DeleteItem( ListData& data, const std::wstring& key );
+
+    const spListDataItem& Item( Container::size_type idx ) const;
+    spListDataItem& Item( Container::size_type idx );
     Container::size_type Count()                                    { return mData.size(); }
 
     bool IndexInBounds( Container::size_type idx ) const            { return idx < mData.size(); }
-    bool IsUniqueKey( const std::wstring& key )                     { return FindItem( key ) == npos; }
 };
 
 #endif

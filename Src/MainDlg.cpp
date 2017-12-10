@@ -70,22 +70,24 @@ void CMainDlg::AddFile( const std::wstring& fname )
     std::wstring        skey = ccwin::ExtractFileName( fname );
     std::wstring        svalue = fname;
 
-    mData.AddItem( skey, svalue );
+    mDataView.AddItem( mDataBase, skey, svalue );
     mListView.UpdateWindow();
 }
 
 void CMainDlg::ReloadIni()
 {
-    mData.Clear();
-    mData.LoadFromIni( GetIniFileName() );
-    mListView.SetItemCount( mData.Count() );
+    ccwin::TIniFile     ini( GetIniFileName() );
+
+    mDataBase.LoadFromIni( ini );
+    mDataView.LoadFromDb( mDataBase, L"" );
+    mListView.SetItemCount( mDataView.Count() );
 }
 
 void CMainDlg::SortList( int column )
 {
     if ( column >= 0 )
     {
-        mData.Sort( static_cast<ListColumn>(column) );
+        mDataView.Sort( static_cast<ListColumn>(column) );
         mListView.UpdateWindow();
     }
 }
@@ -336,10 +338,9 @@ LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
 {
-    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) == 0 )
-        ::SaveMarks( WStringList() );
-    else for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
-        mListView.SetCheckState( n, false );
+    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) != 0 )
+        for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
+            mListView.SetCheckState( n, false );
     return LRESULT();
 }
 
@@ -450,7 +451,7 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
     {
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::cancel), 0 );
     }
-    else if ( !mData.IsUniqueKey( std::wstring( lvitem.pszText ) ) )
+    else if ( !mDataBase.IsUniqueKey( std::wstring( lvitem.pszText ) ) )
     {
         mOldEditName = std::make_unique<std::wstring>( std::wstring( lvitem.pszText ) );
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::error), 0 );
@@ -458,7 +459,7 @@ HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
     }
     else
     {
-        mData.Item( lvitem.iItem ).Name( std::wstring( lvitem.pszText ) );
+        mDataView.Item( lvitem.iItem )->Name( std::wstring( lvitem.pszText ) );
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::success), lvitem.iItem );
     }
     mInLabelEdit = false;
@@ -475,7 +476,7 @@ LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bH
     NMLVDISPINFO            *pDispInfo = reinterpret_cast<NMLVDISPINFO *>(pNMHDR);
     LV_ITEM &               lv_item = pDispInfo->item;
     int                     itemid = lv_item.iItem;           //Which item number?
-    const ListDataItem&     item = mData.Item( itemid );
+    const ListDataItem&     item = *mDataView.Item( itemid );
 
     //Do the list need text information?
     if ( lv_item.mask & LVIF_TEXT )
@@ -510,9 +511,9 @@ CMainDlg::CMainDlg()
 
 std::wstring CMainDlg::ListView_GetText( int idx, ListColumn col )
 {
-    if ( !mData.IndexInBounds( idx ) )
+    if ( !mDataView.IndexInBounds( idx ) )
         return std::wstring();
-    return mData.Item( idx ).GetText( col );
+    return mDataView.Item( idx )->GetText( col );
 }
 
 std::wstring CMainDlg::ListView_GetText_Checked( int idx, ListColumn col )

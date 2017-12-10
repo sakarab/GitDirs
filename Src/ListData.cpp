@@ -69,9 +69,8 @@ ListData::ListData()
 ListData::~ListData()
 {}
 
-void ListData::LoadFromIni( const std::wstring & ini_fname )
+void ListData::LoadFromIni( ccwin::TIniFile& ini )
 {
-    ccwin::TIniFile             ini( ini_fname );
     ccwin::TStringList          slist;
 
     ini.ReadSectionKeys( IniSections::Repositories, slist );
@@ -84,37 +83,46 @@ void ListData::LoadFromIni( const std::wstring & ini_fname )
         {
             const std::wstring      groups = ini.ReadString( IniSections::Repositories_Groups, key.c_str(), L"" );
 
-            mData.push_back( ListDataItem( GitDirItem( key, value, groups ) ) );
+            mData[key] = std::make_shared<ListDataItem>( GitDirItem( key, value, groups ) );
         }
     }
 
-    WStringList                 marks = LoadMarks();
+    WStringList                 marks = DelimitedTextToList( ini.ReadString( IniSections::Data, IniKeys::Data_Marks, L"" ), L',' );
 
-    for ( ListDataItem& item : mData )
-        item.Checked( std::find( marks.begin(), marks.end(), item.Name() ) != marks.end() );
+    for ( Container::value_type& item : mData )
+    {
+        ListDataItem&           item_ref = *item.second;
+
+        item_ref.Checked( std::find( marks.begin(), marks.end(), item_ref.Name() ) != marks.end() );
+
+    }
 }
 
-void ListData::SaveToIni( const std::wstring & ini_fname )
+void ListData::SaveToIni( ccwin::TIniFile& ini )
 {
-    ccwin::TIniFile             ini( ini_fname );
-
     ini.EraseSection( IniSections::Repositories );
-    for ( ListDataItem& item : mData )
+    for ( Container::value_type& item : mData )
     {
-        ini.WriteString( IniSections::Repositories, item.Name().c_str(), item.Directory().c_str() );
+        const ListDataItem&     item_ref = *item.second;
 
-        if ( item.Groups().empty() )
-            ini.EraseKey( IniSections::Repositories_Groups, item.Name().c_str() );
+        ini.WriteString( IniSections::Repositories, item_ref.Name().c_str(), item_ref.Directory().c_str() );
+
+        if ( item_ref.Groups().empty() )
+            ini.EraseKey( IniSections::Repositories_Groups, item_ref.Name().c_str() );
         else
-            ini.WriteString( IniSections::Repositories_Groups, item.Name().c_str(), ListToDelimitedText( item.Groups(), L',' ).c_str() );
+            ini.WriteString( IniSections::Repositories_Groups, item_ref.Name().c_str(), ListToDelimitedText( item_ref.Groups(), L',' ).c_str() );
     }
 
     WStringList                 marks;
 
-    for ( ListDataItem& item : mData )
-        if ( item.Checked() )
-            marks.push_back( item.Name() );
-    SaveMarks( marks );
+    for ( Container::value_type& item : mData )
+    {
+        const ListDataItem&     item_ref = *item.second;
+
+        if ( item_ref.Checked() )
+            marks.push_back( item_ref.Name() );
+    }
+    ini.WriteString( IniSections::Data, IniKeys::Data_Marks, ListToDelimitedText( marks, L',' ).c_str() );
 
     ini.WriteInteger( L"Version", L"Version", LastDataVersion );
 }
@@ -124,45 +132,90 @@ void ListData::Clear()
     mData.clear();
 }
 
-void ListData::Sort( ListColumn col )
+void ListData::AddItem( const spListDataItem& item )
 {
-    ccwin::case_insensitive_string_compare_ptr<wchar_t>     cmp;
-
-    std::sort( mData.begin(), mData.end(), [&cmp, &col]( const ListDataItem& item1, const ListDataItem& item2 ) {
-        return cmp.operator()( item1.GetText( col ).c_str(), item2.GetText( col ).c_str() ) < 0;
-    } );
+    if ( !IsUniqueKey( item->Name() ) )
+        Throw_NoUniqueName( item->Name() );
+    mData[item->Name()] = item;
 }
 
-void ListData::AddItem( const std::wstring& key, const std::wstring& value )
+void ListData::DeleteItem( const std::wstring& key )
 {
-    if ( !IsUniqueKey( key ) )
-        Throw_NoUniqueName( key );
-    mData.push_back( ListDataItem( GitDirItem( key, value, std::wstring() ) ) );
-}
-
-void ListData::DeleteItem( const std::wstring & key )
-{
-    Container::iterator     it = std::find_if( mData.begin(), mData.end(), [&key]( const Container::value_type& item ) { return item.Name() == key; } );
+    Container::iterator     it = FindItem( key );
 
     if ( it != mData.end() )
         mData.erase( it );
 }
 
-ListData::Container::size_type ListData::FindItem( const std::wstring& key ) const
-{
-    Container::const_iterator     it = std::find_if( mData.begin(), mData.end(), [&key]( const Container::value_type& item ) { return item.Name() == key; } );
+//=======================================================================
+//==============    ListDataView
+//=======================================================================
 
-    if ( it == mData.end() )
-        return npos;
-    return std::distance( mData.begin(), it );
+ListDataView::ListDataView()
+{}
+
+ListDataView::~ListDataView()
+{}
+
+void ListDataView::LoadFromDb( const ListData& data, const std::wstring& group )
+{
+    if ( group.empty() )
+    {
+        for ( const ListData::Container::value_type& item : data )
+            mData.push_back( item.second );
+    }
+    else
+    {
+        for ( const ListData::Container::value_type& item : data )
+        {
+            const WStringList&  slist = item.second->Groups();
+
+            if ( std::find( slist.begin(), slist.end(), group ) != slist.end() )
+                mData.push_back( item.second );
+        }
+    }
+    mGroup = group;
+    Sort( mSort );
 }
 
-const ListDataItem & ListData::Item( Container::size_type idx ) const
+void ListDataView::Sort( ListColumn col )
 {
+    ccwin::case_insensitive_string_compare_ptr<wchar_t>     cmp;
+
+    std::sort( mData.begin(), mData.end(), [&cmp, &col]( const spListDataItem& item1, const spListDataItem& item2 ) {
+        return cmp( item1->GetText( col ).c_str(), item2->GetText( col ).c_str() ) < 0;
+    } );
+}
+
+void ListDataView::AddItem( ListData& data, const std::wstring& key, const std::wstring& value )
+{
+    spListDataItem      item = std::make_shared<ListDataItem>( GitDirItem( key, value, mGroup ) );
+
+    data.AddItem( item );
+    mData.push_back( item );
+}
+
+void ListDataView::DeleteItem( ListData& data, const std::wstring& key )
+{
+    Container::iterator     it = std::find_if( mData.begin(), mData.end(), [&key]( const Container::value_type& item ) {
+        return item->Name() == key;
+    } );
+
+    if ( it != mData.end() )
+    {
+        mData.erase( it );
+        data.DeleteItem( key );
+    }
+}
+
+const spListDataItem& ListDataView::Item( Container::size_type idx ) const
+{
+    if ( !IndexInBounds( idx ) )
+        throw std::runtime_error( "Index out of bounds." );
     return mData[idx];
 }
 
-ListDataItem & ListData::Item( Container::size_type idx )
+spListDataItem& ListDataView::Item( Container::size_type idx )
 {
     if ( !IndexInBounds( idx ) )
         throw std::runtime_error( "Index out of bounds." );

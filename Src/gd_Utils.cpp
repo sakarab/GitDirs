@@ -108,20 +108,6 @@ namespace
         GetDirectoryStateNeeds( libgit, state_item );
     }
 
-    WStringList LoadDelimitedTextFromIni( const wchar_t *section, const wchar_t *key )
-    {
-        ccwin::TIniFile             ini( GetIniFileName() );
-
-        return DelimitedTextToList( ini.ReadString( section, key, L"" ), L',' );
-    }
-
-    void SaveDelimitedTextToIni( const wchar_t *section, const wchar_t *key, const WStringList& values )
-    {
-        ccwin::TIniFile             ini( GetIniFileName() );
-
-        ini.WriteString( section, key, ListToDelimitedText( values, L',' ).c_str() );
-    }
-
     void UpgradeDB( const std::wstring& ini_fname )
     {
         static bool         upgraded = false;
@@ -164,9 +150,8 @@ const wchar_t * IniSections::Repositories_Groups = L"Repositories_Groups";
 const wchar_t * IniSections::ViewState = L"ViewState";
 const wchar_t * IniSections::Data = L"Data";
 const wchar_t * IniKeys::ViewState_SortColumn = L"SortColumn";
-const wchar_t * IniKeys::ViewState_Groups = L"Groups";
+const wchar_t * IniKeys::ViewState_Group = L"Group";
 const wchar_t * IniKeys::Data_Marks = L"Marks";
-const wchar_t * IniKeys::Data_Groups = L"Groups";
 
 //=======================================================================
 //==============    ViewState
@@ -212,44 +197,6 @@ std::wstring ListToDelimitedText( const WStringList & list, const wchar_t delimi
     for ( const std::wstring& sstr : list )
         slist.Add( sstr );
     return slist.DelimitedText( delimiter );
-}
-
-WStringList LoadMarks()
-{
-    return LoadDelimitedTextFromIni( IniSections::Data, IniKeys::Data_Marks );
-}
-
-WStringList LoadGroups()
-{
-    return LoadDelimitedTextFromIni( IniSections::Data, IniKeys::Data_Groups );
-}
-
-void SaveMarks( const WStringList& marks )
-{
-    SaveDelimitedTextToIni( IniSections::Data, IniKeys::Data_Marks, marks );
-}
-
-void SaveGroups( const WStringList& groups )
-{
-    SaveDelimitedTextToIni( IniSections::Data, IniKeys::Data_Groups, groups );
-}
-
-GitDirList ReadFolderList()
-{
-    ccwin::TIniFile             ini( GetIniFileName() );
-    ccwin::TStringList          slist;
-
-    ini.ReadSectionKeys( IniSections::Repositories, slist );
-
-    GitDirList                  result;
-
-    for ( int n = 0, eend = slist.Count() ; n < eend ; ++n )
-    {
-        const std::wstring&     sstr = slist[n];
-
-        result.push_back( GitDirItem( sstr, ini.ReadString( IniSections::Repositories, sstr.c_str(), L"" ), std::wstring() ) );
-    }
-    return result;
 }
 
 std::wstring MakeCommand( const wchar_t *command, const wchar_t *path )
