@@ -274,6 +274,10 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_EDIT_OPTIONS
     END
+    POPUP "Gr&oups"
+    BEGIN
+        MENUITEM "All",                         ID_GROUPS_ALL
+    END
     POPUP "&Git"
     BEGIN
         MENUITEM "Pull...\tCtrl+L",             ID_GIT_PULL

@@ -152,6 +152,7 @@ const wchar_t * IniSections::Data = L"Data";
 const wchar_t * IniKeys::ViewState_SortColumn = L"SortColumn";
 const wchar_t * IniKeys::ViewState_Group = L"Group";
 const wchar_t * IniKeys::Data_Marks = L"Marks";
+const wchar_t * IniKeys::Data_AllGroups = L"AllGroups";
 
 //=======================================================================
 //==============    FREE FUNCTIONS

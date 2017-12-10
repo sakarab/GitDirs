@@ -29,7 +29,8 @@
 
 typedef std::vector<std::wstring>   WStringList;
 
-const int           LastDataVersion = 1;
+const int       LastDataVersion = 1;
+const int       GroupMenuCommandID = 40000;
 
 //=======================================================================
 //==============    IniStrings
@@ -47,6 +48,7 @@ struct IniKeys
     static const wchar_t *ViewState_SortColumn;
     static const wchar_t *ViewState_Group;
     static const wchar_t *Data_Marks;
+    static const wchar_t *Data_AllGroups;
 };
 
 //=======================================================================

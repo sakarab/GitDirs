@@ -115,6 +115,42 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
     }
 }
 
+void CMainDlg::Menu_Append( CMenuHandle menu, int position )
+{
+    const int           start_position = position;
+    const WStringList&  groups = mDataBase.AllGroups();
+
+    if ( !groups.empty() )
+    {
+        menu.AppendMenu( MF_SEPARATOR );
+        for ( const std::wstring& sstr : groups )
+        {
+            menu.AppendMenu( MF_STRING, GroupMenuCommandID, sstr.c_str() );
+
+            MENUITEMINFO    info;
+
+            info.cbSize = sizeof( MENUITEMINFO );
+            info.fMask = MIIM_DATA;
+            info.dwItemData = static_cast<UINT_PTR>(position - start_position);
+            menu.SetMenuItemInfo( position, TRUE, &info );
+            ++position;
+        }
+    }
+}
+
+void CMainDlg::MainMenu_Append( CMenuHandle menu )
+{
+    int     last_menu_idx = menu.GetMenuItemCount() - 1;
+
+    for ( int n = last_menu_idx ; n > 0 ; --n )
+        menu.DeleteMenu( n, MF_BYPOSITION );
+    Menu_Append( menu, 2 );
+}
+
+void CMainDlg::PopupMenu_Append( CMenuHandle menu )
+{
+}
+
 BOOL CMainDlg::OnIdle()
 {
     UIUpdateChildWindows();
@@ -158,7 +194,6 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     pLoop->AddIdleHandler( this );
 
     UIAddChildWindowContainer( m_hWnd );
-
     mMainMenu.Attach( GetMenu() );
     if ( m_hWnd != NULL )
         mHAccel = ::LoadAccelerators( ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE( IDR_MAINFRAME ) );
@@ -178,7 +213,7 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
     mDataView.LoadState( ini );
     ReloadIni( ini );
-
+    MainMenu_Append( mMainMenu.GetSubMenu( 2 ) );
     return TRUE;
 }
 

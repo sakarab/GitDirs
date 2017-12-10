@@ -145,6 +145,9 @@ private:
     void SortList( int column );
     bool UniqueName( int idx, const std::wstring& name );
     void RefreshRepoStateAndView( GitDirStateList& state_list );
+    void Menu_Append( CMenuHandle menu, const int start_position );
+    void MainMenu_Append( CMenuHandle menu );
+    void PopupMenu_Append( CMenuHandle menu );
 
     // Handler prototypes (uncomment arguments if needed):
     //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

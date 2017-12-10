@@ -52,10 +52,10 @@ const std::wstring& ListDataItem::GetText( ListColumn col ) const
     {
         case ListColumn::name       : return Name();
         case ListColumn::path       : return Directory();
-        case ListColumn::n_repos    : return mNRepos_str;
+        case ListColumn::n_repos    : return IsInited() ? mNRepos_str : Empty;
         case ListColumn::branch     : return Branch();
-        case ListColumn::uncommited : return mUncommited ? Yes : No;
-        case ListColumn::needs      : return mNeedsUpdate ? Yes : No;
+        case ListColumn::uncommited : return IsInited() ? mUncommited ? Yes : No : Empty;
+        case ListColumn::needs      : return IsInited() ? mNeedsUpdate ? Yes : No : Empty;
     }
     return Empty;
 }
@@ -94,8 +94,14 @@ void ListData::LoadFromIni( ccwin::TIniFile& ini )
         ListDataItem&           item_ref = *item.second;
 
         item_ref.Checked( std::find( marks.begin(), marks.end(), item_ref.Name() ) != marks.end() );
-
     }
+    mAllGroups = DelimitedTextToList( ini.ReadString( IniSections::Data, IniKeys::Data_AllGroups, L"" ), L',' );
+
+    ccwin::case_insensitive_string_compare_ptr<wchar_t>     cmp;
+
+    std::sort( mAllGroups.begin(), mAllGroups.end(), [&cmp]( const std::wstring& item1, const std::wstring& item2 ) {
+        return cmp( item1.c_str(), item2.c_str() ) < 0;
+    } );
 }
 
 void ListData::SaveToIni( ccwin::TIniFile& ini )

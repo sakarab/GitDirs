@@ -50,6 +50,8 @@ private:
     static const std::wstring Yes;
     static const std::wstring No;
     static const std::wstring Empty;
+
+    bool IsInited() const                       { return !mBranch.empty(); }
 public:
     explicit ListDataItem( const GitDirItem& item );
     ~ListDataItem();
@@ -80,8 +82,9 @@ public:
     typedef Container::const_iterator                   const_iterator;
 private:
     Container       mData;
-public:
-    static const Container::size_type       npos = 0xFFFFFFFF;
+    WStringList     mAllGroups;
+//public:
+//    static const Container::size_type       npos = 0xFFFFFFFF;
 private:
     // noncopyable
     ListData( const ListData& src ) = delete;
@@ -102,10 +105,10 @@ public:
     void DeleteItem( const std::wstring& key );
     iterator FindItem( const std::wstring& key )                { return mData.find( key ); }
     const_iterator FindItem( const std::wstring& key ) const    { return mData.find( key ); }
-
     Container::size_type Count()                                { return mData.size(); }
-
     bool IsUniqueKey( const std::wstring& key ) const           { return FindItem( key ) != mData.end(); }
+
+    const WStringList& AllGroups() const                        { return mAllGroups; }
 };
 
 //=======================================================================
