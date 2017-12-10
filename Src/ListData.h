@@ -29,7 +29,9 @@
 #include <map>
 #include <winClasses.h>
 
-enum class ListColumn       { name, path, n_repos, branch, uncommited, needs };
+enum class ListColumn : byte           { name, path, n_repos, branch, uncommited, needs };
+const byte ListColumn_Min = static_cast<byte>(ListColumn::name);
+const byte ListColumn_Max = static_cast<byte>(ListColumn::needs);
 
 //=======================================================================
 //==============    ListDataItem
@@ -127,7 +129,7 @@ private:
 private:
     Container       mData;
     std::wstring    mGroup;
-    ListColumn      mSort = ListColumn::name;
+    ListColumn      mSortColumn = ListColumn::name;
 private:
     // noncopyable
     ListDataView( const ListDataView& src ) = delete;
@@ -136,8 +138,10 @@ public:
     explicit ListDataView();
     ~ListDataView();
 
-    void LoadFromDb( const ListData& data, const std::wstring& group );
-    void Sort( ListColumn col );
+    void LoadFromDb( const ListData& data );
+    void LoadFromDb( const ListData& data, ListColumn col );
+    void LoadState( ccwin::TIniFile& ini );
+    void SaveState( ccwin::TIniFile& ini );
 
     void AddItem( ListData& data, const std::wstring& key, const std::wstring& value );
     void DeleteItem( ListData& data, const std::wstring& key );
@@ -147,6 +151,9 @@ public:
     Container::size_type Count()                                    { return mData.size(); }
 
     bool IndexInBounds( Container::size_type idx ) const            { return idx < mData.size(); }
+
+    ListColumn SortColumn() const                                   { return mSortColumn; }
+    void SortColumn( ListColumn value );
 };
 
 #endif

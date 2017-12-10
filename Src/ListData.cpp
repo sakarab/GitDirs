@@ -157,9 +157,15 @@ ListDataView::ListDataView()
 ListDataView::~ListDataView()
 {}
 
-void ListDataView::LoadFromDb( const ListData& data, const std::wstring& group )
+void ListDataView::LoadFromDb( const ListData& data )
 {
-    if ( group.empty() )
+    LoadFromDb( data, mSortColumn );
+}
+
+void ListDataView::LoadFromDb( const ListData & data, ListColumn col )
+{
+    mData.clear();
+    if ( mGroup.empty() )
     {
         for ( const ListData::Container::value_type& item : data )
             mData.push_back( item.second );
@@ -170,21 +176,23 @@ void ListDataView::LoadFromDb( const ListData& data, const std::wstring& group )
         {
             const WStringList&  slist = item.second->Groups();
 
-            if ( std::find( slist.begin(), slist.end(), group ) != slist.end() )
+            if ( std::find( slist.begin(), slist.end(), mGroup ) != slist.end() )
                 mData.push_back( item.second );
         }
     }
-    mGroup = group;
-    Sort( mSort );
+    SortColumn( col );
 }
 
-void ListDataView::Sort( ListColumn col )
+void ListDataView::LoadState( ccwin::TIniFile& ini )
 {
-    ccwin::case_insensitive_string_compare_ptr<wchar_t>     cmp;
+    mGroup = ini.ReadString( IniSections::ViewState, IniKeys::ViewState_Group, L"" );
+    SortColumn( static_cast<ListColumn>(ini.ReadInteger( IniSections::ViewState, IniKeys::ViewState_SortColumn, static_cast<byte>(ListColumn::name) )) );
+}
 
-    std::sort( mData.begin(), mData.end(), [&cmp, &col]( const spListDataItem& item1, const spListDataItem& item2 ) {
-        return cmp( item1->GetText( col ).c_str(), item2->GetText( col ).c_str() ) < 0;
-    } );
+void ListDataView::SaveState( ccwin::TIniFile & ini )
+{
+    ini.WriteString( IniSections::ViewState, IniKeys::ViewState_Group, mGroup.c_str() );
+    ini.WriteInteger( IniSections::ViewState, IniKeys::ViewState_SortColumn, static_cast<int>(mSortColumn) );
 }
 
 void ListDataView::AddItem( ListData& data, const std::wstring& key, const std::wstring& value )
@@ -220,4 +228,17 @@ spListDataItem& ListDataView::Item( Container::size_type idx )
     if ( !IndexInBounds( idx ) )
         throw std::runtime_error( "Index out of bounds." );
     return mData[idx];
+}
+
+void ListDataView::SortColumn( ListColumn value )
+{
+    if ( static_cast<byte>(value) > ListColumn_Max )
+        value = static_cast<ListColumn>(ListColumn_Min);
+    mSortColumn = value;
+
+    ccwin::case_insensitive_string_compare_ptr<wchar_t>     cmp;
+
+    std::sort( mData.begin(), mData.end(), [&cmp, &value]( const spListDataItem& item1, const spListDataItem& item2 ) {
+        return cmp( item1->GetText( value ).c_str(), item2->GetText( value ).c_str() ) < 0;
+    } );
 }

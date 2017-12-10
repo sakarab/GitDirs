@@ -74,12 +74,10 @@ void CMainDlg::AddFile( const std::wstring& fname )
     mListView.UpdateWindow();
 }
 
-void CMainDlg::ReloadIni()
+void CMainDlg::ReloadIni( ccwin::TIniFile& ini )
 {
-    ccwin::TIniFile     ini( GetIniFileName() );
-
     mDataBase.LoadFromIni( ini );
-    mDataView.LoadFromDb( mDataBase, L"" );
+    mDataView.LoadFromDb( mDataBase );
     mListView.SetItemCount( mDataView.Count() );
 }
 
@@ -87,7 +85,7 @@ void CMainDlg::SortList( int column )
 {
     if ( column >= 0 )
     {
-        mDataView.Sort( static_cast<ListColumn>(column) );
+        mDataView.SortColumn( static_cast<ListColumn>(column) );
         mListView.UpdateWindow();
     }
 }
@@ -178,10 +176,9 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
     CFormSize::Load( ini );
 
-    ReloadIni();
-    mViewState.Load();
-    if ( mViewState.SortColumn >= 0 )
-        SortList( mViewState.SortColumn );
+    mDataView.LoadState( ini );
+    ReloadIni( ini );
+
     return TRUE;
 }
 
@@ -196,7 +193,7 @@ LRESULT CMainDlg::OnDestroy( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     ccwin::TIniFile     ini( GetIniFileName() );
 
     CFormSize::Save( ini );
-    mViewState.Save();
+    mDataView.SaveState( ini );
 
     return 0;
 }
@@ -274,8 +271,17 @@ LRESULT CMainDlg::OnFile_OpenIniDirectory( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_ReloadIni( WORD, WORD, HWND, BOOL & )
 {
-    mListView.DeleteAllItems();
-    ReloadIni();
+    ccwin::TIniFile     ini( GetIniFileName() );
+
+    ReloadIni( ini );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnFile_SaveData( WORD, WORD, HWND, BOOL & )
+{
+    ccwin::TIniFile     ini( GetIniFileName() );
+
+    mDataBase.SaveToIni( ini );
     return LRESULT();
 }
 
@@ -338,7 +344,7 @@ LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
 {
-    if ( (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) != 0 )
+    if ( ListView_IsCheckBoxesVisible() )
         for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
             mListView.SetCheckState( n, false );
     return LRESULT();
@@ -428,8 +434,7 @@ LRESULT CMainDlg::OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 HRESULT CMainDlg::OnList_ColumnClick( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
 {
-    mViewState.SortColumn = reinterpret_cast<NMLISTVIEW *>(pnmh)->iSubItem;
-    SortList( mViewState.SortColumn );
+    SortList( reinterpret_cast<NMLISTVIEW *>(pnmh)->iSubItem );
     return LRESULT();
 }
 

@@ -126,7 +126,6 @@ private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
     CMenu               mMainMenu;
-    ViewState           mViewState;
     unique_string       mOldEditName;
     bool                mEscapeExit = false;
     bool                mInLabelEdit = false;
@@ -142,7 +141,7 @@ private:
     std::wstring ListView_GetSelectedText_Checked( ListColumn col );
     void AddListLine( const std::wstring& name, const std::wstring& directory );
     void AddFile( const std::wstring& fname );
-    void ReloadIni();
+    void ReloadIni( ccwin::TIniFile& ini );
     void SortList( int column );
     bool UniqueName( int idx, const std::wstring& name );
     void RefreshRepoStateAndView( GitDirStateList& state_list );
@@ -162,6 +161,7 @@ private:
     LRESULT OnFile_OpenInExplorer( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_OpenIniDirectory( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_ReloadIni( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnFile_SaveData( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_FetchAllRepositories( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_EditName( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -194,6 +194,7 @@ private:
         COMMAND_ID_HANDLER( ID_FILE_OPENINEXPLORER, OnFile_OpenInExplorer );
         COMMAND_ID_HANDLER( ID_FILE_OPENINIDIRECTORY, OnFile_OpenIniDirectory );
         COMMAND_ID_HANDLER( ID_FILE_RELOADINI, OnFile_ReloadIni );
+        COMMAND_ID_HANDLER( ID_FILE_SAVEDATA, OnFile_SaveData );
         COMMAND_ID_HANDLER( ID_FILE_FETCHALLREPOSITORIES, OnFile_FetchAllRepositories );
         COMMAND_ID_HANDLER( ID_FILE_REFRESHREPOSITORYSTATE, OnFile_RefreshRepositoryState );
         COMMAND_ID_HANDLER( ID_EDIT_EDITNAME, OnEdit_EditName );

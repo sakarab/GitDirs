@@ -255,6 +255,7 @@ BEGIN
     BEGIN
         MENUITEM "Open ""ini"" directory",      ID_FILE_OPENINIDIRECTORY
         MENUITEM "Reload Ini",                  ID_FILE_RELOADINI
+        MENUITEM "Save Data\tCtrl+S",           ID_FILE_SAVEDATA
         MENUITEM SEPARATOR
         MENUITEM "Fetch All Repositories",      ID_FILE_FETCHALLREPOSITORIES
         MENUITEM "Refresh State of Repositories", ID_FILE_REFRESHREPOSITORYSTATE

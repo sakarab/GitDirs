@@ -154,22 +154,8 @@ const wchar_t * IniKeys::ViewState_Group = L"Group";
 const wchar_t * IniKeys::Data_Marks = L"Marks";
 
 //=======================================================================
-//==============    ViewState
+//==============    FREE FUNCTIONS
 //=======================================================================
-void ViewState::Save()
-{
-    ccwin::TIniFile             ini( GetIniFileName() );
-
-    ini.WriteInteger( IniSections::ViewState, IniKeys::ViewState_SortColumn, SortColumn );
-}
-
-void ViewState::Load()
-{
-    ccwin::TIniFile             ini( GetIniFileName() );
-
-    SortColumn = ini.ReadInteger( IniSections::ViewState, IniKeys::ViewState_SortColumn, -1 );
-}
-
 std::wstring GetIniFileName()
 {
     ccwin::TCommonDirectories   dirs;
