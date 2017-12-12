@@ -29,6 +29,10 @@
 #include <map>
 #include <winClasses.h>
 
+typedef std::vector<GitDirStateItem>    GitDirStateList;
+
+void GitGetRepositoriesState( GitDirStateList& state_list );
+
 enum class ListColumn : byte           { name, path, n_repos, branch, uncommited, needs };
 const byte ListColumn_Min = static_cast<byte>(ListColumn::name);
 const byte ListColumn_Max = static_cast<byte>(ListColumn::needs);
@@ -61,15 +65,20 @@ public:
     const WStringList& Groups() const           { return mDataItem.Groups(); }
     const std::wstring& Branch() const          { return mBranch; }
     bool Checked() const                        { return mChecked; }
-    
-    void Checked( bool value )                  { mChecked = value; }
+    bool ToggleChecked();
+
     void Name( const std::wstring& value )      { mDataItem.Name( value ); }
     void NRepos( int value );
+    void Branch( const std::wstring& value )    { mBranch = value; }
+    void Uncommited( bool value )               { mUncommited = value; }
+    void NeedsUpdate( bool value )              { mNeedsUpdate = value; }
+    void Checked( bool value )                  { mChecked = value; }
 
     const std::wstring& GetText( ListColumn col ) const;
 };
 
 typedef std::shared_ptr<ListDataItem>       spListDataItem;
+typedef std::weak_ptr<ListDataItem>         wpListDataItem;
 
 //=======================================================================
 //==============    ListData
@@ -83,8 +92,6 @@ public:
 private:
     Container       mData;
     WStringList     mAllGroups;
-//public:
-//    static const Container::size_type       npos = 0xFFFFFFFF;
 private:
     // noncopyable
     ListData( const ListData& src ) = delete;
@@ -106,7 +113,7 @@ public:
     iterator FindItem( const std::wstring& key )                { return mData.find( key ); }
     const_iterator FindItem( const std::wstring& key ) const    { return mData.find( key ); }
     Container::size_type Count()                                { return mData.size(); }
-    bool IsUniqueKey( const std::wstring& key ) const           { return FindItem( key ) != mData.end(); }
+    bool IsUniqueKey( const std::wstring& key ) const           { return FindItem( key ) == mData.end(); }
 
     const WStringList& AllGroups() const                        { return mAllGroups; }
 };
@@ -129,10 +136,16 @@ private:
     };
 
     typedef std::vector<spListDataItem>         Container;
+public:
+    typedef Container::iterator                 iterator;
+    typedef Container::const_iterator           const_iterator;
+    typedef Container::size_type                list_size_type;
 private:
     Container       mData;
     std::wstring    mGroup;
     ListColumn      mSortColumn = ListColumn::name;
+public:
+    static const Container::size_type       npos = 0xFFFFFFFF;
 private:
     // noncopyable
     ListDataView( const ListDataView& src ) = delete;
@@ -141,6 +154,11 @@ public:
     explicit ListDataView();
     ~ListDataView();
 
+    iterator begin()                { return mData.begin(); }
+    const_iterator begin() const    { return mData.begin(); }
+    iterator end()                  { return mData.end(); }
+    const_iterator end() const      { return mData.end(); }
+
     void LoadFromDb( const ListData& data );
     void LoadFromDb( const ListData& data, ListColumn col );
     void LoadState( ccwin::TIniFile& ini );
@@ -148,12 +166,17 @@ public:
 
     void AddItem( ListData& data, const std::wstring& key, const std::wstring& value );
     void DeleteItem( ListData& data, const std::wstring& key );
+    list_size_type FindItem( const std::wstring& key ) const;
+    list_size_type FindItemCI( const std::wstring& key ) const;
+    list_size_type FindItemCI( const std::wstring& key, std::wstring::size_type max_chars ) const;
+    list_size_type FindItemCI_fromPos( const std::wstring& key, list_size_type pos ) const;
+    list_size_type FindItemCI_fromPos( const std::wstring& key, std::wstring::size_type max_chars, list_size_type pos ) const;
 
-    const spListDataItem& Item( Container::size_type idx ) const;
-    spListDataItem& Item( Container::size_type idx );
-    Container::size_type Count()                                    { return mData.size(); }
+    const spListDataItem& Item( list_size_type idx ) const;
+    spListDataItem& Item( list_size_type idx );
+    list_size_type Count()                                          { return mData.size(); }
 
-    bool IndexInBounds( Container::size_type idx ) const            { return idx < mData.size(); }
+    bool IndexInBounds( list_size_type idx ) const                  { return idx < mData.size(); }
 
     ListColumn SortColumn() const                                   { return mSortColumn; }
     void SortColumn( ListColumn value );

@@ -139,7 +139,6 @@ private:
     std::wstring ListView_GetText_Checked( int idx, ListColumn col );
     std::wstring ListView_GetSelectedText( ListColumn col );
     std::wstring ListView_GetSelectedText_Checked( ListColumn col );
-    void AddListLine( const std::wstring& name, const std::wstring& directory );
     void AddFile( const std::wstring& fname );
     void ReloadIni( ccwin::TIniFile& ini );
     void SortList( int column );
@@ -180,12 +179,15 @@ private:
     LRESULT OnGit_Commit( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_ViewLog( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
-    HRESULT OnList_ColumnClick( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
-    HRESULT OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
-    HRESULT OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
+    LRESULT OnList_ColumnClick( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
+    LRESULT OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
+    LRESULT OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
     LRESULT OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ );
+    LRESULT OnList_FindItem( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ );
+    LRESULT OnList_KeyDown( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ );
+    LRESULT OnList_Click( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ );
 
-    BEGIN_MSG_MAP( CMainDlg )
+    BEGIN_MSG_MAP_XX( CMainDlg )
         MESSAGE_HANDLER( WM_INITDIALOG, OnInitDialog );
         MESSAGE_HANDLER( WM_DESTROY, OnDestroy );
         MESSAGE_HANDLER( WM_CONTEXTMENU, OnContextMenu );
@@ -217,6 +219,9 @@ private:
         NOTIFY_HANDLER( IDC_LIST, LVN_BEGINLABELEDIT, OnList_BeginLabelEdit );
         NOTIFY_HANDLER( IDC_LIST, LVN_ENDLABELEDIT, OnList_EndLabelEdit );
         NOTIFY_HANDLER( IDC_LIST, LVN_GETDISPINFO, OnList_GetDispInfo );
+        NOTIFY_HANDLER( IDC_LIST, LVN_ODFINDITEM, OnList_FindItem );
+        NOTIFY_HANDLER( IDC_LIST, LVN_KEYDOWN, OnList_KeyDown );
+        NOTIFY_HANDLER( IDC_LIST, NM_CLICK, OnList_Click );
         CHAIN_MSG_MAP( ccwtl::CFormSize<CMainDlg> );
         CHAIN_MSG_MAP( CDialogResize<CMainDlg> );
         CHAIN_MSG_MAP( CUpdateUI<CMainDlg> );

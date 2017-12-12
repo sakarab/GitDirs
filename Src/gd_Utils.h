@@ -75,21 +75,18 @@ public:
 //=======================================================================
 struct GitDirStateItem
 {
-    int             VisualIndex;
+    std::wstring    Name;
     std::wstring    Directory;
     std::string     Branch;
     int             NRepos;
     bool            Uncommited;
     bool            NeedsUpdate;
-    GitDirStateItem( int visual_index, const std::wstring& dir )
-        : VisualIndex( visual_index ), Directory( dir ), Branch(), NRepos(), Uncommited(), NeedsUpdate()
+    explicit GitDirStateItem( const std::wstring& name, const std::wstring& dir )
+        : Name( name ), Directory( dir ), Branch(), NRepos(), Uncommited(), NeedsUpdate()
     {}
 };
 
-typedef std::vector<GitDirStateItem>    GitDirStateList;
-
 std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
-void GitGetRepositoriesState( GitDirStateList& state_list );
 std::wstring GetIniFileName();
 void Throw_NoUniqueName( const std::wstring& name );
 
@@ -146,5 +143,7 @@ namespace git2
         size_t RevisionCount( const std::string& src, const std::string& dst );
     };
 }
+
+void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item );
 
 #endif

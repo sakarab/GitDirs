@@ -57,20 +57,13 @@ bool CMainDlg::ListView_IsCheckBoxesVisible() const
     return (mListView.GetExtendedListViewStyle() & LVS_EX_CHECKBOXES) && (mListView.GetStyle() & LVS_REPORT);
 }
 
-void CMainDlg::AddListLine( const std::wstring& name, const std::wstring& directory )
-{
-    int     list_count = mListView.GetItemCount();
-
-    mListView.AddItem( list_count, static_cast<int>(ListColumn::name), name.c_str() );
-    mListView.AddItem( list_count, static_cast<int>(ListColumn::path), directory.c_str() );
-}
-
 void CMainDlg::AddFile( const std::wstring& fname )
 {
     std::wstring        skey = ccwin::ExtractFileName( fname );
     std::wstring        svalue = fname;
 
     mDataView.AddItem( mDataBase, skey, svalue );
+    mListView.SetItemCount( mDataView.Count() );
     mListView.UpdateWindow();
 }
 
@@ -92,7 +85,7 @@ void CMainDlg::SortList( int column )
 
 bool CMainDlg::UniqueName( int idx, const std::wstring& name )
 {
-    for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
+    for ( int n = 0, eend = mDataView.Count() ; n < eend ; ++n )
     {
         if ( n == idx )
             continue;
@@ -108,10 +101,18 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
 
     for ( const GitDirStateList::value_type& item : state_list )
     {
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::n_repos), boost::str( boost::wformat( L"%1%" ) % item.NRepos ).c_str() );
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::branch), ccwin::WidenStringStrict( item.Branch ).c_str() );
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::uncommited), item.Uncommited ? L"Yes" : L"No" );
-        mListView.SetItemText( item.VisualIndex, static_cast<int>(ListColumn::needs), item.NeedsUpdate ? L"Yes" : L"No" );
+        ListDataView::list_size_type    idx = mDataView.FindItem( item.Name );
+
+        if ( idx != ListDataView::npos )
+        {
+            spListDataItem&     data_item = mDataView.Item( idx );
+
+            data_item->NRepos( item.NRepos );
+            data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
+            data_item->Uncommited( item.Uncommited );
+            data_item->NeedsUpdate( item.NeedsUpdate );
+            mListView.Update( idx );
+        }
     }
 }
 
@@ -327,11 +328,14 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    CString             sstr;
     GitDirStateList     state_list;
 
-    for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
-        state_list.push_back( GitDirStateItem( n, ListView_GetText_Checked( n, ListColumn::path ).c_str() ) );
+    for ( int n = 0, eend = mDataView.Count() ; n < eend ; ++n )
+    {
+        const spListDataItem&       item = mDataView.Item( n );
+
+        state_list.push_back( GitDirStateItem( item->Name(), item->Directory() ) );
+    }
     RefreshRepoStateAndView( state_list );
     return LRESULT();
 }
@@ -351,10 +355,11 @@ LRESULT CMainDlg::OnEdit_Delete( WORD, WORD, HWND, BOOL & )
 
     if ( idx >= 0 && MessageBox( L"Delete selected repository link?\nRepository will remain intact.", L"Confirm", MB_ICONQUESTION | MB_OKCANCEL ) == IDOK )
     {
-        ccwin::TIniFile     ini( GetIniFileName() );
+        spListDataItem      item = mDataView.Item( idx );
 
-        ini.EraseKey( IniSections::Repositories, ListView_GetText( idx, ListColumn::name ).c_str() );
-        mListView.DeleteItem( idx );
+        mDataView.DeleteItem( mDataBase, item->Name() );
+        mListView.SetItemCount( mDataView.Count() );
+        mListView.UpdateWindow();
     }
     return LRESULT();
 }
@@ -380,8 +385,11 @@ LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
 LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
 {
     if ( ListView_IsCheckBoxesVisible() )
-        for ( int n = 0, eend = mListView.GetItemCount() ; n < eend ; ++n )
-            mListView.SetCheckState( n, false );
+    {
+        for ( spListDataItem& item : mDataView )
+            item->Checked( false );
+        mListView.UpdateWindow();
+    }
     return LRESULT();
 }
 
@@ -396,9 +404,10 @@ LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
     if ( idx >= 0 )
     {
+        spListDataItem      item = mDataView.Item( idx );
         GitDirStateList     state_list;
 
-        state_list.push_back( GitDirStateItem( idx, ListView_GetText_Checked( idx, ListColumn::path ) ) );
+        state_list.push_back( GitDirStateItem( item->Name(), item->Directory() ) );
         RefreshRepoStateAndView( state_list );
     }
     return 0;
@@ -467,13 +476,13 @@ LRESULT CMainDlg::OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
     return LRESULT();
 }
 
-HRESULT CMainDlg::OnList_ColumnClick( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
+LRESULT CMainDlg::OnList_ColumnClick( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
 {
     SortList( reinterpret_cast<NMLISTVIEW *>(pnmh)->iSubItem );
     return LRESULT();
 }
 
-HRESULT CMainDlg::OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
+LRESULT CMainDlg::OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
 {
     LVITEM      lvitem = reinterpret_cast<NMLVDISPINFO *>(pnmh)->item;
 
@@ -482,7 +491,7 @@ HRESULT CMainDlg::OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*b
     return FALSE;
 }
 
-HRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
+LRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
 {
     LVITEM      lvitem = reinterpret_cast<NMLVDISPINFO *>(pnmh)->item;
     HRESULT     result = TRUE;
@@ -542,6 +551,81 @@ LRESULT CMainDlg::OnList_GetDispInfo( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bH
         }
     }
     return 0;
+}
+
+LRESULT CMainDlg::OnList_FindItem( int, LPNMHDR pNMHDR, BOOL & )
+{
+    // pNMHDR has information about the item we should find
+    // In pResult we should save which item that should be selected
+    NMLVFINDITEM    *pFindInfo = reinterpret_cast<NMLVFINDITEM *>(pNMHDR);
+
+    /* pFindInfo->iStart is from which item we should search.
+    We search to bottom, and then restart at top and will stop
+    at pFindInfo->iStart, unless we find an item that match
+    */
+
+    // Set the default return value to -1
+    // That means we didn't find any match.
+    LRESULT     result = -1;
+
+    //Is search NOT based on string?
+    //This will probably never happend...
+    if ( (pFindInfo->lvfi.flags & LVFI_STRING) != 0 )
+    {
+        //This is the string we search for
+        std::wstring    searchstr( pFindInfo->lvfi.psz );
+        size_t          startPos = pFindInfo->iStart;
+
+        //Is startPos outside the list (happens if last item is selected)
+        if ( startPos >= mDataView.Count() )
+            startPos = 0;
+
+        ListDataView::list_size_type    idx = mDataView.FindItemCI_fromPos( searchstr, searchstr.size(), startPos );
+
+        if ( idx == ListDataView::npos && startPos != 0 )
+            idx = mDataView.FindItemCI( searchstr, searchstr.size() );
+        if ( idx != ListDataView::npos )
+            result = idx;
+    }
+    return result;
+}
+
+LRESULT CMainDlg::OnList_KeyDown( int, LPNMHDR pNMHDR, BOOL & )
+{
+    LV_KEYDOWN      *pLVKeyDown = reinterpret_cast<LV_KEYDOWN *>(pNMHDR);
+
+    if ( pLVKeyDown->wVKey == VK_SPACE && ListView_IsCheckBoxesVisible() )
+    {
+        int         idx = mListView.GetSelectedIndex();
+
+        if ( idx >= 0 )
+        {
+            mDataView.Item( idx )->ToggleChecked();
+            mListView.Update( idx );
+        }
+    }
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnList_Click( int, LPNMHDR pNMHDR, BOOL & )
+{
+    NMLISTVIEW      *pNMListView = reinterpret_cast<NM_LISTVIEW *>(pNMHDR);
+    LVHITTESTINFO   hitinfo;
+    //Copy click point
+
+    hitinfo.pt = pNMListView->ptAction;
+
+    //Make the hit test...
+    int             idx = mListView.HitTest( &hitinfo );
+
+    //We hit one item... did we hit state image (check box)?
+    //This test only works if we are in list or report mode.
+    if ( idx >= -1 && (hitinfo.flags & LVHT_ONITEMSTATEICON) != 0 )
+    {
+        mDataView.Item( idx )->ToggleChecked();
+        mListView.Update( idx );
+    }
+    return LRESULT();
 }
 
 CMainDlg::CMainDlg()

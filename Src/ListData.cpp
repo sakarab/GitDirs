@@ -26,6 +26,14 @@
 
 // https://www.codeproject.com/articles/7891/using-virtual-lists
 
+void GitGetRepositoriesState( GitDirStateList& state_list )
+{
+    git2::LibGit2     libgit;
+
+    for ( GitDirStateList::value_type& item : state_list )
+        GetDirectoryState( libgit, item );
+}
+
 //=======================================================================
 //==============    ListDataItem
 //=======================================================================
@@ -39,6 +47,12 @@ ListDataItem::ListDataItem( const GitDirItem & item )
 
 ListDataItem::~ListDataItem()
 {}
+
+bool ListDataItem::ToggleChecked()
+{
+    mChecked = !mChecked;
+    return mChecked;
+}
 
 void ListDataItem::NRepos( int value )
 {
@@ -222,14 +236,73 @@ void ListDataView::DeleteItem( ListData& data, const std::wstring& key )
     }
 }
 
-const spListDataItem& ListDataView::Item( Container::size_type idx ) const
+ListDataView::list_size_type ListDataView::FindItem( const std::wstring & key ) const
+{
+    Container::const_iterator     it = std::find_if( mData.begin(), mData.end(), [&key]( const Container::value_type& item ) {
+        return item->Name() == key;
+    } );
+
+    if ( it == mData.end() )
+        return npos;
+    return std::distance( mData.begin(), it );
+}
+
+ListDataView::list_size_type ListDataView::FindItemCI( const std::wstring& key ) const
+{
+    return FindItemCI_fromPos( key, 0 );
+}
+
+ListDataView::list_size_type ListDataView::FindItemCI( const std::wstring& key, std::wstring::size_type max_chars ) const
+{
+    return FindItemCI_fromPos( key, max_chars, 0 );
+}
+
+ListDataView::list_size_type ListDataView::FindItemCI_fromPos( const std::wstring & key, list_size_type pos ) const
+{
+    if ( !IndexInBounds( pos ) )
+        return npos;
+
+    ccwin::case_insensitive_string_compare<wchar_t>     cmp;
+    Container::const_iterator                           it_start = mData.begin();
+        
+    std::advance( it_start, pos );
+
+    Container::const_iterator     it = std::find_if( it_start, mData.end(), [&key, &cmp]( const Container::value_type& item ) {
+        return cmp( item->Name(), key ) == 0;
+    } );
+
+    if ( it == mData.end() )
+        return npos;
+    return std::distance( mData.begin(), it );
+}
+
+ListDataView::list_size_type ListDataView::FindItemCI_fromPos( const std::wstring & key, std::wstring::size_type max_chars, list_size_type pos ) const
+{
+    if ( !IndexInBounds( pos ) )
+        return npos;
+
+    ccwin::case_insensitive_string_compare_n<wchar_t>   cmp( max_chars );
+    Container::const_iterator                           it_start = mData.begin();
+
+    std::advance( it_start, pos );
+
+    Container::const_iterator     it = std::find_if( it_start, mData.end(), [&key, &cmp]( const Container::value_type& item ) {
+        return cmp( item->Name(), key ) == 0;
+    } );
+
+    if ( it == mData.end() )
+        return npos;
+    return std::distance( mData.begin(), it );
+}
+
+const spListDataItem& ListDataView::Item( list_size_type idx ) const
 {
     if ( !IndexInBounds( idx ) )
         throw std::runtime_error( "Index out of bounds." );
     return mData[idx];
 }
 
-spListDataItem& ListDataView::Item( Container::size_type idx )
+spListDataItem& ListDataView::Item( list_size_type idx )
 {
     if ( !IndexInBounds( idx ) )
         throw std::runtime_error( "Index out of bounds." );

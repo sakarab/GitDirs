@@ -98,16 +98,6 @@ namespace
         }
     }
 
-    void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item )
-    {
-        libgit.OpenRepository( ccwin::NarrowStringStrict( state_item.Directory ).c_str() );
-        BOOST_SCOPE_EXIT( &libgit )     { libgit.CloseRepository(); }       BOOST_SCOPE_EXIT_END;
-
-        state_item.Branch = libgit.GetCurrentBranch();
-        GetDirectoryStateUncommited( libgit, state_item );
-        GetDirectoryStateNeeds( libgit, state_item );
-    }
-
     void UpgradeDB( const std::wstring& ini_fname )
     {
         static bool         upgraded = false;
@@ -191,19 +181,21 @@ std::wstring MakeCommand( const wchar_t *command, const wchar_t *path )
     return boost::str( boost::wformat( L"TortoiseGitProc.exe /command:%1% /path:%2%" ) % command % path );
 }
 
-void GitGetRepositoriesState( GitDirStateList& state_list )
-{
-    git2::LibGit2     libgit;
-
-    for ( GitDirStateList::value_type& item : state_list )
-        GetDirectoryState( libgit, item );
-}
-
 void Throw_NoUniqueName( const std::wstring& name )
 {
     std::string     msg = boost::str( boost::format( "There already is an entry with the name '%1%'" ) % ccwin::NarrowStringStrict( name ) );
 
     throw cclib::BaseException( msg );
+}
+
+void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item )
+{
+    libgit.OpenRepository( ccwin::NarrowStringStrict( state_item.Directory ).c_str() );
+    BOOST_SCOPE_EXIT( &libgit ) { libgit.CloseRepository(); }       BOOST_SCOPE_EXIT_END;
+
+    state_item.Branch = libgit.GetCurrentBranch();
+    GetDirectoryStateUncommited( libgit, state_item );
+    GetDirectoryStateNeeds( libgit, state_item );
 }
 
 //=======================================================================
