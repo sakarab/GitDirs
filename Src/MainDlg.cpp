@@ -126,14 +126,14 @@ void CMainDlg::Menu_Append( CMenuHandle menu, int position )
         menu.AppendMenu( MF_SEPARATOR );
         for ( const std::wstring& sstr : groups )
         {
-            menu.AppendMenu( MF_STRING, GroupMenuCommandID, sstr.c_str() );
+            menu.AppendMenu( MF_STRING, GroupMenuCommandID + (position - start_position), sstr.c_str() );
 
-            MENUITEMINFO    info;
+            //MENUITEMINFO    info;
 
-            info.cbSize = sizeof( MENUITEMINFO );
-            info.fMask = MIIM_DATA;
-            info.dwItemData = static_cast<UINT_PTR>(position - start_position);
-            menu.SetMenuItemInfo( position, TRUE, &info );
+            //info.cbSize = sizeof( MENUITEMINFO );
+            //info.fMask = MIIM_DATA;
+            //info.dwItemData = static_cast<UINT_PTR>(position - start_position);
+            //menu.SetMenuItemInfo( position, TRUE, &info );
             ++position;
         }
     }
@@ -150,6 +150,13 @@ void CMainDlg::MainMenu_Append( CMenuHandle menu )
 
 void CMainDlg::PopupMenu_Append( CMenuHandle menu )
 {
+}
+
+void CMainDlg::SetGroup( const std::wstring& group )
+{
+    mDataView.Group( mDataBase, group );
+    mListView.SetItemCount( mDataView.Count() );
+    mListView.UpdateWindow();
 }
 
 BOOL CMainDlg::OnIdle()
@@ -330,12 +337,8 @@ LRESULT CMainDlg::OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wI
 {
     GitDirStateList     state_list;
 
-    for ( int n = 0, eend = mDataView.Count() ; n < eend ; ++n )
-    {
-        const spListDataItem&       item = mDataView.Item( n );
-
+    for ( const spListDataItem& item : mDataView )
         state_list.push_back( GitDirStateItem( item->Name(), item->Directory() ) );
-    }
     RefreshRepoStateAndView( state_list );
     return LRESULT();
 }
@@ -396,6 +399,18 @@ LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
 LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
     return 0;
+}
+
+LRESULT CMainDlg::OnGroup_All( WORD, WORD, HWND, BOOL & )
+{
+    SetGroup( std::wstring() );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnGroup_MenuCommand( WORD, WORD wID, HWND, BOOL & )
+{
+    SetGroup( mDataBase.AllGroups().at( wID - GroupMenuCommandID ) );
+    return LRESULT();
 }
 
 LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )

@@ -147,6 +147,7 @@ private:
     void Menu_Append( CMenuHandle menu, const int start_position );
     void MainMenu_Append( CMenuHandle menu );
     void PopupMenu_Append( CMenuHandle menu );
+    void SetGroup( const std::wstring& group );
 
     // Handler prototypes (uncomment arguments if needed):
     //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -171,6 +172,8 @@ private:
     LRESULT OnEdit_ShowCheckBoxes( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_ClearCheckBoxes( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnGroup_All( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnGroup_MenuCommand( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_Fetch( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -207,6 +210,8 @@ private:
         COMMAND_ID_HANDLER( ID_EDIT_SHOWCHECKBOXES, OnEdit_ShowCheckBoxes );
         COMMAND_ID_HANDLER( ID_EDIT_CLEARCHECKBOXES, OnEdit_ClearCheckBoxes );
         COMMAND_ID_HANDLER( ID_EDIT_OPTIONS, OnEdit_Options );
+        COMMAND_ID_HANDLER( ID_GROUPS_ALL, OnGroup_All );
+        COMMAND_RANGE_HANDLER( GroupMenuCommandID, GroupMenuCommandID + 1000, OnGroup_MenuCommand );
         COMMAND_ID_HANDLER( ID_POPUP_REFRESHSTATE, OnPopup_RefreshState );
         COMMAND_ID_HANDLER( ID_GIT_CHECKFORMODIFICATIONS, OnGit_CheckForModifications );
         COMMAND_ID_HANDLER( ID_GIT_FETCH, OnGit_Fetch );

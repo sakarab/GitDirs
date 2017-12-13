@@ -124,17 +124,6 @@ public:
 class ListDataView
 {
 private:
-    class str_cmp
-    {
-    private:
-        ccwin::case_insensitive_string_compare_ptr<wchar_t>     cmp;
-    public:
-        bool operator()( const spListDataItem& item_1, const spListDataItem& item_2 )
-        {
-            return cmp.operator()( item_1->Name().c_str(), item_2->Name().c_str() ) < 0;
-        }
-    };
-
     typedef std::vector<spListDataItem>         Container;
 public:
     typedef Container::iterator                 iterator;
@@ -161,6 +150,10 @@ public:
 
     void LoadFromDb( const ListData& data );
     void LoadFromDb( const ListData& data, ListColumn col );
+
+    const std::wstring& Group() const                               { return mGroup; }
+    void Group( ListData& data, const std::wstring& group );
+
     void LoadState( ccwin::TIniFile& ini );
     void SaveState( ccwin::TIniFile& ini );
 

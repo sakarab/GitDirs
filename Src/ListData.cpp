@@ -182,7 +182,7 @@ void ListDataView::LoadFromDb( const ListData& data )
     LoadFromDb( data, mSortColumn );
 }
 
-void ListDataView::LoadFromDb( const ListData & data, ListColumn col )
+void ListDataView::LoadFromDb( const ListData& data, ListColumn col )
 {
     mData.clear();
     if ( mGroup.empty() )
@@ -201,6 +201,14 @@ void ListDataView::LoadFromDb( const ListData & data, ListColumn col )
         }
     }
     SortColumn( col );
+}
+
+void ListDataView::Group( ListData& data, const std::wstring& group )
+{
+    if ( mGroup == group )
+        return;
+    mGroup = group;
+    LoadFromDb( data );
 }
 
 void ListDataView::LoadState( ccwin::TIniFile& ini )
