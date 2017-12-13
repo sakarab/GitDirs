@@ -35,6 +35,12 @@ void GitGetRepositoriesState( GitDirStateList& state_list )
 }
 
 //=======================================================================
+//==============    FilterBase
+//=======================================================================
+FilterBase::~FilterBase()
+{}
+
+//=======================================================================
 //==============    ListDataItem
 //=======================================================================
 const std::wstring ListDataItem::Yes = std::wstring( L"Yes" );
@@ -172,6 +178,7 @@ void ListData::DeleteItem( const std::wstring& key )
 //=======================================================================
 
 ListDataView::ListDataView()
+    : mFilter( std::make_shared<FilterGroup>() )
 {}
 
 ListDataView::~ListDataView()

@@ -85,6 +85,71 @@ typedef std::shared_ptr<ListDataItem>       spListDataItem;
 typedef std::weak_ptr<ListDataItem>         wpListDataItem;
 
 //=======================================================================
+//==============    FilterBase
+//=======================================================================
+class FilterBase
+{
+public:
+    virtual bool operator()( const spListDataItem& data_item ) = 0;
+    virtual ~FilterBase();
+};
+
+typedef std::shared_ptr<FilterBase>         spFilter;
+
+//=======================================================================
+//==============    FilterChecked
+//=======================================================================
+class FilterChecked : public FilterBase
+{
+private:
+    bool    mValue;
+public:
+    explicit FilterChecked( bool value ) : mValue( value ) {}
+    bool operator()( const spListDataItem& data_item ) override
+    {
+        return !(data_item->Checked() ^ mValue);
+    }
+};
+
+//=======================================================================
+//==============    FilterTagged
+//=======================================================================
+class FilterTagged : public FilterBase
+{
+private:
+    bool    mValue;
+public:
+    explicit FilterTagged( bool value ) : mValue( value ) {}
+    bool operator()( const spListDataItem& data_item ) override
+    {
+        return (!data_item->Groups().empty()) ^ mValue;
+    }
+};
+
+//=======================================================================
+//==============    FilterGroup
+//=======================================================================
+class FilterGroup : public FilterBase
+{
+private:
+    std::wstring    mGroup;
+public:
+    FilterGroup() : mGroup() {}
+    explicit FilterGroup( const std::wstring value ) : mGroup( value ) {}
+    bool operator()( const spListDataItem& data_item ) override
+    {
+        if ( mGroup.empty() )
+            return true;
+        else
+        {
+            const WStringList&  slist = data_item->Groups();
+
+            return std::find( slist.begin(), slist.end(), mGroup ) != slist.end();
+        }
+    }
+};
+
+//=======================================================================
 //==============    ListData
 //=======================================================================
 class ListData
@@ -136,6 +201,7 @@ public:
 private:
     Container       mData;
     std::wstring    mGroup;
+    spFilter        mFilter;
     ListColumn      mSortColumn = ListColumn::name;
 public:
     static const Container::size_type       npos = 0xFFFFFFFF;

@@ -277,6 +277,13 @@ BEGIN
     POPUP "Gr&oups"
     BEGIN
         MENUITEM "All",                         ID_GROUPS_ALL
+        POPUP "Special"
+        BEGIN
+            MENUITEM "Checked",                     ID_SPECIAL_CHECKED
+            MENUITEM "Unchecked",                   ID_SPECIAL_UNCHECKED
+            MENUITEM "Tagged",                      ID_SPECIAL_TAGGED
+            MENUITEM "Untagged",                    ID_SPECIAL_UNTAGGED
+        END
     END
     POPUP "&Git"
     BEGIN
