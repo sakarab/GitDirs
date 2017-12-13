@@ -139,6 +139,8 @@ private:
     std::wstring ListView_GetText_Checked( int idx, ListColumn col );
     std::wstring ListView_GetSelectedText( ListColumn col );
     std::wstring ListView_GetSelectedText_Checked( ListColumn col );
+    void ListView_SetShowCheckBoxes( bool value );
+    bool ListView_GetShowCheckBoxes();
     void AddFile( const std::wstring& fname );
     void ReloadIni( ccwin::TIniFile& ini );
     void SortList( int column );

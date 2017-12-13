@@ -239,6 +239,7 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     mDataView.LoadState( ini );
     ReloadIni( ini );
     MainMenu_Append( mMainMenu.GetSubMenu( GROUPS_MENU_Position ) );
+    ListView_SetShowCheckBoxes( ini.ReadBool( IniSections::ViewState, IniKeys::ViewState_ShowCheckBoxes, false ) );
     return TRUE;
 }
 
@@ -254,6 +255,7 @@ LRESULT CMainDlg::OnDestroy( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
     CFormSize::Save( ini );
     mDataView.SaveState( ini );
+    ini.WriteInteger( IniSections::ViewState, IniKeys::ViewState_ShowCheckBoxes, ListView_GetShowCheckBoxes() );
 
     return 0;
 }
@@ -386,19 +388,7 @@ LRESULT CMainDlg::OnEdit_Delete( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
 {
-    DWORD   style = mListView.GetExtendedListViewStyle();
-    bool    state = (UIGetState( ID_EDIT_SHOWCHECKBOXES ) & UPDUI_CHECKED) != 0;
-
-    state = !state;
-    if ( state )
-    {
-        mListView.SetExtendedListViewStyle( style | LVS_EX_CHECKBOXES );
-    }
-    else
-    {
-        mListView.SetExtendedListViewStyle( style & ~LVS_EX_CHECKBOXES );
-    }
-    UISetCheck( ID_EDIT_SHOWCHECKBOXES, state );
+    ListView_SetShowCheckBoxes( !ListView_GetShowCheckBoxes() );
     return LRESULT();
 }
 
@@ -577,6 +567,7 @@ LRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::success), lvitem.iItem );
     }
     mInLabelEdit = false;
+    mEscapeExit = false;
     return result;
 }
 
@@ -724,4 +715,24 @@ std::wstring CMainDlg::ListView_GetSelectedText( ListColumn col )
 std::wstring CMainDlg::ListView_GetSelectedText_Checked( ListColumn col )
 {
     return ListView_GetText_Checked( mListView.GetSelectedIndex(), col );
+}
+
+void CMainDlg::ListView_SetShowCheckBoxes( bool value )
+{
+    DWORD   style = mListView.GetExtendedListViewStyle();
+
+    if ( value )
+    {
+        mListView.SetExtendedListViewStyle( style | LVS_EX_CHECKBOXES );
+    }
+    else
+    {
+        mListView.SetExtendedListViewStyle( style & ~LVS_EX_CHECKBOXES );
+    }
+    UISetCheck( ID_EDIT_SHOWCHECKBOXES, value );
+}
+
+bool CMainDlg::ListView_GetShowCheckBoxes()
+{
+    return (UIGetState( ID_EDIT_SHOWCHECKBOXES ) & UPDUI_CHECKED) != 0;
 }
