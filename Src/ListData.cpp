@@ -244,6 +244,16 @@ void ListDataView::DeleteItem( ListData& data, const std::wstring& key )
     }
 }
 
+void ListDataView::RemoveItem( const std::wstring& key )
+{
+    Container::iterator     it = std::find_if( mData.begin(), mData.end(), [&key]( const Container::value_type& item ) {
+        return item->Name() == key;
+    } );
+
+    if ( it != mData.end() )
+        mData.erase( it );
+}
+
 ListDataView::list_size_type ListDataView::FindItem( const std::wstring & key ) const
 {
     Container::const_iterator     it = std::find_if( mData.begin(), mData.end(), [&key]( const Container::value_type& item ) {

@@ -144,9 +144,8 @@ private:
     void SortList( int column );
     bool UniqueName( int idx, const std::wstring& name );
     void RefreshRepoStateAndView( GitDirStateList& state_list );
-    void Menu_Append( CMenuHandle menu, const int start_position );
     void MainMenu_Append( CMenuHandle menu );
-    void PopupMenu_Append( CMenuHandle menu );
+    void PopupMenu_Append( CMenuHandle menu, const WStringList& groups );
     void SetGroup( const std::wstring& group );
 
     // Handler prototypes (uncomment arguments if needed):
@@ -174,6 +173,7 @@ private:
     LRESULT OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGroup_All( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGroup_MenuCommand( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnGroup_SubMenuCommand( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_Fetch( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -211,7 +211,8 @@ private:
         COMMAND_ID_HANDLER( ID_EDIT_CLEARCHECKBOXES, OnEdit_ClearCheckBoxes );
         COMMAND_ID_HANDLER( ID_EDIT_OPTIONS, OnEdit_Options );
         COMMAND_ID_HANDLER( ID_GROUPS_ALL, OnGroup_All );
-        COMMAND_RANGE_HANDLER( GroupMenuCommandID, GroupMenuCommandID + 1000, OnGroup_MenuCommand );
+        COMMAND_RANGE_HANDLER( GROUPS_MENU_CommandID, GROUPS_MENU_CommandID + 999, OnGroup_MenuCommand );
+        COMMAND_RANGE_HANDLER( GROUPS_MENU_SubMenuCommandID, GROUPS_MENU_SubMenuCommandID + 999, OnGroup_SubMenuCommand );
         COMMAND_ID_HANDLER( ID_POPUP_REFRESHSTATE, OnPopup_RefreshState );
         COMMAND_ID_HANDLER( ID_GIT_CHECKFORMODIFICATIONS, OnGit_CheckForModifications );
         COMMAND_ID_HANDLER( ID_GIT_FETCH, OnGit_Fetch );

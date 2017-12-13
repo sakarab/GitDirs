@@ -198,12 +198,66 @@ void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item )
     GetDirectoryStateNeeds( libgit, state_item );
 }
 
+bool ToggleMenuCheck( CMenuHandle menu, int position )
+{
+    bool    result = !GetMenuCheck( menu, position );
+
+    SetMenuCheck( menu, position, result );
+    return result;
+}
+
+bool GetMenuCheck( CMenuHandle menu, int position )
+{
+    MENUITEMINFO            info;
+
+    info.cbSize = sizeof( MENUITEMINFO );
+    info.fMask = MIIM_STATE;
+    menu.GetMenuItemInfo( position, TRUE, &info );
+    return info.fState == MFS_CHECKED;
+}
+
+void SetMenuCheck( CMenuHandle menu, int position, bool value )
+{
+    MENUITEMINFO            info;
+
+    info.cbSize = sizeof( MENUITEMINFO );
+    info.fMask = MIIM_STATE;
+    info.fState = value ? MFS_CHECKED : MFS_UNCHECKED;
+    menu.SetMenuItemInfo( position, TRUE, &info );
+}
+
+void SetMenuRadio( CMenuHandle menu, int position )
+{
+    int     menu_count = menu.GetMenuItemCount();
+
+    for ( int n = 0 ; n < menu_count ; ++n )
+        SetMenuCheck( menu, n, position == n );
+}
+
 //=======================================================================
 //==============    GitDirItem
 //=======================================================================
 GitDirItem::GitDirItem( const std::wstring& name, const std::wstring& dir, const std::wstring& groups )
     : mName( name ), mDirectory( dir ), mGroups( DelimitedTextToList( groups, L',' ) )
 {
+}
+
+void GitDirItem::AddToGroup( const std::wstring& group )
+{
+    mGroups.push_back( group );
+}
+
+void GitDirItem::RemoveFromGroup( const std::wstring& group )
+{
+    WStringList::iterator   it = std::find( mGroups.begin(), mGroups.end(), group );
+
+    if ( it != mGroups.end() )
+        mGroups.erase( it );
+}
+
+bool GitDirItem::InGroup( const std::wstring& group )
+{
+    return std::find( mGroups.begin(), mGroups.end(), group ) != mGroups.end();
 }
 
 namespace git2

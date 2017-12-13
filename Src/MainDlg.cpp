@@ -116,40 +116,51 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
     }
 }
 
-void CMainDlg::Menu_Append( CMenuHandle menu, int position )
-{
-    const int           start_position = position;
-    const WStringList&  groups = mDataBase.AllGroups();
-
-    if ( !groups.empty() )
-    {
-        menu.AppendMenu( MF_SEPARATOR );
-        for ( const std::wstring& sstr : groups )
-        {
-            menu.AppendMenu( MF_STRING, GroupMenuCommandID + (position - start_position), sstr.c_str() );
-
-            //MENUITEMINFO    info;
-
-            //info.cbSize = sizeof( MENUITEMINFO );
-            //info.fMask = MIIM_DATA;
-            //info.dwItemData = static_cast<UINT_PTR>(position - start_position);
-            //menu.SetMenuItemInfo( position, TRUE, &info );
-            ++position;
-        }
-    }
-}
-
 void CMainDlg::MainMenu_Append( CMenuHandle menu )
 {
     int     last_menu_idx = menu.GetMenuItemCount() - 1;
 
     for ( int n = last_menu_idx ; n > 0 ; --n )
         menu.DeleteMenu( n, MF_BYPOSITION );
-    Menu_Append( menu, 2 );
+
+    const WStringList&      groups = mDataBase.AllGroups();
+
+    if ( !groups.empty() )
+    {
+        menu.AppendMenu( MF_SEPARATOR );
+
+        int     count = 0;
+        int     checked_idx = 0;
+
+        for ( const std::wstring& sstr : groups )
+        {
+            menu.AppendMenu( MF_STRING, GROUPS_MENU_CommandID + count, sstr.c_str() );
+            if ( checked_idx == 0 && sstr == mDataView.Group() )
+                checked_idx = count + GROUPS_MENU_HeaderCount;
+            ++count;
+        }
+        SetMenuCheck( menu, checked_idx, true );
+    }
 }
 
-void CMainDlg::PopupMenu_Append( CMenuHandle menu )
+void CMainDlg::PopupMenu_Append( CMenuHandle menu, const WStringList& groups )
 {
+    if ( mDataBase.AllGroups().empty() )
+        return;
+
+    CMenuHandle     submenu;
+    int             count = 0;
+
+    submenu.CreateMenu();
+    for ( const std::wstring& sstr : mDataBase.AllGroups() )
+    {
+        bool    in_group = std::find( groups.begin(), groups.end(), sstr ) != groups.end();
+
+        submenu.AppendMenu( MF_STRING, GROUPS_MENU_SubMenuCommandID + count, sstr.c_str() );
+        SetMenuCheck( submenu, count, in_group );
+        ++count;
+    }
+    menu.AppendMenu( MF_STRING | MF_POPUP, submenu.m_hMenu, L"Groups" );
 }
 
 void CMainDlg::SetGroup( const std::wstring& group )
@@ -170,6 +181,11 @@ LRESULT CMainDlg::OnContextMenu( UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
     if ( reinterpret_cast<HWND>(wParam) != mListView.m_hWnd )
         return 0;
 
+    int     idx = mListView.GetSelectedIndex();
+
+    if ( idx < 0 )
+        return 0;
+
     WTL::CPoint     pt( GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) );
     CMenu           menu;
 
@@ -177,6 +193,7 @@ LRESULT CMainDlg::OnContextMenu( UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 
     CMenuHandle     menuPopup = menu.GetSubMenu( 0 );
 
+    PopupMenu_Append( menuPopup, mDataView.Item( idx )->Groups() );
     menuPopup.TrackPopupMenuEx( TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_TOPALIGN | TPM_VERTICAL, pt.x, pt.y, this->m_hWnd );
     return 0;
 }
@@ -221,7 +238,7 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
     mDataView.LoadState( ini );
     ReloadIni( ini );
-    MainMenu_Append( mMainMenu.GetSubMenu( 2 ) );
+    MainMenu_Append( mMainMenu.GetSubMenu( GROUPS_MENU_Position ) );
     return TRUE;
 }
 
@@ -404,12 +421,45 @@ LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 LRESULT CMainDlg::OnGroup_All( WORD, WORD, HWND, BOOL & )
 {
     SetGroup( std::wstring() );
+
+    CMenuHandle     menu = mMainMenu.GetSubMenu( GROUPS_MENU_Position );
+
+    SetMenuRadio( menu, 0 );
     return LRESULT();
 }
 
 LRESULT CMainDlg::OnGroup_MenuCommand( WORD, WORD wID, HWND, BOOL & )
 {
-    SetGroup( mDataBase.AllGroups().at( wID - GroupMenuCommandID ) );
+    SetGroup( mDataBase.AllGroups().at( wID - GROUPS_MENU_CommandID ) );
+
+    CMenuHandle     menu = mMainMenu.GetSubMenu( GROUPS_MENU_Position );
+
+    SetMenuRadio( menu, wID - GROUPS_MENU_CommandID + GROUPS_MENU_HeaderCount );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnGroup_SubMenuCommand( WORD, WORD wID, HWND, BOOL & )
+{
+    int                 idx = mListView.GetSelectedIndex();
+
+    if ( idx >= 0 )
+    {
+        ListDataItem&           data_item = *mDataView.Item( idx );
+        const std::wstring&     group = mDataBase.AllGroups().at( wID - GROUPS_MENU_SubMenuCommandID );
+
+        if ( data_item.InGroup( group ) )
+        {
+            mDataView.Item( idx )->RemoveFromGroup( group );
+
+            if ( group == mDataView.Group() )
+            {
+                mDataView.RemoveItem( data_item.Name() );
+                mListView.SetItemCount( mDataView.Count() );
+            }
+        }
+        else
+            mDataView.Item( idx )->AddToGroup( group );
+    }
     return LRESULT();
 }
 

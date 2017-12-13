@@ -60,6 +60,10 @@ public:
     explicit ListDataItem( const GitDirItem& item );
     ~ListDataItem();
 
+    void AddToGroup( const std::wstring& group )        { mDataItem.AddToGroup( group ); }
+    void RemoveFromGroup( const std::wstring& group )   { mDataItem.RemoveFromGroup( group ); }
+    bool InGroup( const std::wstring& group )           { return mDataItem.InGroup( group ); }
+
     const std::wstring& Name() const            { return mDataItem.Name(); }
     const std::wstring& Directory() const       { return mDataItem.Directory(); }
     const WStringList& Groups() const           { return mDataItem.Groups(); }
@@ -159,6 +163,8 @@ public:
 
     void AddItem( ListData& data, const std::wstring& key, const std::wstring& value );
     void DeleteItem( ListData& data, const std::wstring& key );
+    void RemoveItem( const std::wstring& key );
+
     list_size_type FindItem( const std::wstring& key ) const;
     list_size_type FindItemCI( const std::wstring& key ) const;
     list_size_type FindItemCI( const std::wstring& key, std::wstring::size_type max_chars ) const;

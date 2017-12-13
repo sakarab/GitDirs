@@ -30,7 +30,10 @@
 typedef std::vector<std::wstring>   WStringList;
 
 const int       LastDataVersion = 1;
-const int       GroupMenuCommandID = 40000;
+const int       GROUPS_MENU_Position = 2;
+const int       GROUPS_MENU_HeaderCount = 2;
+const int       GROUPS_MENU_CommandID = 40000;
+const int       GROUPS_MENU_SubMenuCommandID = 41000;
 
 //=======================================================================
 //==============    IniStrings
@@ -66,6 +69,10 @@ public:
     const std::wstring& Name() const            { return mName; }
     const std::wstring& Directory() const       { return mDirectory; }
     const WStringList& Groups() const           { return mGroups; }
+    
+    void AddToGroup( const std::wstring& group );
+    void RemoveFromGroup( const std::wstring& group );
+    bool InGroup( const std::wstring& group );
 
     void Name( const std::wstring& value )      { mName = value; }
 };
@@ -85,13 +92,6 @@ struct GitDirStateItem
         : Name( name ), Directory( dir ), Branch(), NRepos(), Uncommited(), NeedsUpdate()
     {}
 };
-
-std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
-std::wstring GetIniFileName();
-void Throw_NoUniqueName( const std::wstring& name );
-
-WStringList DelimitedTextToList( const std::wstring& text, const wchar_t delimiter );
-std::wstring ListToDelimitedText( const WStringList& list, const wchar_t delimiter );
 
 namespace git2
 {
@@ -144,6 +144,22 @@ namespace git2
     };
 }
 
+//=======================================================================
+//==============    FREE FUNCTIONS
+//=======================================================================
+
+std::wstring MakeCommand( const wchar_t *command, const wchar_t *path );
+std::wstring GetIniFileName();
+void Throw_NoUniqueName( const std::wstring& name );
+
+WStringList DelimitedTextToList( const std::wstring& text, const wchar_t delimiter );
+std::wstring ListToDelimitedText( const WStringList& list, const wchar_t delimiter );
+
 void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item );
+
+bool ToggleMenuCheck( CMenuHandle menu, int position );
+bool GetMenuCheck( CMenuHandle menu, int position );
+void SetMenuCheck( CMenuHandle menu, int position, bool value );
+void SetMenuRadio( CMenuHandle menu, int position );
 
 #endif
