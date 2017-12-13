@@ -53,7 +53,6 @@ private:
 
     static const std::wstring Yes;
     static const std::wstring No;
-    static const std::wstring Empty;
 
     bool IsInited() const                       { return !mBranch.empty(); }
 public:
@@ -79,6 +78,8 @@ public:
     void Checked( bool value )                  { mChecked = value; }
 
     const std::wstring& GetText( ListColumn col ) const;
+
+    static const std::wstring Empty;
 };
 
 typedef std::shared_ptr<ListDataItem>       spListDataItem;
@@ -91,6 +92,8 @@ class FilterBase
 {
 public:
     virtual bool operator()( const spListDataItem& data_item ) = 0;
+    virtual void SetFilterField( spListDataItem& data_item ) = 0;
+    virtual const std::wstring& Group() const                           { return ListDataItem::Empty; }
     virtual ~FilterBase();
 };
 
@@ -109,6 +112,10 @@ public:
     {
         return !(data_item->Checked() ^ mValue);
     }
+    void SetFilterField( spListDataItem& data_item ) override
+    {
+        data_item->Checked( mValue );
+    }
 };
 
 //=======================================================================
@@ -123,6 +130,11 @@ public:
     bool operator()( const spListDataItem& data_item ) override
     {
         return (!data_item->Groups().empty()) ^ mValue;
+    }
+    void SetFilterField( spListDataItem& /*data_item*/ ) override
+    {
+        if ( mValue )
+            throw std::runtime_error( "Not supported." );
     }
 };
 
@@ -147,6 +159,11 @@ public:
             return std::find( slist.begin(), slist.end(), mGroup ) != slist.end();
         }
     }
+    void SetFilterField( spListDataItem& data_item ) override
+    {
+        data_item->AddToGroup( mGroup );
+    }
+    const std::wstring& Group() const override                  { return mGroup; }
 };
 
 //=======================================================================
@@ -200,7 +217,6 @@ public:
     typedef Container::size_type                list_size_type;
 private:
     Container       mData;
-    std::wstring    mGroup;
     spFilter        mFilter;
     ListColumn      mSortColumn = ListColumn::name;
 public:
@@ -221,8 +237,8 @@ public:
     void LoadFromDb( const ListData& data );
     void LoadFromDb( const ListData& data, ListColumn col );
 
-    const std::wstring& Group() const                               { return mGroup; }
-    void Group( ListData& data, const std::wstring& group );
+    const std::wstring& Group() const                               { return mFilter->Group(); }
+    void Filter( ListData& data, const spFilter& filter );
 
     void LoadState( ccwin::TIniFile& ini );
     void SaveState( ccwin::TIniFile& ini );

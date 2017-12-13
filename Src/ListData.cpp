@@ -192,48 +192,35 @@ void ListDataView::LoadFromDb( const ListData& data )
 void ListDataView::LoadFromDb( const ListData& data, ListColumn col )
 {
     mData.clear();
-    if ( mGroup.empty() )
-    {
-        for ( const ListData::Container::value_type& item : data )
+    for ( const ListData::Container::value_type& item : data )
+        if ( (*mFilter)( item.second ) )
             mData.push_back( item.second );
-    }
-    else
-    {
-        for ( const ListData::Container::value_type& item : data )
-        {
-            const WStringList&  slist = item.second->Groups();
-
-            if ( std::find( slist.begin(), slist.end(), mGroup ) != slist.end() )
-                mData.push_back( item.second );
-        }
-    }
     SortColumn( col );
 }
 
-void ListDataView::Group( ListData& data, const std::wstring& group )
+void ListDataView::Filter( ListData& data, const spFilter& filter )
 {
-    if ( mGroup == group )
-        return;
-    mGroup = group;
+    mFilter = filter;
     LoadFromDb( data );
 }
 
 void ListDataView::LoadState( ccwin::TIniFile& ini )
 {
-    mGroup = ini.ReadString( IniSections::ViewState, IniKeys::ViewState_Group, L"" );
+    mFilter = std::make_shared<FilterGroup>( ini.ReadString( IniSections::ViewState, IniKeys::ViewState_Group, L"" ) );
     SortColumn( static_cast<ListColumn>(ini.ReadInteger( IniSections::ViewState, IniKeys::ViewState_SortColumn, static_cast<byte>(ListColumn::name) )) );
 }
 
 void ListDataView::SaveState( ccwin::TIniFile & ini )
 {
-    ini.WriteString( IniSections::ViewState, IniKeys::ViewState_Group, mGroup.c_str() );
+    ini.WriteString( IniSections::ViewState, IniKeys::ViewState_Group, mFilter->Group().c_str() );
     ini.WriteInteger( IniSections::ViewState, IniKeys::ViewState_SortColumn, static_cast<int>(mSortColumn) );
 }
 
 void ListDataView::AddItem( ListData& data, const std::wstring& key, const std::wstring& value )
 {
-    spListDataItem      item = std::make_shared<ListDataItem>( GitDirItem( key, value, mGroup ) );
+    spListDataItem      item = std::make_shared<ListDataItem>( GitDirItem( key, value, std::wstring() ) );
 
+    mFilter->SetFilterField( item );
     data.AddItem( item );
     mData.push_back( item );
 }

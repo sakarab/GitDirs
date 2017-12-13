@@ -163,9 +163,9 @@ void CMainDlg::PopupMenu_Append( CMenuHandle menu, const WStringList& groups )
     menu.AppendMenu( MF_STRING | MF_POPUP, submenu.m_hMenu, L"Groups" );
 }
 
-void CMainDlg::SetGroup( const std::wstring& group )
+void CMainDlg::SetFilter( const spFilter& filter )
 {
-    mDataView.Group( mDataBase, group );
+    mDataView.Filter( mDataBase, filter );
     mListView.SetItemCount( mDataView.Count() );
     mListView.UpdateWindow();
 }
@@ -420,7 +420,7 @@ LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 LRESULT CMainDlg::OnGroup_All( WORD, WORD, HWND, BOOL & )
 {
-    SetGroup( std::wstring() );
+    SetFilter( std::make_shared<FilterGroup>( std::wstring() ) );
 
     CMenuHandle     menu = mMainMenu.GetSubMenu( GROUPS_MENU_Position );
 
@@ -430,7 +430,7 @@ LRESULT CMainDlg::OnGroup_All( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnGroup_MenuCommand( WORD, WORD wID, HWND, BOOL & )
 {
-    SetGroup( mDataBase.AllGroups().at( wID - GROUPS_MENU_CommandID ) );
+    SetFilter( std::make_shared<FilterGroup>( mDataBase.AllGroups().at( wID - GROUPS_MENU_CommandID ) ) );
 
     CMenuHandle     menu = mMainMenu.GetSubMenu( GROUPS_MENU_Position );
 

@@ -146,7 +146,7 @@ private:
     void RefreshRepoStateAndView( GitDirStateList& state_list );
     void MainMenu_Append( CMenuHandle menu );
     void PopupMenu_Append( CMenuHandle menu, const WStringList& groups );
-    void SetGroup( const std::wstring& group );
+    void SetFilter( const spFilter& filter );
 
     // Handler prototypes (uncomment arguments if needed):
     //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
