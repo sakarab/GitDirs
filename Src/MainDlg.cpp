@@ -667,16 +667,15 @@ LRESULT CMainDlg::OnList_Click( int, LPNMHDR pNMHDR, BOOL & )
 {
     NMLISTVIEW      *pNMListView = reinterpret_cast<NM_LISTVIEW *>(pNMHDR);
     LVHITTESTINFO   hitinfo;
-    //Copy click point
 
     hitinfo.pt = pNMListView->ptAction;
 
-    //Make the hit test...
     int             idx = mListView.HitTest( &hitinfo );
 
-    //We hit one item... did we hit state image (check box)?
-    //This test only works if we are in list or report mode.
-    if ( idx >= -1 && (hitinfo.flags & LVHT_ONITEMSTATEICON) != 0 )
+    // We hit one item... did we hit state image (check box)?
+    // This test only works if we are in list or report mode.
+    // hitinfo.flags must contain only LVHT_ONITEMSTATEICON flag
+    if ( idx >= -1 && hitinfo.flags == LVHT_ONITEMSTATEICON )
     {
         mDataView.Item( idx )->ToggleChecked();
         mListView.Update( idx );
