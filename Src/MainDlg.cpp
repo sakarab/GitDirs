@@ -64,7 +64,7 @@ void CMainDlg::AddFile( const std::wstring& fname )
 
     mDataView.AddItem( mDataBase, skey, svalue );
     mListView.SetItemCount( mDataView.Count() );
-    mListView.UpdateWindow();
+    mListView.Invalidate( FALSE );
 }
 
 void CMainDlg::ReloadIni( ccwin::TIniFile& ini )
@@ -79,7 +79,7 @@ void CMainDlg::SortList( int column )
     if ( column >= 0 )
     {
         mDataView.SortColumn( static_cast<ListColumn>(column) );
-        mListView.UpdateWindow();
+        mListView.Invalidate( FALSE );
     }
 }
 
@@ -167,7 +167,7 @@ void CMainDlg::SetGroup( const std::wstring& group )
 {
     mDataView.Group( mDataBase, group );
     mListView.SetItemCount( mDataView.Count() );
-    mListView.UpdateWindow();
+    mListView.Invalidate( FALSE );
 }
 
 BOOL CMainDlg::OnIdle()
@@ -381,7 +381,7 @@ LRESULT CMainDlg::OnEdit_Delete( WORD, WORD, HWND, BOOL & )
 
         mDataView.DeleteItem( mDataBase, item->Name() );
         mListView.SetItemCount( mDataView.Count() );
-        mListView.UpdateWindow();
+        mListView.Invalidate( FALSE );
     }
     return LRESULT();
 }
@@ -398,7 +398,7 @@ LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
     {
         for ( spListDataItem& item : mDataView )
             item->Checked( false );
-        mListView.UpdateWindow();
+        mListView.Invalidate( FALSE );
     }
     return LRESULT();
 }
