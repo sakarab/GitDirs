@@ -142,6 +142,7 @@ const wchar_t * IniSections::Data = L"Data";
 const wchar_t * IniKeys::ViewState_SortColumn = L"SortColumn";
 const wchar_t * IniKeys::ViewState_Group = L"Group";
 const wchar_t * IniKeys::ViewState_ShowCheckBoxes = L"ShowCheckBoxes";
+const wchar_t * IniKeys::ViewState_WorksetFilename = L"WorksetFilename";
 const wchar_t * IniKeys::Data_Marks = L"Marks";
 const wchar_t * IniKeys::Data_AllGroups = L"AllGroups";
 
@@ -230,6 +231,37 @@ void SetMenuRadioRecursive( CMenuHandle menu, UINT menu_id )
             menu.SetMenuItemInfo( info.wID, FALSE, &info );
         }
     }
+}
+
+const WCHAR *RS_LoadPtr( UINT rc_id, int& len )
+{
+    WCHAR   buffer[sizeof(void *)];
+
+    len = LoadString( GetModuleHandle( nullptr ), rc_id, buffer, 0 );
+    if ( len == 0 )
+        ccwin::RaiseLastOSError();
+    return const_cast<const WCHAR *>(*reinterpret_cast<WCHAR **>(buffer));
+}
+
+std::wstring RS_LoadString( UINT rc_id )
+{
+    int             len;
+    const WCHAR *   str = RS_LoadPtr( rc_id, len );
+
+    return std::wstring( str, len );
+}
+
+//=======================================================================
+//==============    ViewState
+//=======================================================================
+void ViewState::Save( ccwin::TIniFile& ini )
+{
+    ini.WriteString( IniSections::ViewState, IniKeys::ViewState_WorksetFilename, Workset_Filename.c_str() );
+}
+
+void ViewState::Load( ccwin::TIniFile& ini )
+{
+    Workset_Filename = ini.ReadString( IniSections::ViewState, IniKeys::ViewState_WorksetFilename, L"" );
 }
 
 //=======================================================================

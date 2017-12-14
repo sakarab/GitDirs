@@ -202,6 +202,9 @@ public:
     bool IsUniqueKey( const std::wstring& key ) const           { return FindItem( key ) == mData.end(); }
 
     const WStringList& AllGroups() const                        { return mAllGroups; }
+
+    std::wstring WorksetAsString();
+    void WorksetFromString( const std::wstring& sstr );
 };
 
 //=======================================================================

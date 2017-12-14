@@ -23,6 +23,7 @@
 #include "MainDlg.h"
 #include "AboutDlg.h"
 #include <atlmisc.h>
+#include <atldlgs.h>
 #include <smException.h>
 #include <winOSUtils.h>
 #include <winUtils.h>
@@ -246,6 +247,7 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     ReloadIni( ini );
     MainMenu_Append( mMainMenu.GetSubMenu( GROUPS_MENU_Position ) );
     ListView_SetShowCheckBoxes( ini.ReadBool( IniSections::ViewState, IniKeys::ViewState_ShowCheckBoxes, false ) );
+    mViewState.Load( ini );
     return TRUE;
 }
 
@@ -262,6 +264,7 @@ LRESULT CMainDlg::OnDestroy( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
     CFormSize::Save( ini );
     mDataView.SaveState( ini );
     ini.WriteInteger( IniSections::ViewState, IniKeys::ViewState_ShowCheckBoxes, ListView_GetShowCheckBoxes() );
+    mViewState.Save( ini );
 
     return 0;
 }
@@ -342,6 +345,47 @@ LRESULT CMainDlg::OnFile_ReloadIni( WORD, WORD, HWND, BOOL & )
     ccwin::TIniFile     ini( GetIniFileName() );
 
     ReloadIni( ini );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnFile_ImportWorkset( WORD, WORD, HWND, BOOL & )
+{
+    CFileDialog     dlg( TRUE,  // TRUE for FileOpen, FALSE for FileSaveAs
+                         NULL,  // LPCTSTR lpszDefExt = 
+                         ccwin::smLPSTR( mViewState.Workset_Filename ).get(),   // LPCTSTR lpszFileName = 
+                         OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,                  // DWORD dwFlags = 
+                         L"All Files (*.*)\0*.*\0",                             // LPCTSTR lpszFilter =
+                         *this );
+
+    if ( dlg.DoModal( *this ) == IDOK )
+    {
+        mViewState.Workset_Filename = dlg.m_szFileName;
+
+        ccwin::TIniFile     ini( mViewState.Workset_Filename );
+
+        mDataBase.WorksetFromString( ini.ReadString( IniSections::Data, IniKeys::Data_Marks, L"" ) );
+        mListView.Invalidate( FALSE );
+    }
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnFile_ExportWorkset( WORD, WORD, HWND, BOOL & )
+{
+    CFileDialog     dlg( FALSE,     // TRUE for FileOpen, FALSE for FileSaveAs
+                         NULL,      // LPCTSTR lpszDefExt = 
+                         ccwin::smLPSTR( mViewState.Workset_Filename ).get(),                           // LPCTSTR lpszFileName = 
+                         OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,  // DWORD dwFlags = 
+                         L"All Files (*.*)\0*.*\0",                                                     // LPCTSTR lpszFilter =
+                         *this );
+
+    if ( dlg.DoModal( *this ) == IDOK )
+    {
+        mViewState.Workset_Filename = dlg.m_szFileName;
+
+        ccwin::TIniFile     ini( mViewState.Workset_Filename );
+
+        ini.WriteString( IniSections::Data, IniKeys::Data_Marks, mDataBase.WorksetAsString().c_str() );
+    }
     return LRESULT();
 }
 

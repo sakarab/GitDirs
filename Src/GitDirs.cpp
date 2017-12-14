@@ -38,7 +38,7 @@ int Run( LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT )
 
     _Module.AddMessageLoop( &theLoop );
 
-    CMainDlg dlgMain;
+    CMainDlg        dlgMain;
 
     if ( dlgMain.Create( NULL ) == NULL )
     {
@@ -70,10 +70,12 @@ int WINAPI _tWinMain( HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR l
     hRes = _Module.Init( NULL, hInstance );
     ATLASSERT( SUCCEEDED( hRes ) );
 
-    int     nRet = Run( lpstrCmdLine, nCmdShow );
+    //int     nRet = Run( lpstrCmdLine, nCmdShow );
+    Run( lpstrCmdLine, nCmdShow );
 
     _Module.Term();
     ::CoUninitialize();
 
-    return nRet;
+    //return nRet;
+    return 0;
 }

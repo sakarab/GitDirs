@@ -33,18 +33,20 @@
 #define ID_GIT_COMMIT                   32830
 #define ID_FILE_SAVEDATA                32836
 #define ID_GROUPS_ALL                   32837
-#define ID_GROUPS_SPECIAL               32838
 #define ID_SPECIAL_CHECKED              32839
 #define ID_SPECIAL_UNCHECKED            32840
 #define ID_SPECIAL_TAGGED               32841
 #define ID_SPECIAL_UNTAGGED             32842
+#define ID_FILE_EXPORTWORKINGSET        32843
+#define ID_FILE_IMPORTWORKSET           32844
+#define ID_FILE_EXPORTWORKSET           32845
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
-#define _APS_NEXT_COMMAND_VALUE         32843
+#define _APS_NEXT_COMMAND_VALUE         32848
 #define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

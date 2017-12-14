@@ -127,6 +127,7 @@ private:
     CListViewCtrl       mListView;
     CMenu               mMainMenu;
     CStatic             mGroupInfo;
+    ViewState           mViewState;
     unique_string       mOldEditName;
     int                 mListView_LastSelected = -1;
     bool                mEscapeExit = false;
@@ -167,6 +168,8 @@ private:
     LRESULT OnFile_OpenInExplorer( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_OpenIniDirectory( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_ReloadIni( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnFile_ImportWorkset( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnFile_ExportWorkset( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_SaveData( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_FetchAllRepositories( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -206,6 +209,8 @@ private:
         COMMAND_ID_HANDLER( ID_FILE_OPENINEXPLORER, OnFile_OpenInExplorer );
         COMMAND_ID_HANDLER( ID_FILE_OPENINIDIRECTORY, OnFile_OpenIniDirectory );
         COMMAND_ID_HANDLER( ID_FILE_RELOADINI, OnFile_ReloadIni );
+        COMMAND_ID_HANDLER( ID_FILE_IMPORTWORKSET, OnFile_ImportWorkset );
+        COMMAND_ID_HANDLER( ID_FILE_EXPORTWORKSET, OnFile_ExportWorkset );
         COMMAND_ID_HANDLER( ID_FILE_SAVEDATA, OnFile_SaveData );
         COMMAND_ID_HANDLER( ID_FILE_FETCHALLREPOSITORIES, OnFile_FetchAllRepositories );
         COMMAND_ID_HANDLER( ID_FILE_REFRESHREPOSITORYSTATE, OnFile_RefreshRepositoryState );

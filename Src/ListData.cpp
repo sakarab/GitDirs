@@ -107,14 +107,7 @@ void ListData::LoadFromIni( ccwin::TIniFile& ini )
         }
     }
 
-    WStringList                 marks = DelimitedTextToList( ini.ReadString( IniSections::Data, IniKeys::Data_Marks, L"" ), L',' );
-
-    for ( Container::value_type& item : mData )
-    {
-        ListDataItem&           item_ref = *item.second;
-
-        item_ref.Checked( std::find( marks.begin(), marks.end(), item_ref.Name() ) != marks.end() );
-    }
+    WorksetFromString( ini.ReadString( IniSections::Data, IniKeys::Data_Marks, L"" ) );
     mAllGroups = DelimitedTextToList( ini.ReadString( IniSections::Data, IniKeys::Data_AllGroups, L"" ), L',' );
 
     ccwin::case_insensitive_string_compare_ptr<wchar_t>     cmp;
@@ -139,17 +132,7 @@ void ListData::SaveToIni( ccwin::TIniFile& ini )
             ini.WriteString( IniSections::Repositories_Groups, item_ref.Name().c_str(), ListToDelimitedText( item_ref.Groups(), L',' ).c_str() );
     }
 
-    WStringList                 marks;
-
-    for ( Container::value_type& item : mData )
-    {
-        const ListDataItem&     item_ref = *item.second;
-
-        if ( item_ref.Checked() )
-            marks.push_back( item_ref.Name() );
-    }
-    ini.WriteString( IniSections::Data, IniKeys::Data_Marks, ListToDelimitedText( marks, L',' ).c_str() );
-
+    ini.WriteString( IniSections::Data, IniKeys::Data_Marks, WorksetAsString().c_str() );
     ini.WriteInteger( L"Version", L"Version", LastDataVersion );
 }
 
@@ -171,6 +154,32 @@ void ListData::DeleteItem( const std::wstring& key )
 
     if ( it != mData.end() )
         mData.erase( it );
+}
+
+std::wstring ListData::WorksetAsString()
+{
+    WStringList                 marks;
+
+    for ( Container::value_type& item : mData )
+    {
+        const ListDataItem&     item_ref = *item.second;
+
+        if ( item_ref.Checked() )
+            marks.push_back( item_ref.Name() );
+    }
+    return ListToDelimitedText( marks, L',' );
+}
+
+void ListData::WorksetFromString( const std::wstring& sstr )
+{
+    WStringList                 marks = DelimitedTextToList( sstr, L',' );
+
+    for ( Container::value_type& item : mData )
+    {
+        ListDataItem&           item_ref = *item.second;
+
+        item_ref.Checked( std::find( marks.begin(), marks.end(), item_ref.Name() ) != marks.end() );
+    }
 }
 
 //=======================================================================

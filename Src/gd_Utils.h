@@ -51,8 +51,20 @@ struct IniKeys
     static const wchar_t *ViewState_SortColumn;
     static const wchar_t *ViewState_Group;
     static const wchar_t *ViewState_ShowCheckBoxes;
+    static const wchar_t *ViewState_WorksetFilename;
     static const wchar_t *Data_Marks;
     static const wchar_t *Data_AllGroups;
+};
+
+//=======================================================================
+//==============    ViewState
+//=======================================================================
+struct ViewState
+{
+    std::wstring    Workset_Filename;
+
+    void Save( ccwin::TIniFile& ini );
+    void Load( ccwin::TIniFile& ini );
 };
 
 //=======================================================================
@@ -160,5 +172,8 @@ void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item );
 
 void SetMenuCheck( CMenuHandle menu, int position, bool value );
 void SetMenuRadioRecursive( CMenuHandle menu, UINT menu_id );
+
+const wchar_t *RS_LoadPtr( UINT rc_id, int& len );
+std::wstring RS_LoadString( UINT rc_id );
 
 #endif
