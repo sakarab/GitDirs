@@ -172,6 +172,11 @@ void CMainDlg::SetFilter( const spFilter& filter )
 
 BOOL CMainDlg::OnIdle()
 {
+    if ( mListView_LastSelected >= 0 )
+    {
+        mGroupInfo.SetWindowText( ListToDelimitedText( mDataView.Item( mListView_LastSelected )->Groups(), L',' ).c_str() );
+        mListView_LastSelected = -1;
+    }
     UIUpdateChildWindows();
     return FALSE;
 }
@@ -219,6 +224,7 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     pLoop->AddIdleHandler( this );
 
     UIAddChildWindowContainer( m_hWnd );
+    mGroupInfo.Attach( GetDlgItem( IDC_GROUP_INFO ) );
     mMainMenu.Attach( GetMenu() );
     if ( m_hWnd != NULL )
         mHAccel = ::LoadAccelerators( ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE( IDR_MAINFRAME ) );
@@ -533,6 +539,15 @@ LRESULT CMainDlg::OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
     if ( !sstr.empty() )
         ccwin::ExecuteProgram( MakeCommand( L"revisiongraph", sstr.c_str() ) );
+    return LRESULT();
+}
+
+LRESULT CMainDlg::OnList_ItemChanged( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/ )
+{
+    NMLISTVIEW      *pNMListView = reinterpret_cast<NM_LISTVIEW *>(pnmh);
+
+    if ( pNMListView->iItem != -1 && (pNMListView->uChanged & LVIF_STATE) && (pNMListView->uNewState & LVIS_SELECTED) )
+        mListView_LastSelected = pNMListView->iItem;
     return LRESULT();
 }
 

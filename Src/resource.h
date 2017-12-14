@@ -9,6 +9,8 @@
 #define IDR_MENU_POPUP                  206
 #define IDC_LIST                        1000
 #define IDC_INFO_TEXT                   1001
+#define IDC_GROUP_INFO                  1002
+#define IDC_GROUP_INFO_LABEL            1003
 #define ID_FILE_QUIT                    32776
 #define ID_EDIT_OPTIONS                 32784
 #define ID_GIT_PULL                     32785
@@ -43,7 +45,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
 #define _APS_NEXT_COMMAND_VALUE         32843
-#define _APS_NEXT_CONTROL_VALUE         1002
+#define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

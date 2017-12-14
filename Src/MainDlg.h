@@ -126,7 +126,9 @@ private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
     CMenu               mMainMenu;
+    CStatic             mGroupInfo;
     unique_string       mOldEditName;
+    int                 mListView_LastSelected = -1;
     bool                mEscapeExit = false;
     bool                mInLabelEdit = false;
 
@@ -183,6 +185,7 @@ private:
     LRESULT OnGit_Commit( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_ViewLog( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnList_ItemChanged( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
     LRESULT OnList_ColumnClick( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
     LRESULT OnList_BeginLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
     LRESULT OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/ );
@@ -226,6 +229,7 @@ private:
         COMMAND_ID_HANDLER( ID_GIT_COMMIT, OnGit_Commit );
         COMMAND_ID_HANDLER( ID_GIT_VIEWLOG, OnGit_ViewLog );
         COMMAND_ID_HANDLER( ID_GIT_REVISIONGRAPPH, OnGit_RevisionGraph );
+        NOTIFY_HANDLER( IDC_LIST, LVN_ITEMCHANGED, OnList_ItemChanged );
         NOTIFY_HANDLER( IDC_LIST, LVN_COLUMNCLICK, OnList_ColumnClick );
         NOTIFY_HANDLER( IDC_LIST, LVN_BEGINLABELEDIT, OnList_BeginLabelEdit );
         NOTIFY_HANDLER( IDC_LIST, LVN_ENDLABELEDIT, OnList_EndLabelEdit );
@@ -240,6 +244,8 @@ private:
 
     BEGIN_DLGRESIZE_MAP( CMainDlg )
         DLGRESIZE_CONTROL( IDC_LIST, DLSZ_SIZE_X | DLSZ_SIZE_Y )
+        DLGRESIZE_CONTROL( IDC_GROUP_INFO_LABEL, DLSZ_MOVE_Y )
+        DLGRESIZE_CONTROL( IDC_GROUP_INFO, DLSZ_MOVE_Y | DLSZ_SIZE_X )
     END_DLGRESIZE_MAP()
 
     BEGIN_UPDATE_UI_MAP( CMainDlg )
