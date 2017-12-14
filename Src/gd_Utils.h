@@ -50,6 +50,7 @@ struct IniKeys
 {
     static const wchar_t *ViewState_SortColumn;
     static const wchar_t *ViewState_Group;
+    static const wchar_t *ViewState_ShowCheckBoxes;
     static const wchar_t *Data_Marks;
     static const wchar_t *Data_AllGroups;
 };
