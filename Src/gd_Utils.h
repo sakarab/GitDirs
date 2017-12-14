@@ -44,6 +44,7 @@ struct IniSections
     static const wchar_t *Repositories_Groups;      // group_name=list_of_repository_names
     static const wchar_t *ViewState;
     static const wchar_t *Data;
+    static const wchar_t *Version;
 };
 
 struct IniKeys
@@ -54,6 +55,7 @@ struct IniKeys
     static const wchar_t *ViewState_WorksetFilename;
     static const wchar_t *Data_Marks;
     static const wchar_t *Data_AllGroups;
+    static const wchar_t *Version;
 };
 
 //=======================================================================

@@ -133,7 +133,7 @@ void ListData::SaveToIni( ccwin::TIniFile& ini )
     }
 
     ini.WriteString( IniSections::Data, IniKeys::Data_Marks, WorksetAsString().c_str() );
-    ini.WriteInteger( L"Version", L"Version", LastDataVersion );
+    ini.WriteInteger( IniSections::Version, IniKeys::Version, LastDataVersion );
 }
 
 void ListData::Clear()

@@ -106,7 +106,7 @@ namespace
             return;
 
         ccwin::TIniFile     ini( ini_fname );
-        int                 version = ini.ReadInteger( L"Version", L"Version", 0 );
+        int                 version = ini.ReadInteger( IniSections::Version, IniKeys::Version, 0 );
 
         while ( version < LastDataVersion )
         {
@@ -125,7 +125,7 @@ namespace
                 }
             }
             ++version;
-            ini.WriteInteger( L"Version", L"Version", version );
+            ini.WriteInteger( IniSections::Version, IniKeys::Version, version );
         }
         upgraded = true;
     }
@@ -139,12 +139,14 @@ const wchar_t * IniSections::Repositories = L"Repositories";
 const wchar_t * IniSections::Repositories_Groups = L"Repositories_Groups";
 const wchar_t * IniSections::ViewState = L"ViewState";
 const wchar_t * IniSections::Data = L"Data";
+const wchar_t * IniSections::Version = L"Version";
 const wchar_t * IniKeys::ViewState_SortColumn = L"SortColumn";
 const wchar_t * IniKeys::ViewState_Group = L"Group";
 const wchar_t * IniKeys::ViewState_ShowCheckBoxes = L"ShowCheckBoxes";
 const wchar_t * IniKeys::ViewState_WorksetFilename = L"WorksetFilename";
 const wchar_t * IniKeys::Data_Marks = L"Marks";
 const wchar_t * IniKeys::Data_AllGroups = L"AllGroups";
+const wchar_t * IniKeys::Version = L"Version";
 
 //=======================================================================
 //==============    FREE FUNCTIONS
