@@ -105,16 +105,16 @@ typedef std::shared_ptr<FilterBase>         spFilter;
 class FilterChecked : public FilterBase
 {
 private:
-    bool    mValue;
+    bool    mChecked;
 public:
-    explicit FilterChecked( bool value ) : mValue( value ) {}
+    explicit FilterChecked( bool value ) : mChecked( value ) {}
     bool operator()( const spListDataItem& data_item ) override
     {
-        return !(data_item->Checked() ^ mValue);
+        return !(data_item->Checked() ^ mChecked);
     }
     void SetFilterField( spListDataItem& data_item ) override
     {
-        data_item->Checked( mValue );
+        data_item->Checked( mChecked );
     }
 };
 
@@ -124,16 +124,16 @@ public:
 class FilterTagged : public FilterBase
 {
 private:
-    bool    mValue;
+    bool    mInGroup;
 public:
-    explicit FilterTagged( bool value ) : mValue( value ) {}
+    explicit FilterTagged( bool value ) : mInGroup( value ) {}
     bool operator()( const spListDataItem& data_item ) override
     {
-        return (!data_item->Groups().empty()) ^ mValue;
+        return (data_item->Groups().empty() ^ mInGroup);
     }
     void SetFilterField( spListDataItem& /*data_item*/ ) override
     {
-        if ( mValue )
+        if ( mInGroup )
             throw std::runtime_error( "Not supported." );
     }
 };

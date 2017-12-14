@@ -31,7 +31,7 @@ typedef std::vector<std::wstring>   WStringList;
 
 const int       LastDataVersion = 1;
 const int       GROUPS_MENU_Position = 2;
-const int       GROUPS_MENU_HeaderCount = 2;
+const int       GROUPS_MENU_HeaderCount = 3;
 const int       GROUPS_MENU_CommandID = 40000;
 const int       GROUPS_MENU_SubMenuCommandID = 41000;
 
@@ -158,9 +158,7 @@ std::wstring ListToDelimitedText( const WStringList& list, const wchar_t delimit
 
 void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item );
 
-bool ToggleMenuCheck( CMenuHandle menu, int position );
-bool GetMenuCheck( CMenuHandle menu, int position );
 void SetMenuCheck( CMenuHandle menu, int position, bool value );
-void SetMenuRadio( CMenuHandle menu, int position );
+void SetMenuRadioRecursive( CMenuHandle menu, UINT menu_id );
 
 #endif

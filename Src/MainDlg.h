@@ -174,7 +174,6 @@ private:
     LRESULT OnEdit_ClearCheckBoxes( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGroup_All( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
-    LRESULT OnGroup_MenuCommand( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGroup_SubMenuCommand( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -213,7 +212,11 @@ private:
         COMMAND_ID_HANDLER( ID_EDIT_CLEARCHECKBOXES, OnEdit_ClearCheckBoxes );
         COMMAND_ID_HANDLER( ID_EDIT_OPTIONS, OnEdit_Options );
         COMMAND_ID_HANDLER( ID_GROUPS_ALL, OnGroup_All );
-        COMMAND_RANGE_HANDLER( GROUPS_MENU_CommandID, GROUPS_MENU_CommandID + 999, OnGroup_MenuCommand );
+        COMMAND_ID_HANDLER( ID_SPECIAL_CHECKED, OnGroup_All );
+        COMMAND_ID_HANDLER( ID_SPECIAL_UNCHECKED, OnGroup_All );
+        COMMAND_ID_HANDLER( ID_SPECIAL_TAGGED, OnGroup_All );
+        COMMAND_ID_HANDLER( ID_SPECIAL_UNTAGGED, OnGroup_All );
+        COMMAND_RANGE_HANDLER( GROUPS_MENU_CommandID, GROUPS_MENU_CommandID + 999, OnGroup_All );
         COMMAND_RANGE_HANDLER( GROUPS_MENU_SubMenuCommandID, GROUPS_MENU_SubMenuCommandID + 999, OnGroup_SubMenuCommand );
         COMMAND_ID_HANDLER( ID_POPUP_REFRESHSTATE, OnPopup_RefreshState );
         COMMAND_ID_HANDLER( ID_GIT_CHECKFORMODIFICATIONS, OnGit_CheckForModifications );

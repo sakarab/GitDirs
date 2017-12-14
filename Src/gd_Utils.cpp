@@ -199,24 +199,6 @@ void GetDirectoryState( git2::LibGit2& libgit, GitDirStateItem& state_item )
     GetDirectoryStateNeeds( libgit, state_item );
 }
 
-bool ToggleMenuCheck( CMenuHandle menu, int position )
-{
-    bool    result = !GetMenuCheck( menu, position );
-
-    SetMenuCheck( menu, position, result );
-    return result;
-}
-
-bool GetMenuCheck( CMenuHandle menu, int position )
-{
-    MENUITEMINFO            info;
-
-    info.cbSize = sizeof( MENUITEMINFO );
-    info.fMask = MIIM_STATE;
-    menu.GetMenuItemInfo( position, TRUE, &info );
-    return info.fState == MFS_CHECKED;
-}
-
 void SetMenuCheck( CMenuHandle menu, int position, bool value )
 {
     MENUITEMINFO            info;
@@ -227,12 +209,27 @@ void SetMenuCheck( CMenuHandle menu, int position, bool value )
     menu.SetMenuItemInfo( position, TRUE, &info );
 }
 
-void SetMenuRadio( CMenuHandle menu, int position )
+void SetMenuRadioRecursive( CMenuHandle menu, UINT menu_id )
 {
-    int     menu_count = menu.GetMenuItemCount();
+    int             menu_count = menu.GetMenuItemCount();
+    MENUITEMINFO    info;
 
+    info.cbSize = sizeof( MENUITEMINFO );
     for ( int n = 0 ; n < menu_count ; ++n )
-        SetMenuCheck( menu, n, position == n );
+    {
+        info.fMask = MIIM_STATE | MIIM_FTYPE | MIIM_ID | MIIM_SUBMENU;
+        menu.GetMenuItemInfo( n, TRUE, &info );
+        if ( info.fType & MFT_SEPARATOR )
+            continue;
+        if ( info.hSubMenu )
+            SetMenuRadioRecursive( CMenuHandle( info.hSubMenu ), menu_id );
+        else
+        {
+            info.fMask = MIIM_STATE;
+            info.fState = menu_id == info.wID ? MFS_CHECKED : MFS_UNCHECKED;
+            menu.SetMenuItemInfo( info.wID, FALSE, &info );
+        }
+    }
 }
 
 //=======================================================================

@@ -120,7 +120,7 @@ void CMainDlg::MainMenu_Append( CMenuHandle menu )
 {
     int     last_menu_idx = menu.GetMenuItemCount() - 1;
 
-    for ( int n = last_menu_idx ; n > 0 ; --n )
+    for ( int n = last_menu_idx ; n >= GROUPS_MENU_HeaderCount - 1 ; --n )
         menu.DeleteMenu( n, MF_BYPOSITION );
 
     const WStringList&      groups = mDataBase.AllGroups();
@@ -130,16 +130,16 @@ void CMainDlg::MainMenu_Append( CMenuHandle menu )
         menu.AppendMenu( MF_SEPARATOR );
 
         int     count = 0;
-        int     checked_idx = 0;
+        int     checked_menu_id = ID_GROUPS_ALL;
 
         for ( const std::wstring& sstr : groups )
         {
             menu.AppendMenu( MF_STRING, GROUPS_MENU_CommandID + count, sstr.c_str() );
-            if ( checked_idx == 0 && sstr == mDataView.Group() )
-                checked_idx = count + GROUPS_MENU_HeaderCount;
+            if ( checked_menu_id == ID_GROUPS_ALL && sstr == mDataView.Group() )
+                checked_menu_id = GROUPS_MENU_CommandID + count;
             ++count;
         }
-        SetMenuCheck( menu, checked_idx, true );
+        SetMenuRadioRecursive( menu, checked_menu_id );
     }
 }
 
@@ -408,23 +408,28 @@ LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
     return 0;
 }
 
-LRESULT CMainDlg::OnGroup_All( WORD, WORD, HWND, BOOL & )
+LRESULT CMainDlg::OnGroup_All( WORD, WORD wID, HWND, BOOL & )
 {
-    SetFilter( std::make_shared<FilterGroup>( std::wstring() ) );
+    spFilter    filter;
+
+    if ( wID == ID_SPECIAL_CHECKED )
+        filter = std::make_shared<FilterChecked>( true );
+    else if ( wID == ID_SPECIAL_UNCHECKED )
+        filter = std::make_shared<FilterChecked>( false );
+    else if ( wID == ID_SPECIAL_TAGGED )
+        filter = std::make_shared<FilterTagged>( true );
+    else if ( wID == ID_SPECIAL_UNTAGGED )
+        filter = std::make_shared<FilterTagged>( false );
+    else if ( wID >= GROUPS_MENU_CommandID && wID <= GROUPS_MENU_CommandID + 999 )
+        filter = std::make_shared<FilterGroup>( mDataBase.AllGroups().at( wID - GROUPS_MENU_CommandID ) );
+    else
+        filter = std::make_shared<FilterGroup>( std::wstring() );
+
+    SetFilter( filter );
 
     CMenuHandle     menu = mMainMenu.GetSubMenu( GROUPS_MENU_Position );
 
-    SetMenuRadio( menu, 0 );
-    return LRESULT();
-}
-
-LRESULT CMainDlg::OnGroup_MenuCommand( WORD, WORD wID, HWND, BOOL & )
-{
-    SetFilter( std::make_shared<FilterGroup>( mDataBase.AllGroups().at( wID - GROUPS_MENU_CommandID ) ) );
-
-    CMenuHandle     menu = mMainMenu.GetSubMenu( GROUPS_MENU_Position );
-
-    SetMenuRadio( menu, wID - GROUPS_MENU_CommandID + GROUPS_MENU_HeaderCount );
+    SetMenuRadioRecursive( menu, wID );
     return LRESULT();
 }
 

@@ -279,10 +279,10 @@ BEGIN
         MENUITEM "All",                         ID_GROUPS_ALL
         POPUP "Special"
         BEGIN
-            MENUITEM "Checked",                     ID_SPECIAL_CHECKED
-            MENUITEM "Unchecked",                   ID_SPECIAL_UNCHECKED
-            MENUITEM "Tagged",                      ID_SPECIAL_TAGGED
-            MENUITEM "Untagged",                    ID_SPECIAL_UNTAGGED
+            MENUITEM "In Workset",                  ID_SPECIAL_CHECKED
+            MENUITEM "NOT in Workset",              ID_SPECIAL_UNCHECKED
+            MENUITEM "In Group",                    ID_SPECIAL_TAGGED
+            MENUITEM "NOT In Group",                ID_SPECIAL_UNTAGGED
         END
     END
     POPUP "&Git"
