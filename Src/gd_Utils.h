@@ -178,4 +178,20 @@ void SetMenuRadioRecursive( CMenuHandle menu, UINT menu_id );
 const wchar_t *RS_LoadPtr( UINT rc_id, int& len );
 std::wstring RS_LoadString( UINT rc_id );
 
+typedef std::pair<const wchar_t *, const wchar_t *>     open_filter_spec;
+typedef std::initializer_list<open_filter_spec>         open_filter_list;
+
+#if defined (WINDOWS_XP_BUILD)
+
+std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd );
+std::wstring SaveDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd );
+
+#else
+
+std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd );
+std::wstring SaveDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd );
+
+#endif
+
+
 #endif

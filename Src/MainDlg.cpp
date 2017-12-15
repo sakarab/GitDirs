@@ -350,33 +350,19 @@ LRESULT CMainDlg::OnFile_ReloadIni( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_ImportWorkset( WORD, WORD, HWND, BOOL & )
 {
+    std::wstring    fname = OpenDlg( L"", ccwin::ExtractFileName( mViewState.Workset_Filename ),
 #if defined (WINDOWS_XP_BUILD)
-    CFileDialog     dlg( TRUE,  // TRUE for FileOpen, FALSE for FileSaveAs
-                         NULL,  // LPCTSTR lpszDefExt = 
-                         ccwin::smLPSTR( mViewState.Workset_Filename ).get(),   // LPCTSTR lpszFileName = 
-                         OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,                  // DWORD dwFlags = 
-                         L"All Files (*.*)\0*.*\0",                             // LPCTSTR lpszFilter =
-                         *this );
+                                     OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,                  // DWORD dwFlags = 
 #else
-    const int filter_count                          = 1;
-    const COMDLG_FILTERSPEC filter[filter_count]    = { L"All Files (*.*)", L"*.*" };
-
-    CShellFileOpenDialog    dlg( ccwin::ExtractFileName( mViewState.Workset_Filename ).c_str(),           // LPCTSTR lpszFileName
-                                 FOS_NOCHANGEDIR | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST,
-                                 nullptr,
-                                 filter,
-                                 filter_count );
+                                     FOS_NOCHANGEDIR | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST,
 #endif
-    if ( dlg.DoModal( *this ) == IDOK )
+                                     { open_filter_spec( L"All Files (*.*)", L"*.*" ) },
+                                     *this );
+
+    if ( !fname.empty() )
     {
-#if defined (WINDOWS_XP_BUILD)
-        mViewState.Workset_Filename = dlg.m_szFileName;
-#else
-        CString     sstr;
+        mViewState.Workset_Filename = fname;
 
-        dlg.GetFilePath( sstr );
-        mViewState.Workset_Filename = static_cast<LPCTSTR>(sstr);
-#endif
         ccwin::TIniFile     ini( mViewState.Workset_Filename );
 
         mDataBase.WorksetFromString( ini.ReadString( IniSections::Data, IniKeys::Data_Marks, L"" ) );
@@ -387,33 +373,20 @@ LRESULT CMainDlg::OnFile_ImportWorkset( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_ExportWorkset( WORD, WORD, HWND, BOOL & )
 {
+    std::wstring    fname = SaveDlg( L"", ccwin::ExtractFileName( mViewState.Workset_Filename ),
 #if defined (WINDOWS_XP_BUILD)
-    CFileDialog     dlg( FALSE,     // TRUE for FileOpen, FALSE for FileSaveAs
-                         NULL,      // LPCTSTR lpszDefExt = 
-                         ccwin::smLPSTR( mViewState.Workset_Filename ).get(),                           // LPCTSTR lpszFileName = 
-                         OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,  // DWORD dwFlags = 
-                         L"All Files (*.*)\0*.*\0",                                                     // LPCTSTR lpszFilter =
-                         *this );
+                                     OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,  // DWORD dwFlags = 
 #else
-    const int filter_count                          = 1;
-    const COMDLG_FILTERSPEC filter[filter_count]    = { L"All Files (*.*)", L"*.*" };
-
-    CShellFileSaveDialog    dlg( ccwin::ExtractFileName( mViewState.Workset_Filename ).c_str(),           // LPCTSTR lpszFileName
-                                 FOS_NOCHANGEDIR | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT | FOS_NOTESTFILECREATE,
-                                 nullptr,
-                                 filter,
-                                 filter_count );
+                                     FOS_NOCHANGEDIR | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT | FOS_NOTESTFILECREATE,
 #endif
-    if ( dlg.DoModal( *this ) == IDOK )
+                                     { open_filter_spec( L"All Files (*.*)", L"*.*" ) },
+                                     *this );
+
+
+    if ( !fname.empty() )
     {
-#if defined (WINDOWS_XP_BUILD)
-        mViewState.Workset_Filename = dlg.m_szFileName;
-#else
-        CString     sstr;
+        mViewState.Workset_Filename = fname;
 
-        dlg.GetFilePath( sstr );
-        mViewState.Workset_Filename = static_cast<LPCTSTR>(sstr);
-#endif
         ccwin::TIniFile     ini( mViewState.Workset_Filename );
 
         ini.WriteString( IniSections::Data, IniKeys::Data_Marks, mDataBase.WorksetAsString().c_str() );
