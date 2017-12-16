@@ -28,17 +28,21 @@
 #include <atlctrls.h>
 #include <wtl_msg_map.h>
 #include <wtlUtils.h>
+#include "gd_Utils.h"
+#include "ListData.h"
 #include "resource.h"
 
 //=======================================================================
 //==============    CInfoDlg
 //=======================================================================
+class CInfoDlg;
+typedef std::function<void( CInfoDlg * )>               InfoDlg_Deleter;
+typedef std::unique_ptr<CInfoDlg, InfoDlg_Deleter>      qpMonitorDlg;
+
 class CInfoDlg : public CDialogImpl<CInfoDlg>,
                  public CDialogResize<CInfoDlg>,
                  public ccwtl::CFormSize<CInfoDlg>
 {
-private:
-    typedef std::function<void()>       Procedure;
 private:
     CStatic         mGroupInfo;
     CStatic         mReferances;
@@ -71,12 +75,7 @@ public:
     explicit CInfoDlg( Procedure on_close );
 
     void CloseDialog();
-
-    void SetGroupText( const std::wstring& text );
-    void SetReferancesText( const std::wstring& text );
+    void SetInfo( const ListDataItem& item );
 };
-
-typedef std::function<void( CInfoDlg * )>               InfoDlg_Deleter;
-typedef std::unique_ptr<CInfoDlg, InfoDlg_Deleter>      qpMonitorDlg;
 
 #endif

@@ -8,8 +8,8 @@
 #define SReleaseDescr   "Release Build "
 #define IMajor          1
 #define IMinor          1
-#define IRelease        0
-#define IBuild          24
+#define IRelease        4
+#define IBuild          25
 
 #define SMajor          RC_TO_STRING(IMajor)
 #define SMinor          RC_TO_STRING(IMinor)

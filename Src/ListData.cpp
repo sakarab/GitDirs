@@ -48,7 +48,7 @@ const std::wstring ListDataItem::No  = std::wstring( L"No" );
 const std::wstring ListDataItem::Empty = std::wstring();
 
 ListDataItem::ListDataItem( const GitDirItem & item )
-    : mDataItem( item ), mBranch(), mNRepos(), mNRepos_str( L"0" ), mUncommited(), mNeedsUpdate()
+    : mDataItem( item ), mBranch(), mRemotes(), mNRemotes_str( L"0" ), mUncommited(), mNeedsUpdate()
 {}
 
 ListDataItem::~ListDataItem()
@@ -60,10 +60,10 @@ bool ListDataItem::ToggleChecked()
     return mChecked;
 }
 
-void ListDataItem::NRepos( int value )
+void ListDataItem::Remotes( const git2::RemoteInfoList& value )
 {
-    mNRepos_str = boost::lexical_cast<std::wstring>(value);
-    mNRepos = value;
+    mNRemotes_str = boost::lexical_cast<std::wstring>(value.size());
+    mRemotes = value;
 }
 
 const std::wstring& ListDataItem::GetText( ListColumn col ) const
@@ -72,7 +72,7 @@ const std::wstring& ListDataItem::GetText( ListColumn col ) const
     {
         case ListColumn::name       : return Name();
         case ListColumn::path       : return Directory();
-        case ListColumn::n_repos    : return IsInited() ? mNRepos_str : Empty;
+        case ListColumn::n_repos    : return IsInited() ? mNRemotes_str : Empty;
         case ListColumn::branch     : return Branch();
         case ListColumn::uncommited : return IsInited() ? mUncommited ? Yes : No : Empty;
         case ListColumn::needs      : return IsInited() ? mNeedsUpdate ? Yes : No : Empty;

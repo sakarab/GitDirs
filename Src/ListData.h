@@ -43,13 +43,13 @@ const byte ListColumn_Max = static_cast<byte>(ListColumn::needs);
 class ListDataItem
 {
 private:
-    GitDirItem      mDataItem;
-    std::wstring    mBranch;
-    int             mNRepos;
-    std::wstring    mNRepos_str;
-    bool            mUncommited = false;
-    bool            mNeedsUpdate = false;
-    bool            mChecked = false;
+    GitDirItem              mDataItem;
+    std::wstring            mBranch;
+    git2::RemoteInfoList    mRemotes;
+    std::wstring            mNRemotes_str;
+    bool                    mUncommited = false;
+    bool                    mNeedsUpdate = false;
+    bool                    mChecked = false;
 
     static const std::wstring Yes;
     static const std::wstring No;
@@ -67,11 +67,12 @@ public:
     const std::wstring& Directory() const       { return mDataItem.Directory(); }
     const WStringList& Groups() const           { return mDataItem.Groups(); }
     const std::wstring& Branch() const          { return mBranch; }
+    const git2::RemoteInfoList& Remotes() const { return mRemotes; }
     bool Checked() const                        { return mChecked; }
     bool ToggleChecked();
 
     void Name( const std::wstring& value )      { mDataItem.Name( value ); }
-    void NRepos( int value );
+    void Remotes( const git2::RemoteInfoList& value );
     void Branch( const std::wstring& value )    { mBranch = value; }
     void Uncommited( bool value )               { mUncommited = value; }
     void NeedsUpdate( bool value )              { mNeedsUpdate = value; }

@@ -39,18 +39,19 @@ namespace
         // constract the remote-branch name and find it
         // if found git_revwalk() back and forth to see differances
 
-        std::vector<git2::BranchInfo>   branch_list = libgit.ListBranches();
-        std::vector<std::string>        remotes_list = libgit.ListRemotes();
+        state_item.Remotes = libgit.ListRemotes();
 
-        state_item.NRepos = remotes_list.size();
+        git2::RemoteInfoList&           remotes_list = state_item.Remotes;
+        std::vector<git2::BranchInfo>   branch_list = libgit.ListBranches();
+
         for ( git2::BranchInfo& branch : branch_list )
         {
             if ( branch.Type() != GIT_BRANCH_LOCAL )
                 continue;
 
-            for ( std::string& name : remotes_list )
+            for ( git2::RemoteInfo& remote : remotes_list )
             {
-                std::string     remote_name = boost::str( boost::format( "%1%/%2%" ) % name % branch.Name() );
+                std::string     remote_name = boost::str( boost::format( "%1%/%2%" ) % remote.Name() % branch.Name() );
 
                 std::vector<git2::BranchInfo>::iterator     it =
                     std::find_if( branch_list.begin(), branch_list.end(), [&remote_name]( const git2::BranchInfo& branch )->bool {
@@ -491,7 +492,7 @@ namespace git2
         return result;
     }
 
-    std::vector<BranchInfo> LibGit2::ListBranches()
+    BranchInfoList LibGit2::ListBranches()
     {
         CheckOpen();
 
@@ -524,18 +525,28 @@ namespace git2
         return result;
     }
 
-    std::vector<std::string> LibGit2::ListRemotes()
+    std::vector<RemoteInfo> LibGit2::ListRemotes()
     {
         CheckOpen();
 
-        std::vector<std::string>    result;
+        std::vector<RemoteInfo>     result;
         git_strarray                list;
 
         Check( git_remote_list( &list, mRepository.get() ) );
         BOOST_SCOPE_EXIT( list ) { git_strarray_free( &list ); }      BOOST_SCOPE_EXIT_END;
 
         for ( size_t n = 0 ; n < list.count ; ++n )
-            result.push_back( list.strings[n] );
+        {
+            git_remote      *remote;
+
+            if ( git_remote_lookup( &remote, mRepository.get(), list.strings[n] ) == 0 )
+            {
+                std::string     name = list.strings[n];
+                std::string     url = git_remote_url( remote );
+
+                result.push_back( RemoteInfo( name, url ) );
+            }
+        }
         return result;
     }
 

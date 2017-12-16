@@ -44,7 +44,12 @@ BOOL CMainDlg::PreTranslateMessage( MSG* pMsg )
         return TRUE;
     if ( pMsg->message == WM_KEYDOWN && pMsg->wParam == 0x1B )
         mEscapeExit = true;
-    return CWindow::IsDialogMessage( pMsg );
+
+    BOOL    ret = CWindow::IsDialogMessage( pMsg );
+
+    if ( !ret && mEscapeExit )
+        mEscapeExit = false;
+    return ret;
 }
 
 void CMainDlg::CloseDialog( int nVal )
@@ -108,7 +113,7 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
         {
             spListDataItem&     data_item = mDataView.Item( idx );
 
-            data_item->NRepos( item.NRepos );
+            data_item->Remotes( item.Remotes );
             data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
             data_item->Uncommited( item.Uncommited );
             data_item->NeedsUpdate( item.NeedsUpdate );
@@ -175,8 +180,7 @@ BOOL CMainDlg::OnIdle()
 {
     if ( mListView_LastSelected >= 0 && mInfoDlg )
     {
-        mInfoDlg->SetGroupText( ListToDelimitedText( mDataView.Item( mListView_LastSelected )->Groups(), L',' ) );
-        mInfoDlg->SetReferancesText( L"Some text with\r\nline feed in it" );
+        mInfoDlg->SetInfo( *mDataView.Item( mListView_LastSelected ) );
         mListView_LastSelected = -1;
     }
     UIUpdateChildWindows();
@@ -455,12 +459,12 @@ LRESULT CMainDlg::OnView_ShowInfoDialog( WORD, WORD, HWND, BOOL & )
     }
     else
     {
-        InfoDlg_Deleter     form_deleter = []( CInfoDlg *frm ) { frm->CloseDialog(); };
-        qpMonitorDlg        dlg( new CInfoDlg( [this]() {
-                                                mInfoDlg.reset(); 
-                                                UISetCheck( ID_VIEW_SHOWINFORMATIONDIALOG, false );
-                                            } ),
-                                 form_deleter );
+        Procedure                   on_close = [this]() {
+                                        mInfoDlg.reset();
+                                        UISetCheck( ID_VIEW_SHOWINFORMATIONDIALOG, false );
+                                    };
+        qpMonitorDlg::deleter_type  form_deleter = []( CInfoDlg *frm ) { frm->CloseDialog(); };
+        qpMonitorDlg                dlg( new CInfoDlg( on_close ),form_deleter );
 
         dlg->Create( *this );
         dlg->ShowWindow( SW_NORMAL );
@@ -659,7 +663,6 @@ LRESULT CMainDlg::OnList_EndLabelEdit( int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
         PostMessage( WM_LIST_EDIT_RESULT, static_cast<WPARAM>(ListEditResult::success), lvitem.iItem );
     }
     mInLabelEdit = false;
-    mEscapeExit = false;
     return result;
 }
 

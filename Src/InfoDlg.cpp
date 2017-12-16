@@ -42,6 +42,7 @@ LRESULT CInfoDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     DlgResize_Init( true, true, WS_THICKFRAME | WS_CLIPCHILDREN );
 
     mGroupInfo.Attach( GetDlgItem( IDC_GROUP_INFO ) );
+    mGroupInfo.SetWindowText( L"" );
     mReferances.Attach( GetDlgItem( IDC_GROUP_INFO_REFEDIT ) );
 
     ccwin::TIniFile     ini( GetIniFileName() );
@@ -85,12 +86,15 @@ void CInfoDlg::CloseDialog()
     }
 }
 
-void CInfoDlg::SetGroupText( const std::wstring& text )
+void CInfoDlg::SetInfo( const ListDataItem& item )
 {
-    mGroupInfo.SetWindowText( text.c_str() );
-}
+    mGroupInfo.SetWindowText( ListToDelimitedText( item.Groups(), L',' ).c_str() );
 
-void CInfoDlg::SetReferancesText( const std::wstring& text )
-{
-    mReferances.SetWindowText( text.c_str() );
+    std::string     info;
+
+    for ( const git2::RemoteInfo& remote : item.Remotes() )
+        info.append( boost::str( boost::format( "%1% - %2%\r\n" ) % remote.Name() % remote.Url() ) );
+    if ( info.size() > 0 )
+        info.resize( info.size() - 2 );
+    mReferances.SetWindowText( ccwin::WidenStringStrict( info ).c_str() );
 }

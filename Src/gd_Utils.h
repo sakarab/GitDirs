@@ -27,6 +27,7 @@
 #include <vector>
 #include <git2.h>
 
+typedef std::function<void()>       Procedure;
 typedef std::vector<std::wstring>   WStringList;
 
 const int       LastDataVersion = 1;
@@ -92,22 +93,6 @@ public:
     void Name( const std::wstring& value )      { mName = value; }
 };
 
-//=======================================================================
-//==============    GitDirStateItem
-//=======================================================================
-struct GitDirStateItem
-{
-    std::wstring    Name;
-    std::wstring    Directory;
-    std::string     Branch;
-    int             NRepos;
-    bool            Uncommited;
-    bool            NeedsUpdate;
-    explicit GitDirStateItem( const std::wstring& name, const std::wstring& dir )
-        : Name( name ), Directory( dir ), Branch(), NRepos(), Uncommited(), NeedsUpdate()
-    {}
-};
-
 namespace git2
 {
     //=======================================================================
@@ -127,6 +112,27 @@ namespace git2
         const std::string& Name() const         { return mName; }
         git_branch_t Type() const               { return mType; }
     };
+
+    typedef std::vector<BranchInfo>     BranchInfoList;
+
+    //=======================================================================
+    //==============    RemoteInfo
+    //=======================================================================
+    class RemoteInfo
+    {
+    private:
+        std::string     mName;
+        std::string     mUrl;
+    public:
+        RemoteInfo( const std::string& name, const std::string& url )
+            : mName( name ), mUrl( url )
+        {}
+
+        const std::string& Name() const     { return mName; }
+        const std::string& Url() const      { return mUrl; }
+    };
+
+    typedef std::vector<RemoteInfo>     RemoteInfoList;
 
     //=======================================================================
     //==============    LibGit2
@@ -153,11 +159,27 @@ namespace git2
 
         std::string GetCurrentBranch();
         git_status_list * GetStatusList( git_status_options& options );
-        std::vector<BranchInfo> ListBranches();
-        std::vector<std::string> ListRemotes();
+        BranchInfoList ListBranches();
+        RemoteInfoList ListRemotes();
         size_t RevisionCount( const std::string& src, const std::string& dst );
     };
 }
+
+//=======================================================================
+//==============    GitDirStateItem
+//=======================================================================
+struct GitDirStateItem
+{
+    std::wstring            Name;
+    std::wstring            Directory;
+    std::string             Branch;
+    git2::RemoteInfoList    Remotes;
+    bool                    Uncommited;
+    bool                    NeedsUpdate;
+    explicit GitDirStateItem( const std::wstring& name, const std::wstring& dir )
+        : Name( name ), Directory( dir ), Branch(), Remotes(), Uncommited(), NeedsUpdate()
+    {}
+};
 
 //=======================================================================
 //==============    FREE FUNCTIONS
@@ -192,6 +214,5 @@ std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename,
 std::wstring SaveDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd );
 
 #endif
-
 
 #endif
