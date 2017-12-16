@@ -551,6 +551,7 @@ LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
         state_list.push_back( GitDirStateItem( item->Name(), item->Directory() ) );
         RefreshRepoStateAndView( state_list );
+        mListView_LastSelected = idx;
     }
     return 0;
 }
