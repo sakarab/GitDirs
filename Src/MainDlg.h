@@ -33,6 +33,7 @@
 #include "resource.h"
 #include "gd_Utils.h"
 #include "ListData.h"
+#include "InfoDlg.h"
 
 //=======================================================================
 //==============    CHDrop
@@ -126,9 +127,9 @@ private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
     CMenu               mMainMenu;
-    CStatic             mGroupInfo;
     ViewState           mViewState;
     unique_string       mOldEditName;
+    qpMonitorDlg        mInfoDlg;
     int                 mListView_LastSelected = -1;
     bool                mEscapeExit = false;
     bool                mInLabelEdit = false;
@@ -165,8 +166,8 @@ private:
     LRESULT OnAppAbout( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnOK( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
-    LRESULT OnFile_OpenInExplorer( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
-    LRESULT OnFile_OpenIniDirectory( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnView_OpenInExplorer( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnView_OpenIniDirectory( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_ReloadIni( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_ImportWorkset( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_ExportWorkset( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -175,7 +176,8 @@ private:
     LRESULT OnFile_RefreshRepositoryState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_EditName( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_Delete( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
-    LRESULT OnEdit_ShowCheckBoxes( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnView_ShowCheckBoxes( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnView_ShowInfoDialog( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_ClearCheckBoxes( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnGroup_All( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -206,8 +208,8 @@ private:
         COMMAND_ID_HANDLER( IDCANCEL, OnCancel );
         COMMAND_ID_HANDLER( ID_HELP_ABOUT, OnAppAbout );
         COMMAND_ID_HANDLER( ID_FILE_QUIT, OnCancel );
-        COMMAND_ID_HANDLER( ID_FILE_OPENINEXPLORER, OnFile_OpenInExplorer );
-        COMMAND_ID_HANDLER( ID_FILE_OPENINIDIRECTORY, OnFile_OpenIniDirectory );
+        COMMAND_ID_HANDLER( ID_VIEW_OPENINEXPLORER, OnView_OpenInExplorer );
+        COMMAND_ID_HANDLER( ID_VIEW_OPENINIDIRECTORY, OnView_OpenIniDirectory );
         COMMAND_ID_HANDLER( ID_FILE_RELOADINI, OnFile_ReloadIni );
         COMMAND_ID_HANDLER( ID_FILE_IMPORTWORKSET, OnFile_ImportWorkset );
         COMMAND_ID_HANDLER( ID_FILE_EXPORTWORKSET, OnFile_ExportWorkset );
@@ -216,7 +218,8 @@ private:
         COMMAND_ID_HANDLER( ID_FILE_REFRESHREPOSITORYSTATE, OnFile_RefreshRepositoryState );
         COMMAND_ID_HANDLER( ID_EDIT_EDITNAME, OnEdit_EditName );
         COMMAND_ID_HANDLER( ID_EDIT_DELETE_2, OnEdit_Delete );
-        COMMAND_ID_HANDLER( ID_EDIT_SHOWCHECKBOXES, OnEdit_ShowCheckBoxes );
+        COMMAND_ID_HANDLER( ID_VIEW_SHOWCHECKBOXES, OnView_ShowCheckBoxes );
+        COMMAND_ID_HANDLER( ID_VIEW_SHOWINFORMATIONDIALOG, OnView_ShowInfoDialog );
         COMMAND_ID_HANDLER( ID_EDIT_CLEARCHECKBOXES, OnEdit_ClearCheckBoxes );
         COMMAND_ID_HANDLER( ID_EDIT_OPTIONS, OnEdit_Options );
         COMMAND_ID_HANDLER( ID_GROUPS_ALL, OnGroup_All );
@@ -249,12 +252,11 @@ private:
 
     BEGIN_DLGRESIZE_MAP( CMainDlg )
         DLGRESIZE_CONTROL( IDC_LIST, DLSZ_SIZE_X | DLSZ_SIZE_Y )
-        DLGRESIZE_CONTROL( IDC_GROUP_INFO_LABEL, DLSZ_MOVE_Y )
-        DLGRESIZE_CONTROL( IDC_GROUP_INFO, DLSZ_MOVE_Y | DLSZ_SIZE_X )
     END_DLGRESIZE_MAP()
 
     BEGIN_UPDATE_UI_MAP( CMainDlg )
-        UPDATE_ELEMENT( ID_EDIT_SHOWCHECKBOXES, UPDUI_MENUPOPUP )
+        UPDATE_ELEMENT( ID_VIEW_SHOWCHECKBOXES, UPDUI_MENUPOPUP )
+        UPDATE_ELEMENT( ID_VIEW_SHOWINFORMATIONDIALOG, UPDUI_MENUPOPUP )
     END_UPDATE_UI_MAP()
 public:
 	enum { IDD = IDD_MAINDLG };

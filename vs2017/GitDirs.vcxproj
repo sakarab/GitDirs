@@ -187,6 +187,7 @@
     <ClCompile Include="..\Src\AboutDlg.cpp" />
     <ClCompile Include="..\Src\gd_Utils.cpp" />
     <ClCompile Include="..\Src\GitDirs.cpp" />
+    <ClCompile Include="..\Src\InfoDlg.cpp" />
     <ClCompile Include="..\Src\ListData.cpp" />
     <ClCompile Include="..\Src\MainDlg.cpp" />
     <ClCompile Include="..\Src\stdafx.cpp">
@@ -199,6 +200,7 @@
   <ItemGroup>
     <ClInclude Include="..\Src\AboutDlg.h" />
     <ClInclude Include="..\Src\gd_Utils.h" />
+    <ClInclude Include="..\Src\InfoDlg.h" />
     <ClInclude Include="..\Src\ListData.h" />
     <ClInclude Include="..\Src\MainDlg.h" />
     <ClInclude Include="..\Src\resource.h" />

@@ -173,9 +173,10 @@ void CMainDlg::SetFilter( const spFilter& filter )
 
 BOOL CMainDlg::OnIdle()
 {
-    if ( mListView_LastSelected >= 0 )
+    if ( mListView_LastSelected >= 0 && mInfoDlg )
     {
-        mGroupInfo.SetWindowText( ListToDelimitedText( mDataView.Item( mListView_LastSelected )->Groups(), L',' ).c_str() );
+        mInfoDlg->SetGroupText( ListToDelimitedText( mDataView.Item( mListView_LastSelected )->Groups(), L',' ) );
+        mInfoDlg->SetReferancesText( L"Some text with\r\nline feed in it" );
         mListView_LastSelected = -1;
     }
     UIUpdateChildWindows();
@@ -225,7 +226,6 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     pLoop->AddIdleHandler( this );
 
     UIAddChildWindowContainer( m_hWnd );
-    mGroupInfo.Attach( GetDlgItem( IDC_GROUP_INFO ) );
     mMainMenu.Attach( GetMenu() );
     if ( m_hWnd != NULL )
         mHAccel = ::LoadAccelerators( ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE( IDR_MAINFRAME ) );
@@ -322,7 +322,7 @@ LRESULT CMainDlg::OnCancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BO
     return 0;
 }
 
-LRESULT CMainDlg::OnFile_OpenInExplorer( WORD, WORD, HWND, BOOL & )
+LRESULT CMainDlg::OnView_OpenInExplorer( WORD, WORD, HWND, BOOL & )
 {
     std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
 
@@ -331,7 +331,7 @@ LRESULT CMainDlg::OnFile_OpenInExplorer( WORD, WORD, HWND, BOOL & )
     return LRESULT();
 }
 
-LRESULT CMainDlg::OnFile_OpenIniDirectory( WORD, WORD, HWND, BOOL & )
+LRESULT CMainDlg::OnView_OpenIniDirectory( WORD, WORD, HWND, BOOL & )
 {
     ccwin::TCommonDirectories   dirs;
     std::wstring                fname = ccwin::IncludeTrailingPathDelimiter( dirs.AppDataDirectory_UserLocal() ).append( L"GitDirs.ini" );
@@ -441,10 +441,33 @@ LRESULT CMainDlg::OnEdit_Delete( WORD, WORD, HWND, BOOL & )
     return LRESULT();
 }
 
-LRESULT CMainDlg::OnEdit_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
+LRESULT CMainDlg::OnView_ShowCheckBoxes( WORD, WORD, HWND, BOOL & )
 {
     ListView_SetShowCheckBoxes( !ListView_GetShowCheckBoxes() );
     return LRESULT();
+}
+
+LRESULT CMainDlg::OnView_ShowInfoDialog( WORD, WORD, HWND, BOOL & )
+{
+    if ( mInfoDlg )
+    {
+        mInfoDlg->CloseDialog();
+    }
+    else
+    {
+        InfoDlg_Deleter     form_deleter = []( CInfoDlg *frm ) { frm->CloseDialog(); };
+        qpMonitorDlg        dlg( new CInfoDlg( [this]() {
+                                                mInfoDlg.reset(); 
+                                                UISetCheck( ID_VIEW_SHOWINFORMATIONDIALOG, false );
+                                            } ),
+                                 form_deleter );
+
+        dlg->Create( *this );
+        dlg->ShowWindow( SW_NORMAL );
+        mInfoDlg = std::move( dlg );
+        UISetCheck( ID_VIEW_SHOWINFORMATIONDIALOG, true );
+    }
+    return 0;
 }
 
 LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
@@ -797,10 +820,10 @@ void CMainDlg::ListView_SetShowCheckBoxes( bool value )
     {
         mListView.SetExtendedListViewStyle( style & ~LVS_EX_CHECKBOXES );
     }
-    UISetCheck( ID_EDIT_SHOWCHECKBOXES, value );
+    UISetCheck( ID_VIEW_SHOWCHECKBOXES, value );
 }
 
 bool CMainDlg::ListView_GetShowCheckBoxes()
 {
-    return (UIGetState( ID_EDIT_SHOWCHECKBOXES ) & UPDUI_CHECKED) != 0;
+    return (UIGetState( ID_VIEW_SHOWCHECKBOXES ) & UPDUI_CHECKED) != 0;
 }

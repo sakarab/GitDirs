@@ -30,7 +30,7 @@
 typedef std::vector<std::wstring>   WStringList;
 
 const int       LastDataVersion = 1;
-const int       GROUPS_MENU_Position = 2;
+const int       GROUPS_MENU_Position = 3;
 const int       GROUPS_MENU_HeaderCount = 3;
 const int       GROUPS_MENU_CommandID = 40000;
 const int       GROUPS_MENU_SubMenuCommandID = 41000;

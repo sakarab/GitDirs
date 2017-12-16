@@ -76,9 +76,7 @@ CAPTION "GitDirs"
 MENU IDR_MENU_MAIN
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_EDITLABELS | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,7,7,546,269
-    LTEXT           "Static",IDC_GROUP_INFO,39,280,514,8,SS_ENDELLIPSIS,WS_EX_TRANSPARENT
-    LTEXT           "Groups:",IDC_GROUP_INFO_LABEL,7,280,26,8
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_EDITLABELS | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,7,7,546,281
 END
 
 
@@ -117,8 +115,8 @@ END
 IDR_MAINFRAME ACCELERATORS
 BEGIN
     VK_F2,          ID_EDIT_EDITNAME,       VIRTKEY, NOINVERT
-    VK_F5,          ID_EDIT_SHOWCHECKBOXES, VIRTKEY, NOINVERT
-    "O",            ID_FILE_OPENINEXPLORER, VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_FILE_EXPORTWORKSET,  VIRTKEY, CONTROL, NOINVERT
+    "I",            ID_FILE_IMPORTWORKSET,  VIRTKEY, CONTROL, NOINVERT
     "Q",            ID_FILE_QUIT,           VIRTKEY, CONTROL, NOINVERT
     "M",            ID_GIT_CHECKFORMODIFICATIONS, VIRTKEY, CONTROL, NOINVERT
     "C",            ID_GIT_COMMIT,          VIRTKEY, CONTROL, NOINVERT
@@ -128,8 +126,9 @@ BEGIN
     "G",            ID_GIT_REVISIONGRAPPH,  VIRTKEY, CONTROL, NOINVERT
     "V",            ID_GIT_VIEWLOG,         VIRTKEY, CONTROL, NOINVERT
     "R",            ID_POPUP_REFRESHSTATE,  VIRTKEY, CONTROL, NOINVERT
-    "I",            ID_FILE_IMPORTWORKSET,  VIRTKEY, CONTROL, NOINVERT
-    "E",            ID_FILE_EXPORTWORKSET,  VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_VIEW_OPENINEXPLORER, VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          ID_VIEW_SHOWCHECKBOXES, VIRTKEY, NOINVERT
+    VK_F6,          ID_VIEW_SHOWINFORMATIONDIALOG, VIRTKEY, NOINVERT
 END
 
 
@@ -250,6 +249,54 @@ LANGUAGE LANG_GREEK, SUBLANG_DEFAULT
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Dialog
+//
+
+IDD_REPO_INFO DIALOGEX 0, 0, 262, 36
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Repository Information"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Static",IDC_GROUP_INFO,48,4,210,8,SS_ENDELLIPSIS,WS_EX_TRANSPARENT
+    LTEXT           "Groups:",IDC_GROUP_INFO_LABEL,4,4,26,8
+    LTEXT           "Referances:",IDC_GROUP_INFO_REFLABEL,4,14,40,8
+    EDITTEXT        IDC_GROUP_INFO_REFEDIT,46,14,212,18,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_REPO_INFO, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 258
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 32
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_REPO_INFO AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Menu
 //
 
@@ -257,7 +304,6 @@ IDR_MENU_MAIN MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Open ""ini"" directory",      ID_FILE_OPENINIDIRECTORY
         MENUITEM "Reload Ini",                  ID_FILE_RELOADINI
         MENUITEM SEPARATOR
         MENUITEM "Import Workset\tCtrl+I",      ID_FILE_IMPORTWORKSET
@@ -266,7 +312,6 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Fetch All Repositories",      ID_FILE_FETCHALLREPOSITORIES
         MENUITEM "Refresh State of Repositories", ID_FILE_REFRESHREPOSITORYSTATE
-        MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
         MENUITEM SEPARATOR
         MENUITEM "Quit\tCtrl+Q",                ID_FILE_QUIT
     END
@@ -276,10 +321,17 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Delete...",                  ID_EDIT_DELETE_2
         MENUITEM SEPARATOR
-        MENUITEM "Show Check Boxes\tF5",        ID_EDIT_SHOWCHECKBOXES
         MENUITEM "Clear Workset",               ID_EDIT_CLEARCHECKBOXES
         MENUITEM SEPARATOR
         MENUITEM "&Options...",                 ID_EDIT_OPTIONS
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Open ""ini"" directory",      ID_VIEW_OPENINIDIRECTORY
+        MENUITEM "Open in Explorer\tCtrl+O",    ID_VIEW_OPENINEXPLORER
+        MENUITEM SEPARATOR
+        MENUITEM "Show Check Boxes\tF5",        ID_VIEW_SHOWCHECKBOXES
+        MENUITEM "Show Information Dialog\tF6", ID_VIEW_SHOWINFORMATIONDIALOG
     END
     POPUP "Gr&oups"
     BEGIN
@@ -325,7 +377,7 @@ BEGIN
         MENUITEM "Revision Grapph...\tCtrl+G",  ID_GIT_REVISIONGRAPPH
         MENUITEM SEPARATOR
         MENUITEM "Refresh Repository State\tCtrl+R", ID_POPUP_REFRESHSTATE
-        MENUITEM "Open in Explorer\tCtrl+O",    ID_FILE_OPENINEXPLORER
+        MENUITEM "Open in Explorer\tCtrl+O",    ID_VIEW_OPENINEXPLORER
         MENUITEM SEPARATOR
         POPUP "Edit"
         BEGIN
