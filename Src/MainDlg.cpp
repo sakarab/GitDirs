@@ -470,6 +470,7 @@ LRESULT CMainDlg::OnView_ShowInfoDialog( WORD, WORD, HWND, BOOL & )
         dlg->ShowWindow( SW_NORMAL );
         mInfoDlg = std::move( dlg );
         UISetCheck( ID_VIEW_SHOWINFORMATIONDIALOG, true );
+        mListView_LastSelected = mListView.GetSelectedIndex();
     }
     return 0;
 }
