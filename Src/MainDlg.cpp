@@ -534,9 +534,14 @@ LRESULT CMainDlg::OnGroup_SubMenuCommand( WORD, WORD wID, HWND, BOOL & )
                 mDataView.RemoveItem( data_item.Name() );
                 mListView.SetItemCount( mDataView.Count() );
             }
+            else
+                mListView_LastSelected = idx;
         }
         else
+        {
             mDataView.Item( idx )->AddToGroup( group );
+            mListView_LastSelected = idx;
+        }
     }
     return LRESULT();
 }
