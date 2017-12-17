@@ -53,6 +53,9 @@ LRESULT CInfoDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT CInfoDlg::OnDestroy( UINT, WPARAM, LPARAM, BOOL & )
 {
+    ccwin::TIniFile     ini( GetIniFileName() );
+
+    CFormSize::Save( ini );
     return LRESULT();
 }
 
@@ -77,12 +80,7 @@ void CInfoDlg::CloseDialog()
     {
         mCloseDialogCalled = true;
         if ( ::IsWindow( m_hWnd ) )
-        {
-            ccwin::TIniFile     ini( GetIniFileName() );
-
-            CFormSize::Save( ini );
             DestroyWindow();
-        }
     }
 }
 

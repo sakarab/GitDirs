@@ -58,6 +58,7 @@ private:
 
     BEGIN_MSG_MAP_XX( CMonitorDlg )
         MESSAGE_HANDLER( WM_INITDIALOG, OnInitDialog );
+        MESSAGE_HANDLER( WM_DESTROY, OnDestroy );
         COMMAND_ID_HANDLER( IDCANCEL, OnCloseCmd );
         CHAIN_MSG_MAP( ccwtl::CFormSize<CInfoDlg> );
         CHAIN_MSG_MAP( CDialogResize<CInfoDlg> );
