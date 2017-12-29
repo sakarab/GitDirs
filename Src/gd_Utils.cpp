@@ -25,6 +25,7 @@
 #include <winOSUtils.h>
 #include <winClasses.h>
 #include <win_str.h>
+#include <cpp_lpstr.h>
 #include <boost/format.hpp>
 #include <boost/scope_exit.hpp>
 #include <smException.h>
@@ -276,8 +277,8 @@ namespace
 
 std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
 {
-    auto            fname = ccwin::smLPSTR( filename );
-    auto            filter = ccwin::smLPSTR( MakeFilterString( filters ) );
+    auto            fname = cclib::LPSTR( filename );
+    auto            filter = cclib::LPSTR( MakeFilterString( filters ) );
     CFileDialog     dlg( TRUE,                                                  // TRUE for FileOpen, FALSE for FileSaveAs
                          def_ext.empty() ? nullptr : def_ext.c_str(),           // LPCTSTR lpszDefExt = 
                          fname.get(),                                           // LPCTSTR lpszFileName = 
@@ -292,8 +293,8 @@ std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename,
 
 std::wstring SaveDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
 {
-    auto            fname = ccwin::smLPSTR( filename );
-    auto            filter = ccwin::smLPSTR( MakeFilterString( filters ) );
+    auto            fname = cclib::LPSTR( filename );
+    auto            filter = cclib::LPSTR( MakeFilterString( filters ) );
     CFileDialog     dlg( FALSE,                                                 // TRUE for FileOpen, FALSE for FileSaveAs
                          def_ext.empty() ? nullptr : def_ext.c_str(),           // LPCTSTR lpszDefExt = 
                          fname.get(),                                           // LPCTSTR lpszFileName = 
@@ -327,7 +328,7 @@ namespace
 
 std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
 {
-    auto                    fname = ccwin::smLPSTR( ccwin::ExtractFileName( filename ) );
+    auto                    fname = cclib::LPSTR( ccwin::ExtractFileName( filename ) );
     FILTERSPEC_array        fspecs{ new COMDLG_FILTERSPEC[filters.size()] };
 
     MakeFilterString( filters, fspecs );
@@ -350,7 +351,7 @@ std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename,
 
 std::wstring SaveDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
 {
-    auto                    fname = ccwin::smLPSTR( ccwin::ExtractFileName( filename ) );
+    auto                    fname = cclib::LPSTR( ccwin::ExtractFileName( filename ) );
     FILTERSPEC_array        fspecs{ new COMDLG_FILTERSPEC[filters.size()] };
 
     MakeFilterString( filters, fspecs );
