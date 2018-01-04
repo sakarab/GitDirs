@@ -30,6 +30,17 @@
 #include <boost/format.hpp>
 #include <boost/scope_exit.hpp>
 
+namespace
+{
+    void RepositoryExists( const std::wstring& result )
+    {
+        if ( result.empty() )
+            throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nhas no directory assigned." ) % ccwin::NarrowStringStrict( result ) ) );
+        else if ( !ccwin::DirectoryExists( result ) )
+            throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nis not present." ) % ccwin::NarrowStringStrict( result ) ) );
+    }
+}
+
 //=======================================================================
 //==============    CMainDlg
 //=======================================================================
@@ -408,6 +419,11 @@ LRESULT CMainDlg::OnFile_SaveData( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
 {
+    for ( const spListDataItem& item : mDataView )
+    {
+        RepositoryExists( item->Directory() );
+        ccwin::ExecuteProgramWait( MakeCommand( L"fetch", item->Directory().c_str() ), INFINITE );
+    }
     return LRESULT();
 }
 
@@ -801,10 +817,7 @@ std::wstring CMainDlg::ListView_GetText_Checked( int idx, ListColumn col )
 {
     std::wstring    result = ListView_GetText( idx, col );
 
-    if ( result.empty() )
-        throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nhas no directory assigned." ) % ccwin::NarrowStringStrict( result ) ) );
-    else if ( !ccwin::DirectoryExists( result ) )
-        throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nis not present." ) % ccwin::NarrowStringStrict( result ) ) );
+    RepositoryExists( result );
     return result;
 }
 
