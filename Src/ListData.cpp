@@ -121,15 +121,13 @@ void ListData::LoadFromIni( ccwin::TIniFile& ini )
 void ListData::SaveToIni( ccwin::TIniFile& ini )
 {
     ini.EraseSection( IniSections::Repositories );
+    ini.EraseSection( IniSections::Repositories_Groups );
     for ( Container::value_type& item : mData )
     {
         const ListDataItem&     item_ref = *item.second;
 
         ini.WriteString( IniSections::Repositories, item_ref.Name().c_str(), item_ref.Directory().c_str() );
-
-        if ( item_ref.Groups().empty() )
-            ini.EraseKey( IniSections::Repositories_Groups, item_ref.Name().c_str() );
-        else
+        if ( ! item_ref.Groups().empty() )
             ini.WriteString( IniSections::Repositories_Groups, item_ref.Name().c_str(), ListToDelimitedText( item_ref.Groups(), L',' ).c_str() );
     }
 
