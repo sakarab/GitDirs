@@ -23,6 +23,7 @@
 #include "ListData.h"
 #include <smException.h>
 #include <boost/lexical_cast.hpp>
+#include <win_str.h>
 
 // https://www.codeproject.com/articles/7891/using-virtual-lists
 

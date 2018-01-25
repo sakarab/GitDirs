@@ -22,6 +22,7 @@
 #include "stdafx.h"
 #include "InfoDlg.h"
 #include "gd_Utils.h"
+#include <win_str.h>
 
 //=======================================================================
 //==============    CInfoDlg

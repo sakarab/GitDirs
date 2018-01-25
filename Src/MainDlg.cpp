@@ -29,6 +29,7 @@
 #include <winUtils.h>
 #include <boost/format.hpp>
 #include <boost/scope_exit.hpp>
+#include <win_str.h>
 
 namespace
 {
