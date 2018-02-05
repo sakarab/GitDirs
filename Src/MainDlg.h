@@ -169,6 +169,7 @@ private:
     LRESULT OnView_OpenInExplorer( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnView_OpenIniDirectory( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_ReloadIni( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnFile_ReloadWorkset( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_ImportWorkset( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_ExportWorkset( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnFile_SaveData( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
@@ -211,6 +212,7 @@ private:
         COMMAND_ID_HANDLER( ID_VIEW_OPENINEXPLORER, OnView_OpenInExplorer );
         COMMAND_ID_HANDLER( ID_VIEW_OPENINIDIRECTORY, OnView_OpenIniDirectory );
         COMMAND_ID_HANDLER( ID_FILE_RELOADINI, OnFile_ReloadIni );
+        COMMAND_ID_HANDLER( ID_FILE_RELOADWORKSET, OnFile_ReloadWorkset );
         COMMAND_ID_HANDLER( ID_FILE_IMPORTWORKSET, OnFile_ImportWorkset );
         COMMAND_ID_HANDLER( ID_FILE_EXPORTWORKSET, OnFile_ExportWorkset );
         COMMAND_ID_HANDLER( ID_FILE_SAVEDATA, OnFile_SaveData );

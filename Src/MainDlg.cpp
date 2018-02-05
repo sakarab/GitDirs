@@ -364,6 +364,15 @@ LRESULT CMainDlg::OnFile_ReloadIni( WORD, WORD, HWND, BOOL & )
     return LRESULT();
 }
 
+LRESULT CMainDlg::OnFile_ReloadWorkset( WORD, WORD, HWND, BOOL & )
+{
+    ccwin::TIniFile     ini( GetIniFileName() );
+
+    mDataBase.WorksetFromString( ini.ReadString( IniSections::Data, IniKeys::Data_Marks, L"" ) );
+    mListView.Invalidate( FALSE );
+    return LRESULT();
+}
+
 LRESULT CMainDlg::OnFile_ImportWorkset( WORD, WORD, HWND, BOOL & )
 {
     std::wstring    fname = OpenDlg( L"", ccwin::ExtractFileName( mViewState.Workset_Filename ),

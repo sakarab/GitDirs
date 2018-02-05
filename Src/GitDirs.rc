@@ -309,6 +309,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Reload Ini",                  ID_FILE_RELOADINI
+        MENUITEM "Reload Workset",              ID_FILE_RELOADWORKSET
         MENUITEM SEPARATOR
         MENUITEM "Import Workset\tCtrl+I",      ID_FILE_IMPORTWORKSET
         MENUITEM "Export Workset\tCtrl+E",      ID_FILE_EXPORTWORKSET
