@@ -40,6 +40,27 @@ namespace
         else if ( !ccwin::DirectoryExists( result ) )
             throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nis not present." ) % ccwin::NarrowStringStrict( result ) ) );
     }
+
+    class Filter : public CMessageFilter
+    {
+    public:
+        virtual BOOL PreTranslateMessage( MSG* pMsg ) CC_OVERRIDE
+        {
+            return pMsg->message == WM_COMMAND;
+        }
+    };
+
+    void ApplicationProcessMessages()
+    {
+        CMessageLoop    *loop = _Module.GetMessageLoop();
+        Filter          filter;
+
+        loop->AddMessageFilter( &filter );
+        ::PostMessage( 0, WM_QUIT, 0, 0 );
+        _Module.GetMessageLoop()->Run();
+        loop->RemoveMessageFilter( &filter );
+    }
+
 }
 
 //=======================================================================
@@ -433,6 +454,7 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
     {
         RepositoryExists( item->Directory() );
         ccwin::ExecuteProgramWait( MakeCommand( L"fetch", item->Directory().c_str() ), INFINITE );
+        ApplicationProcessMessages();
     }
     return LRESULT();
 }
