@@ -24,8 +24,12 @@
 
 void local_run()
 {
-    Work                        work;
-    const std::atomic_bool&     work_AquireCancelRun = work.getAquireCancelRun();
+    Work    work;
 
-    work.RunThreaded( [&work_AquireCancelRun]() {} );
+    work.RunThreaded( []( const Work::spFlag& flag ) {
+        // loop until flag is set
+        //while ( !flag )
+        //    ;
+    } );
+
 }

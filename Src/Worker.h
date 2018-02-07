@@ -33,29 +33,44 @@
 //=======================================================================
 class Work
 {
+public:
+    typedef std::shared_ptr<std::atomic_bool>   spFlag;
 private:
-    typedef std::unique_ptr<std::thread>    uqThread;
+    typedef std::unique_ptr<std::thread, std::function<void ( std::thread * )> >        uqThread;
 
-    std::atomic_bool    mAquireCancelRun;
-    uqThread            mThread;
+    spFlag      mAquireCancelRun;
+    uqThread    mThread;
+    // non-copyable
+    Work( const Work& ) CC_EQ_DELETE;
+    Work& operator=( const Work& ) CC_EQ_DELETE;
 public:
     Work()
-        : mAquireCancelRun(), mThread()
+        : mAquireCancelRun( std::make_shared<spFlag::element_type>() ), mThread()
     {}
 
-    template <class FUNC> void Run( FUNC func )
+    Work( Work&& other )
     {
-        func();
+        mAquireCancelRun = std::move( other.mAquireCancelRun );
+        mThread = std::move( other.mThread );
     }
 
-    template <class FUNC> void RunThreaded( FUNC func )
+    void Run( std::function<void( const spFlag& )> func )
     {
-        mAquireCancelRun = false;
-        mThread = std::make_unique<uqThread::element_type>( func );
+        *mAquireCancelRun = false;
+        func( mAquireCancelRun );
     }
 
-    const std::atomic_bool& getAquireCancelRun()            { return mAquireCancelRun; }
+    void RunThreaded( std::function<void( const spFlag& )> func )
+    {
+        *mAquireCancelRun = false;
+        mThread = uqThread( new std::thread, []( std::thread *ptr ) {
+            ptr->join();
+            delete ptr;
+        } );
+    }
 };
 
+typedef std::shared_ptr<Work>   spWork;
+typedef std::unique_ptr<Work>   uqWork;
 
 #endif
