@@ -196,6 +196,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_Static|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release_Static_XP|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Src\Worker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Src\AboutDlg.h" />
@@ -205,6 +206,7 @@
     <ClInclude Include="..\Src\MainDlg.h" />
     <ClInclude Include="..\Src\resource.h" />
     <ClInclude Include="..\Src\stdafx.h" />
+    <ClInclude Include="..\Src\Worker.h" />
     <ClInclude Include="..\version_common_rc.h" />
   </ItemGroup>
   <ItemGroup>
