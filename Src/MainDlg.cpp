@@ -285,11 +285,16 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     MainMenu_Append( mMainMenu.GetSubMenu( GROUPS_MENU_Position ) );
     ListView_SetShowCheckBoxes( ini.ReadBool( IniSections::ViewState, IniKeys::ViewState_ShowCheckBoxes, false ) );
     mViewState.Load( ini );
+
+    mTimer = SetTimer( 1, 1000 );
+
     return TRUE;
 }
 
 LRESULT CMainDlg::OnDestroy( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ )
 {
+    if ( mTimer )
+        KillTimer( mTimer );
     // unregister message filtering and idle updates
     CMessageLoop* pLoop = _Module.GetMessageLoop();
     ATLASSERT( pLoop != NULL );
@@ -831,6 +836,17 @@ LRESULT CMainDlg::OnList_Click( int, LPNMHDR pNMHDR, BOOL & )
         mListView.Update( idx );
     }
     return LRESULT();
+}
+
+void CMainDlg::OnTimer( UINT_PTR nIDEvent )
+{
+    if ( !mWork )
+        return;
+    if ( mWork->IsIerminated() )
+    {
+        // collect result
+        mWork.reset();
+    }
 }
 
 CMainDlg::CMainDlg()

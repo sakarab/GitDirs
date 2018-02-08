@@ -34,6 +34,7 @@
 #include "gd_Utils.h"
 #include "ListData.h"
 #include "InfoDlg.h"
+#include "Worker.h"
 
 //=======================================================================
 //==============    CHDrop
@@ -130,6 +131,8 @@ private:
     ViewState           mViewState;
     unique_string       mOldEditName;
     qpMonitorDlg        mInfoDlg;
+    uqWork              mWork;
+    UINT_PTR            mTimer = 0;
     int                 mListView_LastSelected = -1;
     bool                mEscapeExit = false;
     bool                mInLabelEdit = false;
@@ -199,6 +202,7 @@ private:
     LRESULT OnList_FindItem( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ );
     LRESULT OnList_KeyDown( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ );
     LRESULT OnList_Click( int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/ );
+    void OnTimer( UINT_PTR nIDEvent );
 
     BEGIN_MSG_MAP_XX( CMainDlg )
         MESSAGE_HANDLER( WM_INITDIALOG, OnInitDialog );
@@ -247,6 +251,7 @@ private:
         NOTIFY_HANDLER( IDC_LIST, LVN_ODFINDITEM, OnList_FindItem );
         NOTIFY_HANDLER( IDC_LIST, LVN_KEYDOWN, OnList_KeyDown );
         NOTIFY_HANDLER( IDC_LIST, NM_CLICK, OnList_Click );
+        MSG_WM_TIMER( OnTimer );
         CHAIN_MSG_MAP( ccwtl::CFormSize<CMainDlg> );
         CHAIN_MSG_MAP( CDialogResize<CMainDlg> );
         CHAIN_MSG_MAP( CUpdateUI<CMainDlg> );

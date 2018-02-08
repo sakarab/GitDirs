@@ -34,40 +34,45 @@
 class Work
 {
 public:
-    typedef std::shared_ptr<std::atomic_bool>   spFlag;
+    typedef std::shared_ptr<bool>       spFlag;
 private:
     typedef std::unique_ptr<std::thread, std::function<void ( std::thread * )> >        uqThread;
 
     spFlag      mAquireCancelRun;
+    spFlag      mTerminated;
     uqThread    mThread;
     // non-copyable
     Work( const Work& ) CC_EQ_DELETE;
     Work& operator=( const Work& ) CC_EQ_DELETE;
 public:
     Work()
-        : mAquireCancelRun( std::make_shared<spFlag::element_type>() ), mThread()
+        : mAquireCancelRun( std::make_shared<bool>( false ) ), mTerminated( std::make_shared<bool>( true ) ), mThread()
     {}
 
     Work( Work&& other )
     {
         mAquireCancelRun = std::move( other.mAquireCancelRun );
+        mTerminated = std::move( other.mTerminated );
         mThread = std::move( other.mThread );
     }
 
-    void Run( std::function<void( const spFlag& )> func )
+    void Run( std::function<void( const spFlag& cancel, const spFlag& terminated )> func )
     {
         *mAquireCancelRun = false;
-        func( mAquireCancelRun );
+        func( mAquireCancelRun, mTerminated );
     }
 
-    void RunThreaded( std::function<void( const spFlag& )> func )
+    void RunThreaded( std::function<void( const spFlag& cancel, const spFlag& terminated )> func )
     {
         *mAquireCancelRun = false;
-        mThread = uqThread( new std::thread, []( std::thread *ptr ) {
+        mThread = uqThread( new std::thread( func, mAquireCancelRun, mTerminated ), []( std::thread *ptr ) {
             ptr->join();
             delete ptr;
         } );
     }
+
+    void CancelRun()            { *mAquireCancelRun = true; }
+    bool IsIerminated() const   { return *mTerminated; }
 };
 
 typedef std::shared_ptr<Work>   spWork;

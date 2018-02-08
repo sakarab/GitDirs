@@ -26,10 +26,11 @@ void local_run()
 {
     Work    work;
 
-    work.RunThreaded( []( const Work::spFlag& flag ) {
+    work.RunThreaded( []( const Work::spFlag& cancel, const Work::spFlag& terminated ) {
         // loop until flag is set
-        //while ( !flag )
-        //    ;
+        while ( !(*cancel) )
+            ;
+        *terminated = true;
     } );
 
 }
