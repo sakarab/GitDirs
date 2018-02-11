@@ -30,6 +30,8 @@
 #include <map>
 #include "gd_Utils.h"
 
+class ActionBase;
+
 //=======================================================================
 //==============    Work
 //=======================================================================
@@ -47,34 +49,11 @@ private:
     Work( const Work& ) CC_EQ_DELETE;
     Work& operator=( const Work& ) CC_EQ_DELETE;
 public:
-    Work()
-        : mAquireCancelRun( std::make_shared<bool>( false ) ), mTerminated( std::make_shared<bool>( true ) ), mThread()
-    {}
+    Work();
+    Work( Work&& other );
 
-    Work( Work&& other )
-    {
-        mAquireCancelRun = std::move( other.mAquireCancelRun );
-        mTerminated = std::move( other.mTerminated );
-        mThread = std::move( other.mThread );
-    }
-
-    void Run( std::function<void( const spFlag& cancel, const spFlag& terminated )> func )
-    {
-        *mAquireCancelRun = false;
-        *mTerminated = false;
-        func( mAquireCancelRun, mTerminated );
-    }
-
-    void RunThreaded( std::function<void( const spFlag& cancel, const spFlag& terminated )> func )
-    {
-        *mAquireCancelRun = false;
-        *mTerminated = false;
-        mThread = uqThread( new std::thread( func, mAquireCancelRun, mTerminated ), [this]( std::thread *ptr ) {
-            *mAquireCancelRun = true;
-            ptr->join();
-            delete ptr;
-        } );
-    }
+    void Run( ActionBase& func );
+    void RunThreaded( ActionBase& func );
 
     void CancelRun()            { *mAquireCancelRun = true; }
     bool IsIerminated() const   { return *mTerminated; }
@@ -92,16 +71,21 @@ private:
     Work::spFlag        mAquireCancelRun;
     Work::spFlag        mTerminated;
     std::wstring        mErrorString;
+    bool                mError;
 
-    void MarkTerminated()       { *mTerminated = true; }
+    void MarkTerminated()           { *mTerminated = true; }
 protected:
-    bool IsCancelAquired()      { return *mAquireCancelRun; }
-
-    virtual void Run()          {}  // empty
+    virtual void Run() = 0;
 public:
-    ActionBase()                {}  // empty
-    virtual ~ActionBase()       {}  // empty
-    void operator()( const Work::spFlag& cancel, const Work::spFlag& terminated );
+    ActionBase();
+    virtual ~ActionBase()           {}  // empty
+    void operator()();
+
+    void SetFlags( const Work::spFlag& cancel, const Work::spFlag& terminated );
+
+    bool IsCancelAquired() const    { return *mAquireCancelRun; }
+    bool ErronTermination() const   { return mError; }
+    bool IsIerminated() const       { return *mTerminated; }
 };
 
 typedef std::unique_ptr<ActionBase>     uqActionBase;
@@ -133,6 +117,8 @@ protected:
     virtual void Run() CC_OVERRIDE;
 public:
     Action_RefreshRepos( const GitDirStateList& state_list );
+
+    const GitDirStateList& StateList() const;
 };
 
 #endif

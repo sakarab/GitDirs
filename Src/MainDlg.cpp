@@ -128,29 +128,11 @@ bool CMainDlg::UniqueName( int idx, const std::wstring& name )
 
 void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
 {
-    if ( mWork )
+    if ( mAction )
         return;
-
-    mWork = std::make_unique<Work>();
     mAction = std::make_unique<Action_RefreshRepos>( state_list );
-    mWork->RunThreaded( *mAction );
-
-    // pick the result with the timer
-    //for ( const GitDirStateList::value_type& item : state_list )
-    //{
-    //    ListDataView::list_size_type    idx = mDataView.FindItem( item.Name );
-
-    //    if ( idx != ListDataView::npos )
-    //    {
-    //        spListDataItem&     data_item = mDataView.Item( idx );
-
-    //        data_item->Remotes( item.Remotes );
-    //        data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
-    //        data_item->Uncommited( item.Uncommited );
-    //        data_item->NeedsUpdate( item.NeedsUpdate );
-    //        mListView.Update( idx );
-    //    }
-    //}
+    mWork = std::make_unique<Work>();
+    mWork->Run( *dynamic_cast<Action_RefreshRepos *>(mAction.get()) );
 }
 
 void CMainDlg::MainMenu_Append( CMenuHandle menu )
@@ -453,16 +435,16 @@ LRESULT CMainDlg::OnFile_SaveData( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
 {
-    if ( !mWork )
+    if ( !mAction )
     {
         ReposList       fetch_list;
 
         for ( const spListDataItem& item : mDataView )
             fetch_list[item->Name()] = item->Directory();
 
-        mWork = std::make_unique<Work>();
         mAction = std::make_unique<Action_FetchRepos>( fetch_list );
-        mWork->RunThreaded( *mAction );
+        mWork = std::make_unique<Work>();
+        mWork->RunThreaded( *dynamic_cast<Action_FetchRepos *>(mAction.get()) );
     }
     return LRESULT();
 }
@@ -843,13 +825,29 @@ LRESULT CMainDlg::OnList_Click( int, LPNMHDR pNMHDR, BOOL & )
 
 void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
 {
-    if ( !mWork )
+    if ( !mAction )
         return;
-    if ( mWork->IsIerminated() )
+    if ( mAction->IsIerminated() )
     {
-        if ( dynamic_cast<Action_RefreshRepos *>(mAction.get()) )
+        if ( Action_RefreshRepos *act = dynamic_cast<Action_RefreshRepos *>(mAction.get()) )
         {
-            // collect result
+            GitDirStateList     state_list = act->StateList();
+
+            for ( const GitDirStateList::value_type& item : state_list )
+            {
+                ListDataView::list_size_type    idx = mDataView.FindItem( item.Name );
+
+                if ( idx != ListDataView::npos )
+                {
+                    spListDataItem&     data_item = mDataView.Item( idx );
+
+                    data_item->Remotes( item.Remotes );
+                    data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
+                    data_item->Uncommited( item.Uncommited );
+                    data_item->NeedsUpdate( item.NeedsUpdate );
+                    mListView.Update( idx );
+                }
+            }
         }
         mWork.reset();      // this will join() when running threaded
         mAction.reset();

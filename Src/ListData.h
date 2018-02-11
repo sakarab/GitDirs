@@ -29,8 +29,6 @@
 #include <map>
 #include <winClasses.h>
 
-//void GitGetRepositoriesState( GitDirStateList& state_list );
-
 enum class ListColumn : byte           { name, path, n_repos, branch, uncommited, needs };
 const byte ListColumn_Min = static_cast<byte>(ListColumn::name);
 const byte ListColumn_Max = static_cast<byte>(ListColumn::needs);

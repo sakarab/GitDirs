@@ -24,36 +24,62 @@
 #include "gd_Utils.h"
 #include <win_str.h>
 
-void local_run()
+//=======================================================================
+//==============    Work
+//=======================================================================
+Work::Work()
+    : mAquireCancelRun( std::make_shared<bool>( false ) ), mTerminated( std::make_shared<bool>( true ) ), mThread()
+{}
+
+Work::Work( Work&& other )
 {
-    Work    work;
+    mAquireCancelRun = std::move( other.mAquireCancelRun );
+    mTerminated = std::move( other.mTerminated );
+    mThread = std::move( other.mThread );
+}
 
-    work.RunThreaded( []( const Work::spFlag& cancel, const Work::spFlag& terminated ) {
-        // loop until flag is set
-        while ( !(*cancel) )
-            ;
-        *terminated = true;
+void Work::Run( ActionBase& func )
+{
+    *mAquireCancelRun = false;
+    *mTerminated = false;
+    func();
+}
+
+void Work::RunThreaded( ActionBase& func )
+{
+    *mAquireCancelRun = false;
+    *mTerminated = false;
+    mThread = uqThread( new std::thread( func, mAquireCancelRun, mTerminated ), [this]( std::thread *ptr ) {
+        *mAquireCancelRun = true;
+        ptr->join();
+        delete ptr;
     } );
-
-    //Work                            work2;
-    //std::unique_ptr<ActionBase>     act = std::make_unique<ActionOne>();
-
-    //work2.RunThreaded( *act );
 }
 
 //=======================================================================
 //==============    ActionBase
 //=======================================================================
-void ActionBase::operator()( const Work::spFlag& cancel, const Work::spFlag& terminated )
+ActionBase::ActionBase()
+    : mAquireCancelRun( std::make_shared<bool>( false ) ), mTerminated( std::make_shared<bool>( true ) )
+{
+}
+
+void ActionBase::SetFlags( const Work::spFlag & cancel, const Work::spFlag & terminated )
+{
+    mAquireCancelRun = cancel;
+    mTerminated = terminated;
+}
+
+void ActionBase::operator()()
 {
     try
     {
-        mAquireCancelRun = cancel;
-        mTerminated = terminated;
+        mError = false;
         Run();
     }
     catch ( const std::exception& ex )
     {
+        mError = true;
         mErrorString = ccwin::WidenStringStrict( std::string( ex.what() ) );
     }
     MarkTerminated();
@@ -91,4 +117,11 @@ void Action_RefreshRepos::Run()
 Action_RefreshRepos::Action_RefreshRepos( const GitDirStateList& state_list )
     : mStateList( state_list )
 {
+}
+
+const GitDirStateList& Action_RefreshRepos::StateList() const
+{
+    if ( !IsIerminated() )
+        throw std::runtime_error( "Thread not terminated. Cannot access variable" );
+    return mStateList;
 }
