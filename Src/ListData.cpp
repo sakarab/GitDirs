@@ -27,13 +27,13 @@
 
 // https://www.codeproject.com/articles/7891/using-virtual-lists
 
-void GitGetRepositoriesState( GitDirStateList& state_list )
-{
-    git2::LibGit2     libgit;
-
-    for ( GitDirStateList::value_type& item : state_list )
-        GetDirectoryState( libgit, item );
-}
+//void GitGetRepositoriesState( GitDirStateList& state_list )
+//{
+//    git2::LibGit2     libgit;
+//
+//    for ( GitDirStateList::value_type& item : state_list )
+//        GetDirectoryState( libgit, item );
+//}
 
 //=======================================================================
 //==============    FilterBase

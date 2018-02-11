@@ -132,6 +132,7 @@ private:
     unique_string       mOldEditName;
     qpMonitorDlg        mInfoDlg;
     uqWork              mWork;
+    uqActionBase        mAction;
     UINT_PTR            mTimer = 0;
     int                 mListView_LastSelected = -1;
     bool                mEscapeExit = false;

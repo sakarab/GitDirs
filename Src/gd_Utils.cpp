@@ -256,6 +256,14 @@ std::wstring RS_LoadString( UINT rc_id )
     return std::wstring( str, len );
 }
 
+void RepositoryExists( const std::wstring& result )
+{
+    if ( result.empty() )
+        throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nhas no directory assigned." ) % ccwin::NarrowStringStrict( result ) ) );
+    else if ( !ccwin::DirectoryExists( result ) )
+        throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nis not present." ) % ccwin::NarrowStringStrict( result ) ) );
+}
+
 #if defined (WINDOWS_XP_BUILD)
 
 namespace

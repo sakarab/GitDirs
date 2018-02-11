@@ -181,6 +181,8 @@ struct GitDirStateItem
     {}
 };
 
+typedef std::vector<GitDirStateItem>    GitDirStateList;
+
 //=======================================================================
 //==============    FREE FUNCTIONS
 //=======================================================================
@@ -199,6 +201,8 @@ void SetMenuRadioRecursive( CMenuHandle menu, UINT menu_id );
 
 const wchar_t *RS_LoadPtr( UINT rc_id, int& len );
 std::wstring RS_LoadString( UINT rc_id );
+
+void RepositoryExists( const std::wstring& result );
 
 typedef std::pair<const wchar_t *, const wchar_t *>     open_filter_spec;
 typedef std::initializer_list<open_filter_spec>         open_filter_list;

@@ -33,14 +33,6 @@
 
 namespace
 {
-    void RepositoryExists( const std::wstring& result )
-    {
-        if ( result.empty() )
-            throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nhas no directory assigned." ) % ccwin::NarrowStringStrict( result ) ) );
-        else if ( !ccwin::DirectoryExists( result ) )
-            throw cclib::BaseException( boost::str( boost::format( "Repository\n%1%\nis not present." ) % ccwin::NarrowStringStrict( result ) ) );
-    }
-
     class Filter : public CMessageFilter
     {
     public:
@@ -136,23 +128,29 @@ bool CMainDlg::UniqueName( int idx, const std::wstring& name )
 
 void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
 {
-    GitGetRepositoriesState( state_list );
+    if ( mWork )
+        return;
 
-    for ( const GitDirStateList::value_type& item : state_list )
-    {
-        ListDataView::list_size_type    idx = mDataView.FindItem( item.Name );
+    mWork = std::make_unique<Work>();
+    mAction = std::make_unique<Action_RefreshRepos>( state_list );
+    mWork->RunThreaded( *mAction );
 
-        if ( idx != ListDataView::npos )
-        {
-            spListDataItem&     data_item = mDataView.Item( idx );
+    // pick the result with the timer
+    //for ( const GitDirStateList::value_type& item : state_list )
+    //{
+    //    ListDataView::list_size_type    idx = mDataView.FindItem( item.Name );
 
-            data_item->Remotes( item.Remotes );
-            data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
-            data_item->Uncommited( item.Uncommited );
-            data_item->NeedsUpdate( item.NeedsUpdate );
-            mListView.Update( idx );
-        }
-    }
+    //    if ( idx != ListDataView::npos )
+    //    {
+    //        spListDataItem&     data_item = mDataView.Item( idx );
+
+    //        data_item->Remotes( item.Remotes );
+    //        data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
+    //        data_item->Uncommited( item.Uncommited );
+    //        data_item->NeedsUpdate( item.NeedsUpdate );
+    //        mListView.Update( idx );
+    //    }
+    //}
 }
 
 void CMainDlg::MainMenu_Append( CMenuHandle menu )
@@ -455,11 +453,16 @@ LRESULT CMainDlg::OnFile_SaveData( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
 {
-    for ( const spListDataItem& item : mDataView )
+    if ( !mWork )
     {
-        RepositoryExists( item->Directory() );
-        ccwin::ExecuteProgramWait( MakeCommand( L"fetch", item->Directory().c_str() ), INFINITE );
-        ApplicationProcessMessages();
+        ReposList       fetch_list;
+
+        for ( const spListDataItem& item : mDataView )
+            fetch_list[item->Name()] = item->Directory();
+
+        mWork = std::make_unique<Work>();
+        mAction = std::make_unique<Action_FetchRepos>( fetch_list );
+        mWork->RunThreaded( *mAction );
     }
     return LRESULT();
 }
@@ -838,14 +841,18 @@ LRESULT CMainDlg::OnList_Click( int, LPNMHDR pNMHDR, BOOL & )
     return LRESULT();
 }
 
-void CMainDlg::OnTimer( UINT_PTR nIDEvent )
+void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
 {
     if ( !mWork )
         return;
     if ( mWork->IsIerminated() )
     {
-        // collect result
-        mWork.reset();
+        if ( dynamic_cast<Action_RefreshRepos *>(mAction.get()) )
+        {
+            // collect result
+        }
+        mWork.reset();      // this will join() when running threaded
+        mAction.reset();
     }
 }
 

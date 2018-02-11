@@ -27,6 +27,8 @@
 #include <atomic>
 #include <memory>
 #include <thread>
+#include <map>
+#include "gd_Utils.h"
 
 //=======================================================================
 //==============    Work
@@ -59,13 +61,16 @@ public:
     void Run( std::function<void( const spFlag& cancel, const spFlag& terminated )> func )
     {
         *mAquireCancelRun = false;
+        *mTerminated = false;
         func( mAquireCancelRun, mTerminated );
     }
 
     void RunThreaded( std::function<void( const spFlag& cancel, const spFlag& terminated )> func )
     {
         *mAquireCancelRun = false;
-        mThread = uqThread( new std::thread( func, mAquireCancelRun, mTerminated ), []( std::thread *ptr ) {
+        *mTerminated = false;
+        mThread = uqThread( new std::thread( func, mAquireCancelRun, mTerminated ), [this]( std::thread *ptr ) {
+            *mAquireCancelRun = true;
             ptr->join();
             delete ptr;
         } );
@@ -77,5 +82,57 @@ public:
 
 typedef std::shared_ptr<Work>   spWork;
 typedef std::unique_ptr<Work>   uqWork;
+
+//=======================================================================
+//==============    ActionBase
+//=======================================================================
+class ActionBase
+{
+private:
+    Work::spFlag        mAquireCancelRun;
+    Work::spFlag        mTerminated;
+    std::wstring        mErrorString;
+
+    void MarkTerminated()       { *mTerminated = true; }
+protected:
+    bool IsCancelAquired()      { return *mAquireCancelRun; }
+
+    virtual void Run()          {}  // empty
+public:
+    ActionBase()                {}  // empty
+    virtual ~ActionBase()       {}  // empty
+    void operator()( const Work::spFlag& cancel, const Work::spFlag& terminated );
+};
+
+typedef std::unique_ptr<ActionBase>     uqActionBase;
+
+//=======================================================================
+//==============    Action_FetchRepos
+//=======================================================================
+typedef std::map<std::wstring, std::wstring>        ReposList;
+
+class Action_FetchRepos : public ActionBase
+{
+private:
+    ReposList       mFetchList;
+protected:
+    virtual void Run() CC_OVERRIDE;
+public:
+    Action_FetchRepos( const ReposList& fetch_list );
+};
+
+//=======================================================================
+//==============    Action_RefreshRepos
+//=======================================================================
+class Action_RefreshRepos : public ActionBase
+{
+private:
+    GitDirStateList     mStateList;
+    git2::LibGit2       mLibGit;
+protected:
+    virtual void Run() CC_OVERRIDE;
+public:
+    Action_RefreshRepos( const GitDirStateList& state_list );
+};
 
 #endif

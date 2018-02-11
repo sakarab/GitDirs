@@ -29,9 +29,7 @@
 #include <map>
 #include <winClasses.h>
 
-typedef std::vector<GitDirStateItem>    GitDirStateList;
-
-void GitGetRepositoriesState( GitDirStateList& state_list );
+//void GitGetRepositoriesState( GitDirStateList& state_list );
 
 enum class ListColumn : byte           { name, path, n_repos, branch, uncommited, needs };
 const byte ListColumn_Min = static_cast<byte>(ListColumn::name);
