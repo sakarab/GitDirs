@@ -128,11 +128,28 @@ bool CMainDlg::UniqueName( int idx, const std::wstring& name )
 
 void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
 {
-    if ( mAction )
+    if ( mWork )
         return;
-    mAction = std::make_unique<Action_RefreshRepos>( state_list );
+
     mWork = std::make_unique<Work>();
-    mWork->Run( *dynamic_cast<Action_RefreshRepos *>(mAction.get()) );
+    mWork->RunThreaded( [state_list]( const Work::spFlags& flags )->GitDirStateList {
+        GitDirStateList     result = state_list;
+        try
+        {
+            git2::LibGit2       libgit;
+
+            for ( GitDirStateList::value_type& item : result )
+                if ( !flags->mAquireCancelRun )
+                    GetDirectoryState( libgit, item );
+        }
+        catch ( const std::exception& ex )
+        {
+            flags->mError = true;
+            flags->mErrorMessage = ccwin::WidenStringStrict( std::string( ex.what() ) );
+        }
+        flags->mTerminated = true;
+        return result;
+    } );
 }
 
 void CMainDlg::MainMenu_Append( CMenuHandle menu )
@@ -435,16 +452,32 @@ LRESULT CMainDlg::OnFile_SaveData( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
 {
-    if ( !mAction )
+    if ( !mWork )
     {
         ReposList       fetch_list;
 
         for ( const spListDataItem& item : mDataView )
             fetch_list[item->Name()] = item->Directory();
 
-        mAction = std::make_unique<Action_FetchRepos>( fetch_list );
         mWork = std::make_unique<Work>();
-        mWork->RunThreaded( *dynamic_cast<Action_FetchRepos *>(mAction.get()) );
+        mWork->RunThreaded( [fetch_list]( const Work::spFlags& flags ) {
+            try
+            {
+                for ( const ReposList::value_type& item : fetch_list )
+                {
+                    if ( flags->mAquireCancelRun )
+                        break;
+                    RepositoryExists( item.second );
+                    ccwin::ExecuteProgramWait( MakeCommand( L"fetch", item.second.c_str() ), INFINITE );
+                }
+            }
+            catch ( const std::exception& ex )
+            {
+                flags->mError = true;
+                flags->mErrorMessage = ccwin::WidenStringStrict( std::string( ex.what() ) );
+            }
+            flags->mTerminated = true;
+        } );
     }
     return LRESULT();
 }
@@ -825,32 +858,31 @@ LRESULT CMainDlg::OnList_Click( int, LPNMHDR pNMHDR, BOOL & )
 
 void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
 {
-    if ( !mAction )
+    if ( !mWork )
         return;
-    if ( mAction->IsIerminated() )
+    if ( mWork->IsIerminated() )
     {
-        if ( Action_RefreshRepos *act = dynamic_cast<Action_RefreshRepos *>(mAction.get()) )
-        {
-            GitDirStateList     state_list = act->StateList();
+        //if ( Action_RefreshRepos *act = dynamic_cast<Action_RefreshRepos *>(mAction.get()) )
+        //{
+        //    GitDirStateList     state_list = act->StateList();
 
-            for ( const GitDirStateList::value_type& item : state_list )
-            {
-                ListDataView::list_size_type    idx = mDataView.FindItem( item.Name );
+        //    for ( const GitDirStateList::value_type& item : state_list )
+        //    {
+        //        ListDataView::list_size_type    idx = mDataView.FindItem( item.Name );
 
-                if ( idx != ListDataView::npos )
-                {
-                    spListDataItem&     data_item = mDataView.Item( idx );
+        //        if ( idx != ListDataView::npos )
+        //        {
+        //            spListDataItem&     data_item = mDataView.Item( idx );
 
-                    data_item->Remotes( item.Remotes );
-                    data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
-                    data_item->Uncommited( item.Uncommited );
-                    data_item->NeedsUpdate( item.NeedsUpdate );
-                    mListView.Update( idx );
-                }
-            }
-        }
+        //            data_item->Remotes( item.Remotes );
+        //            data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
+        //            data_item->Uncommited( item.Uncommited );
+        //            data_item->NeedsUpdate( item.NeedsUpdate );
+        //            mListView.Update( idx );
+        //        }
+        //    }
+        //}
         mWork.reset();      // this will join() when running threaded
-        mAction.reset();
     }
 }
 

@@ -38,12 +38,23 @@ class ActionBase;
 class Work
 {
 public:
-    typedef std::shared_ptr<bool>       spFlag;
+    struct Flags
+    {
+        std::wstring    mErrorMessage;
+        bool            mAquireCancelRun = false;
+        bool            mTerminated = false;
+        bool            mError = false;
+
+        Flags()
+            : mErrorMessage()
+        {}
+    };
+
+    typedef std::shared_ptr<Flags>      spFlags;
 private:
     typedef std::unique_ptr<std::thread, std::function<void ( std::thread * )> >        uqThread;
 
-    spFlag      mAquireCancelRun;
-    spFlag      mTerminated;
+    spFlags     mFlags;
     uqThread    mThread;
     // non-copyable
     Work( const Work& ) CC_EQ_DELETE;
@@ -52,73 +63,88 @@ public:
     Work();
     Work( Work&& other );
 
-    void Run( ActionBase& func );
-    void RunThreaded( ActionBase& func );
+    void Run( std::function<void( const spFlags& flags )> func )
+    {
+        mFlags = std::make_shared<Flags>();
+        func( mFlags );
+    }
 
-    void CancelRun()            { *mAquireCancelRun = true; }
-    bool IsIerminated() const   { return *mTerminated; }
+    void RunThreaded( std::function<void( const spFlags& flags )> func )
+    {
+        mFlags = std::make_shared<Flags>();
+        mThread = uqThread( new std::thread( func, mFlags ), [this]( std::thread *ptr ) {
+            mFlags->mAquireCancelRun = true;
+            ptr->join();
+            delete ptr;
+        } );
+    }
+
+    void CancelRun()                { mFlags->mAquireCancelRun = true; }
+    bool IsIerminated() const       { return mFlags->mTerminated; }
+    bool IsCancelAquired() const    { return mFlags->mAquireCancelRun; }
+    bool IsErroneous() const        { return mFlags->mError; }
 };
 
 typedef std::shared_ptr<Work>   spWork;
 typedef std::unique_ptr<Work>   uqWork;
 
-//=======================================================================
-//==============    ActionBase
-//=======================================================================
-class ActionBase
-{
-private:
-    Work::spFlag        mAquireCancelRun;
-    Work::spFlag        mTerminated;
-    std::wstring        mErrorString;
-    bool                mError;
-
-    void MarkTerminated()           { *mTerminated = true; }
-protected:
-    virtual void Run() = 0;
-public:
-    ActionBase();
-    virtual ~ActionBase()           {}  // empty
-    void operator()();
-
-    void SetFlags( const Work::spFlag& cancel, const Work::spFlag& terminated );
-
-    bool IsCancelAquired() const    { return *mAquireCancelRun; }
-    bool ErronTermination() const   { return mError; }
-    bool IsIerminated() const       { return *mTerminated; }
-};
-
-typedef std::unique_ptr<ActionBase>     uqActionBase;
-
-//=======================================================================
-//==============    Action_FetchRepos
-//=======================================================================
+////=======================================================================
+////==============    ActionBase
+////=======================================================================
+//class ActionBase
+//{
+//private:
+//    Work::spFlag        mAquireCancelRun;
+//    Work::spFlag        mTerminated;
+//    std::wstring        mErrorString;
+//    bool                mError;
+//
+//    void MarkTerminated()           { *mTerminated = true; }
+//protected:
+//    virtual void Run() = 0;
+//public:
+//    ActionBase();
+//    virtual ~ActionBase()           {}  // empty
+//    void operator()();
+//
+//    void SetFlags( const Work::spFlag& cancel, const Work::spFlag& terminated );
+//
+//    bool IsCancelAquired() const    { return *mAquireCancelRun; }
+//    bool ErronTermination() const   { return mError; }
+//    bool IsIerminated() const       { return *mTerminated; }
+//};
+//
+//typedef std::unique_ptr<ActionBase>     uqActionBase;
+//
+////=======================================================================
+////==============    Action_FetchRepos
+////=======================================================================
 typedef std::map<std::wstring, std::wstring>        ReposList;
-
-class Action_FetchRepos : public ActionBase
-{
-private:
-    ReposList       mFetchList;
-protected:
-    virtual void Run() CC_OVERRIDE;
-public:
-    Action_FetchRepos( const ReposList& fetch_list );
-};
-
-//=======================================================================
-//==============    Action_RefreshRepos
-//=======================================================================
-class Action_RefreshRepos : public ActionBase
-{
-private:
-    GitDirStateList     mStateList;
-    git2::LibGit2       mLibGit;
-protected:
-    virtual void Run() CC_OVERRIDE;
-public:
-    Action_RefreshRepos( const GitDirStateList& state_list );
-
-    const GitDirStateList& StateList() const;
-};
+//
+//class Action_FetchRepos : public ActionBase
+//{
+//private:
+//    ReposList       mFetchList;
+//protected:
+//    virtual void Run() CC_OVERRIDE;
+//public:
+//    Action_FetchRepos( const ReposList& fetch_list );
+//};
+//
+////=======================================================================
+////==============    Action_RefreshRepos
+////=======================================================================
+//class Action_RefreshRepos : public ActionBase
+//{
+//private:
+//    GitDirStateList     mStateList;
+//    git2::LibGit2       mLibGit;
+//protected:
+//    virtual void Run() CC_OVERRIDE;
+//public:
+//    Action_RefreshRepos( const GitDirStateList& state_list );
+//
+//    const GitDirStateList& StateList() const;
+//};
 
 #endif
