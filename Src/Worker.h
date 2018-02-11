@@ -63,13 +63,13 @@ public:
     Work();
     Work( Work&& other );
 
-    void Run( std::function<void( const spFlags& flags )> func )
+    auto Run( std::function<void( const spFlags& flags )> func ) -> void
     {
         mFlags = std::make_shared<Flags>();
         func( mFlags );
     }
 
-    void RunThreaded( std::function<void( const spFlags& flags )> func )
+    auto RunThreaded( std::function<void( const spFlags& flags )> func ) -> void
     {
         mFlags = std::make_shared<Flags>();
         mThread = uqThread( new std::thread( func, mFlags ), [this]( std::thread *ptr ) {
