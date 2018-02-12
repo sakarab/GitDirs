@@ -31,30 +31,6 @@
 #include <boost/scope_exit.hpp>
 #include <win_str.h>
 
-namespace
-{
-    class Filter : public CMessageFilter
-    {
-    public:
-        virtual BOOL PreTranslateMessage( MSG* pMsg ) CC_OVERRIDE
-        {
-            return pMsg->message == WM_COMMAND;
-        }
-    };
-
-    void ApplicationProcessMessages()
-    {
-        CMessageLoop    *loop = _Module.GetMessageLoop();
-        Filter          filter;
-
-        loop->AddMessageFilter( &filter );
-        ::PostMessage( 0, WM_QUIT, 0, 0 );
-        _Module.GetMessageLoop()->Run();
-        loop->RemoveMessageFilter( &filter );
-    }
-
-}
-
 //=======================================================================
 //==============    CMainDlg
 //=======================================================================
