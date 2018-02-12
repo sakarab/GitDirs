@@ -131,25 +131,28 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
     if ( mWork )
         return;
 
+    mWorkResult.SetPromise<GitDirStateList>( boost::any( std::make_shared<std::promise<GitDirStateList>>() ) );
     mWork = std::make_unique<Work>();
-    mWork->RunThreaded( [state_list]( const Work::spFlags& flags )->GitDirStateList {
-        GitDirStateList     result = state_list;
+    mWork->RunThreaded( [state_list]( const Work::spFlags& flags, std::promise<GitDirStateList>& promise ) {
         try
         {
+            GitDirStateList     result = state_list;
             git2::LibGit2       libgit;
 
             for ( GitDirStateList::value_type& item : result )
-                if ( !flags->mAquireCancelRun )
-                    GetDirectoryState( libgit, item );
+            {
+                if ( flags->IsCancelAquired() )
+                    break;
+                GetDirectoryState( libgit, item );
+            }
+            promise.set_value( result );
         }
         catch ( const std::exception& ex )
         {
-            flags->mError = true;
-            flags->mErrorMessage = ccwin::WidenStringStrict( std::string( ex.what() ) );
+            flags->SetErrorMessage( ccwin::WidenStringStrict( std::string( ex.what() ) ) );
         }
-        flags->mTerminated = true;
-        return result;
-    } );
+        flags->MarkTerminated();
+    }, mWorkResult.GetPromise<GitDirStateList>() );
 }
 
 void CMainDlg::MainMenu_Append( CMenuHandle menu )
@@ -465,7 +468,7 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
             {
                 for ( const ReposList::value_type& item : fetch_list )
                 {
-                    if ( flags->mAquireCancelRun )
+                    if ( flags->IsCancelAquired() )
                         break;
                     RepositoryExists( item.second );
                     ccwin::ExecuteProgramWait( MakeCommand( L"fetch", item.second.c_str() ), INFINITE );
@@ -473,10 +476,9 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
             }
             catch ( const std::exception& ex )
             {
-                flags->mError = true;
-                flags->mErrorMessage = ccwin::WidenStringStrict( std::string( ex.what() ) );
+                flags->SetErrorMessage( ccwin::WidenStringStrict( std::string( ex.what() ) ) );
             }
-            flags->mTerminated = true;
+            flags->MarkTerminated();
         } );
     }
     return LRESULT();
