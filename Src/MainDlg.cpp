@@ -129,30 +129,32 @@ bool CMainDlg::UniqueName( int idx, const std::wstring& name )
 void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
 {
     if ( mWork )
-        return;
-
-    mWorkResult.SetPromise<GitDirStateList>( boost::any( std::make_shared<std::promise<GitDirStateList>>() ) );
-    mWork = std::make_unique<Work>();
-    mWork->RunThreaded( [state_list]( const Work::spFlags& flags, std::promise<GitDirStateList>& promise ) {
-        try
-        {
-            GitDirStateList     result = state_list;
-            git2::LibGit2       libgit;
-
-            for ( GitDirStateList::value_type& item : result )
+        mWork->CancelRun();
+    else
+    {
+        mWorkResult.SetPromise<GitDirStateList>( boost::any( std::make_shared<std::promise<GitDirStateList>>() ) );
+        mWork = std::make_unique<Work>();
+        mWork->RunThreaded( [state_list]( const Work::spFlags& flags, std::shared_ptr<std::promise<GitDirStateList>> promise ) {
+            try
             {
-                if ( flags->IsCancelAquired() )
-                    break;
-                GetDirectoryState( libgit, item );
+                GitDirStateList     result = state_list;
+                git2::LibGit2       libgit;
+
+                for ( GitDirStateList::value_type& item : result )
+                {
+                    if ( flags->IsCancelAquired() )
+                        break;
+                    GetDirectoryState( libgit, item );
+                }
+                promise->set_value( result );
             }
-            promise.set_value( result );
-        }
-        catch ( const std::exception& ex )
-        {
-            flags->SetErrorMessage( ccwin::WidenStringStrict( std::string( ex.what() ) ) );
-        }
-        flags->MarkTerminated();
-    }, mWorkResult.GetPromise<GitDirStateList>() );
+            catch ( const std::exception& ex )
+            {
+                flags->SetErrorMessage( ccwin::WidenStringStrict( std::string( ex.what() ) ) );
+            }
+            flags->MarkTerminated();
+        }, mWorkResult.GetPromise<GitDirStateList>() );
+    }
 }
 
 void CMainDlg::MainMenu_Append( CMenuHandle menu )
@@ -455,13 +457,16 @@ LRESULT CMainDlg::OnFile_SaveData( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
 {
-    if ( !mWork )
+    if ( mWork )
+        mWork->CancelRun();
+    else
     {
         ReposList       fetch_list;
 
         for ( const spListDataItem& item : mDataView )
             fetch_list[item->Name()] = item->Directory();
 
+        mWorkResult.Clear();
         mWork = std::make_unique<Work>();
         mWork->RunThreaded( [fetch_list]( const Work::spFlags& flags ) {
             try
@@ -864,26 +869,26 @@ void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
         return;
     if ( mWork->IsIerminated() )
     {
-        //if ( Action_RefreshRepos *act = dynamic_cast<Action_RefreshRepos *>(mAction.get()) )
-        //{
-        //    GitDirStateList     state_list = act->StateList();
+        if ( mWorkResult.IsClass<GitDirStateList>() )
+        {
+            GitDirStateList     state_list = mWorkResult.GetFuture<GitDirStateList>()->get();
 
-        //    for ( const GitDirStateList::value_type& item : state_list )
-        //    {
-        //        ListDataView::list_size_type    idx = mDataView.FindItem( item.Name );
+            for ( const GitDirStateList::value_type& item : state_list )
+            {
+                ListDataView::list_size_type    idx = mDataView.FindItem( item.Name );
 
-        //        if ( idx != ListDataView::npos )
-        //        {
-        //            spListDataItem&     data_item = mDataView.Item( idx );
+                if ( idx != ListDataView::npos )
+                {
+                    spListDataItem&     data_item = mDataView.Item( idx );
 
-        //            data_item->Remotes( item.Remotes );
-        //            data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
-        //            data_item->Uncommited( item.Uncommited );
-        //            data_item->NeedsUpdate( item.NeedsUpdate );
-        //            mListView.Update( idx );
-        //        }
-        //    }
-        //}
+                    data_item->Remotes( item.Remotes );
+                    data_item->Branch( ccwin::WidenStringStrict( item.Branch ) );
+                    data_item->Uncommited( item.Uncommited );
+                    data_item->NeedsUpdate( item.NeedsUpdate );
+                    mListView.Update( idx );
+                }
+            }
+        }
         mWork.reset();      // this will join() when running threaded
     }
 }

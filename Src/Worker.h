@@ -41,6 +41,12 @@ private:
     boost::any      mPromise;
     boost::any      mFuture;
 public:
+    void Clear()
+    {
+        mPromise = boost::any();
+        mFuture = boost::any();
+    }
+
     template <class T> void SetPromise( const boost::any& promise )
     {
         mPromise = promise;
@@ -51,16 +57,30 @@ public:
         mFuture = boost::any( future_ptr );
     }
 
-    template <class T> std::promise<T>& GetPromise()
+    template <class T> std::shared_ptr<std::promise<T>> GetPromise()
     {
-        std::shared_ptr<std::promise<T>>    promise_ptr = boost::any_cast<std::shared_ptr<std::promise<T>>>(mPromise);
-
-        return *promise_ptr;
+        return boost::any_cast<std::shared_ptr<std::promise<T>>>(mPromise);
     }
         
-    const boost::any& GetFuture()
+    template <class T> std::shared_ptr<std::future<T>> GetFuture()
     {
-        return mFuture;
+        return boost::any_cast<std::shared_ptr<std::future<T>>>(mFuture);
+    }
+
+    template <class T> bool IsClass()
+    {
+        //return boost::any_cast<std::shared_ptr<std::promise<T>> *>(&mPromise) != nullptr;
+        bool    result = true;
+
+        try
+        {
+            boost::any_cast<std::shared_ptr<std::future<T>>>(mFuture);
+        }
+        catch ( const boost::bad_any_cast& )
+        {
+            result = false;
+        }
+        return result;
     }
 };
 
