@@ -110,7 +110,8 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
     {
         mWorkResult.SetPromise<GitDirStateList>( boost::any( std::make_shared<std::promise<GitDirStateList>>() ) );
         mWork = std::make_unique<Work>();
-        mWork->RunThreaded( [state_list]( const Work::spFlags& flags, std::shared_ptr<std::promise<GitDirStateList>> promise ) {
+
+        auto    func = [state_list]( const Work::spFlags& flags, std::shared_ptr<std::promise<GitDirStateList>> promise ) {
             try
             {
                 GitDirStateList     result = state_list;
@@ -129,7 +130,12 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
                 flags->SetErrorMessage( ccwin::WidenStringStrict( std::string( ex.what() ) ) );
             }
             flags->MarkTerminated();
-        }, mWorkResult.GetPromise<GitDirStateList>() );
+        };
+
+        if ( state_list.size() <=1 )
+            mWork->Run( func, mWorkResult.GetPromise<GitDirStateList>() );
+        else
+            mWork->RunThreaded( func, mWorkResult.GetPromise<GitDirStateList>() );
     }
 }
 
@@ -444,7 +450,8 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
 
         mWorkResult.Clear();
         mWork = std::make_unique<Work>();
-        mWork->RunThreaded( [fetch_list]( const Work::spFlags& flags ) {
+
+        auto    func = [fetch_list]( const Work::spFlags& flags ) {
             try
             {
                 for ( const ReposList::value_type& item : fetch_list )
@@ -460,7 +467,12 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
                 flags->SetErrorMessage( ccwin::WidenStringStrict( std::string( ex.what() ) ) );
             }
             flags->MarkTerminated();
-        } );
+        };
+
+        if ( fetch_list.size() <= 1 )
+            mWork->Run( func );
+        else
+            mWork->RunThreaded( func );
     }
     return LRESULT();
 }
