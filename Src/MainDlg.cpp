@@ -135,7 +135,11 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
         if ( state_list.size() <=1 )
             mWork->Run( func, mWorkResult.GetPromise<GitDirStateList>() );
         else
+        {
             mWork->RunThreaded( func, mWorkResult.GetPromise<GitDirStateList>() );
+            mProgressBar.ShowWindow( SW_SHOW );
+            mProgressBar.SetMarquee( TRUE, 60 );
+        }
     }
 }
 
@@ -259,6 +263,10 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     mListView.InsertColumn( static_cast<int>(ListColumn::branch), TEXT( "Branch" ), LVCFMT_LEFT, 140, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::uncommited), TEXT( "Uncommited" ), LVCFMT_CENTER, 80, 0 );
     mListView.InsertColumn( static_cast<int>(ListColumn::needs), TEXT( "Update" ), LVCFMT_CENTER, 80, 0 );
+
+    mProgressBar.Attach( GetDlgItem( IDC_PROGRESS ) );
+    mProgressBar.ModifyStyle( 0, PBS_MARQUEE );
+    mProgressBar.ShowWindow( SW_HIDE );
 
     ccwin::TIniFile     ini( GetIniFileName() );
 
@@ -472,7 +480,11 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
         if ( fetch_list.size() <= 1 )
             mWork->Run( func );
         else
+        {
             mWork->RunThreaded( func );
+            mProgressBar.ShowWindow( SW_SHOW );
+            mProgressBar.SetMarquee( TRUE, 60 );
+        }
     }
     return LRESULT();
 }
@@ -878,6 +890,8 @@ void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
             }
         }
         mWork.reset();      // this will join() when running threaded
+        mProgressBar.ShowWindow( SW_HIDE );
+        mProgressBar.SetMarquee( FALSE );
     }
 }
 

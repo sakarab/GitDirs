@@ -128,6 +128,7 @@ private:
     HACCEL              mHAccel;
     CListViewCtrl       mListView;
     CMenu               mMainMenu;
+    CProgressBarCtrl    mProgressBar;
     ViewState           mViewState;
     unique_string       mOldEditName;
     qpMonitorDlg        mInfoDlg;
@@ -260,6 +261,7 @@ private:
 
     BEGIN_DLGRESIZE_MAP( CMainDlg )
         DLGRESIZE_CONTROL( IDC_LIST, DLSZ_SIZE_X | DLSZ_SIZE_Y )
+        DLGRESIZE_CONTROL( IDC_PROGRESS, DLSZ_MOVE_X )
     END_DLGRESIZE_MAP()
 
     BEGIN_UPDATE_UI_MAP( CMainDlg )

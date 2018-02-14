@@ -14,6 +14,7 @@
 #define IDC_GROUP_INFO_LABEL            1003
 #define IDC_GROUP_INFO_REFEDIT          1004
 #define IDC_GROUP_INFO_REFLABEL         1005
+#define IDC_PROGRESS                    1007
 #define ID_FILE_QUIT                    32776
 #define ID_EDIT_OPTIONS                 32784
 #define ID_GIT_PULL                     32785
@@ -51,7 +52,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        212
 #define _APS_NEXT_COMMAND_VALUE         32858
-#define _APS_NEXT_CONTROL_VALUE         1007
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
