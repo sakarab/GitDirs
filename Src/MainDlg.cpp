@@ -127,7 +127,7 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
             }
             catch ( const std::exception& ex )
             {
-                flags->SetErrorMessage( ccwin::WidenStringStrict( std::string( ex.what() ) ) );
+                flags->SetErrorMessage( std::string( ex.what() ) );
             }
             flags->MarkTerminated();
         };
@@ -472,7 +472,7 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
             }
             catch ( const std::exception& ex )
             {
-                flags->SetErrorMessage( ccwin::WidenStringStrict( std::string( ex.what() ) ) );
+                flags->SetErrorMessage( std::string( ex.what() ) );
             }
             flags->MarkTerminated();
         };
@@ -867,7 +867,7 @@ void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
 {
     if ( !mWork )
         return;
-    if ( mWork->IsIerminated() )
+    if ( mWork->IsTerminated() )
     {
         if ( mWorkResult.IsClass<GitDirStateList>() )
         {
@@ -889,9 +889,14 @@ void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
                 }
             }
         }
+
+        std::string     err_str = mWork->GetErrorMessage();
+
         mWork.reset();      // this will join() when running threaded
         mProgressBar.ShowWindow( SW_HIDE );
         mProgressBar.SetMarquee( FALSE );
+        if ( ! err_str.empty() )
+            MessageBoxA( this->m_hWnd, err_str.c_str(), "Error", MB_OK | MB_ICONHAND );
     }
 }
 

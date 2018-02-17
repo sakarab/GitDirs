@@ -93,10 +93,9 @@ public:
     class Flags
     {
     private:
-        std::wstring    mErrorMessage;
+        std::string     mErrorMessage;
         bool            mAquireCancelRun = false;
         bool            mTerminated = false;
-        bool            mError = false;
     public:
         Flags()
             : mErrorMessage()
@@ -104,15 +103,11 @@ public:
 
         void CancelRun()                { mAquireCancelRun = true; }
         void MarkTerminated()           { mTerminated = true; }
-        bool IsIerminated() const       { return mTerminated; }
+        bool IsTerminated() const       { return mTerminated; }
         bool IsCancelAquired() const    { return mAquireCancelRun; }
-        bool IsErroneous() const        { return mError; }
 
-        void SetErrorMessage( const std::wstring& msg )
-        {
-            mErrorMessage = msg;
-            mError = true;
-        }
+        const std::string& GetErrorMessage() const              { return mErrorMessage; }
+        void SetErrorMessage( const std::string& msg )          { mErrorMessage = msg; }
     };
 
     typedef std::shared_ptr<Flags>      spFlags;
@@ -148,73 +143,16 @@ public:
 
     void CancelRun()                { mFlags->CancelRun(); }
     void MarkTerminated()           { mFlags->MarkTerminated(); }
-    bool IsIerminated() const       { return mFlags->IsIerminated(); }
+    bool IsTerminated() const       { return mFlags->IsTerminated(); }
     bool IsCancelAquired() const    { return mFlags->IsCancelAquired(); }
-    bool IsErroneous() const        { return mFlags->IsErroneous(); }
 
-    void SetErrorMessage( const std::wstring& msg )          { mFlags->SetErrorMessage( msg ); }
+    const std::string& GetErrorMessage() const              { return mFlags->GetErrorMessage(); }
+    void SetErrorMessage( const std::string& msg )          { mFlags->SetErrorMessage( msg ); }
 };
 
 typedef std::shared_ptr<Work>   spWork;
 typedef std::unique_ptr<Work>   uqWork;
 
-////=======================================================================
-////==============    ActionBase
-////=======================================================================
-//class ActionBase
-//{
-//private:
-//    Work::spFlag        mAquireCancelRun;
-//    Work::spFlag        mTerminated;
-//    std::wstring        mErrorString;
-//    bool                mError;
-//
-//    void MarkTerminated()           { *mTerminated = true; }
-//protected:
-//    virtual void Run() = 0;
-//public:
-//    ActionBase();
-//    virtual ~ActionBase()           {}  // empty
-//    void operator()();
-//
-//    void SetFlags( const Work::spFlag& cancel, const Work::spFlag& terminated );
-//
-//    bool IsCancelAquired() const    { return *mAquireCancelRun; }
-//    bool ErronTermination() const   { return mError; }
-//    bool IsIerminated() const       { return *mTerminated; }
-//};
-//
-//typedef std::unique_ptr<ActionBase>     uqActionBase;
-//
-////=======================================================================
-////==============    Action_FetchRepos
-////=======================================================================
 typedef std::map<std::wstring, std::wstring>        ReposList;
-//
-//class Action_FetchRepos : public ActionBase
-//{
-//private:
-//    ReposList       mFetchList;
-//protected:
-//    virtual void Run() CC_OVERRIDE;
-//public:
-//    Action_FetchRepos( const ReposList& fetch_list );
-//};
-//
-////=======================================================================
-////==============    Action_RefreshRepos
-////=======================================================================
-//class Action_RefreshRepos : public ActionBase
-//{
-//private:
-//    GitDirStateList     mStateList;
-//    git2::LibGit2       mLibGit;
-//protected:
-//    virtual void Run() CC_OVERRIDE;
-//public:
-//    Action_RefreshRepos( const GitDirStateList& state_list );
-//
-//    const GitDirStateList& StateList() const;
-//};
 
 #endif
