@@ -24,13 +24,19 @@
 #if !defined(GITDIRS_WORKER_H)
 #define GITDIRS_WORKER_H
 
-#include <atomic>
+#include <predef_cc.h>
+
+#if !defined(CC_HAVE_THREAD) || defined(CC_USE_BOOST_THREAD)
+    #include <boost/thread.hpp>
+    typedef boost::thread   std_thread;
+#else
+    #include <thread>
+    typedef std::thread   std_thread;
+#endif
+
 #include <memory>
-#include <thread>
 #include <future>
-#include <map>
 #include <boost/any.hpp>
-#include "gd_Utils.h"
 
 //=======================================================================
 //==============    ThreadResult
@@ -112,7 +118,7 @@ public:
 
     typedef std::shared_ptr<Flags>      spFlags;
 private:
-    typedef std::unique_ptr<std::thread, std::function<void ( std::thread * )> >        uqThread;
+    typedef std::unique_ptr<std_thread, std::function<void( std_thread * )> >           uqThread;
 
     spFlags     mFlags;
     uqThread    mThread;
@@ -123,6 +129,38 @@ public:
     Work();
     Work( Work&& other );
 
+#if ! defined (CC_HAVE_VARIADIC_TEMPLATES)
+    template <class FUNC> void Run( FUNC&& func )
+    {
+        mFlags = std::make_shared<Flags>();
+        func( mFlags );
+    }
+
+    template <class FUNC> void RunThreaded( FUNC&& func )
+    {
+        mFlags = std::make_shared<Flags>();
+        mThread = uqThread( new std_thread( func, mFlags ), [this]( std_thread *ptr ) {
+            mFlags->CancelRun();
+            ptr->join();
+            delete ptr;
+        } );
+    }
+    template <class FUNC, class ARG1> void Run( FUNC&& func, ARG1&& arg1 )
+    {
+        mFlags = std::make_shared<Flags>();
+        func( mFlags, arg1 );
+    }
+
+    template <class FUNC, class ARG1> void RunThreaded( FUNC&& func, ARG1&& arg1 )
+    {
+        mFlags = std::make_shared<Flags>();
+        mThread = uqThread( new std_thread( func, mFlags, arg1 ), [this]( std_thread *ptr ) {
+            mFlags->CancelRun();
+            ptr->join();
+            delete ptr;
+        } );
+    }
+#else
     template <class FUNC, class ... Args>
     void Run( FUNC&& func, Args&& ... args )
     {
@@ -134,12 +172,13 @@ public:
     void RunThreaded( FUNC&& func, Args&& ... args )
     {
         mFlags = std::make_shared<Flags>();
-        mThread = uqThread( new std::thread( func, mFlags, args... ), [this]( std::thread *ptr ) {
+        mThread = uqThread( new std::thread( func, mFlags, args... ), [this]( std_thread *ptr ) {
             mFlags->CancelRun();
             ptr->join();
             delete ptr;
         } );
     }
+#endif
 
     void CancelRun()                { mFlags->CancelRun(); }
     void MarkTerminated()           { mFlags->MarkTerminated(); }
@@ -152,7 +191,5 @@ public:
 
 typedef std::shared_ptr<Work>   spWork;
 typedef std::unique_ptr<Work>   uqWork;
-
-typedef std::map<std::wstring, std::wstring>        ReposList;
 
 #endif

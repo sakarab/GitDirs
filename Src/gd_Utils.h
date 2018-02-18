@@ -25,10 +25,12 @@
 #include <predef_cc.h>
 #include <string>
 #include <vector>
+#include <map>
 #include <git2.h>
 
-typedef std::function<void()>       Procedure;
-typedef std::vector<std::wstring>   WStringList;
+typedef std::function<void()>                   Procedure;
+typedef std::vector<std::wstring>               WStringList;
+typedef std::map<std::wstring, std::wstring>    ReposList;
 
 const int       LastDataVersion = 1;
 const int       GROUPS_MENU_Position = 3;
