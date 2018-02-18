@@ -108,10 +108,10 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
         mWork->CancelRun();
     else
     {
-        mWorkResult.SetPromise<GitDirStateList>( boost::any( std::make_shared<std::promise<GitDirStateList>>() ) );
+        mWorkResult.SetPromise<GitDirStateList>( boost::any( std::make_shared<cclib::promise<GitDirStateList>>() ) );
         mWork = std::make_unique<cclib::Thread>();
 
-        auto    func = [state_list]( const cclib::Thread::spFlags& flags, std::shared_ptr<std::promise<GitDirStateList>> promise ) {
+        auto    func = [state_list]( const cclib::Thread::spFlags& flags, std::shared_ptr<cclib::promise<GitDirStateList>> promise ) {
             try
             {
                 GitDirStateList     result = state_list;
@@ -541,8 +541,8 @@ LRESULT CMainDlg::OnView_ShowInfoDialog( WORD, WORD, HWND, BOOL & )
                                         mInfoDlg.reset();
                                         UISetCheck( ID_VIEW_SHOWINFORMATIONDIALOG, false );
                                     };
-        qpMonitorDlg::deleter_type  form_deleter = []( CInfoDlg *frm ) { frm->CloseDialog(); };
-        qpMonitorDlg                dlg( new CInfoDlg( on_close ),form_deleter );
+        uqMonitorDlg::deleter_type  form_deleter = []( CInfoDlg *frm ) { frm->CloseDialog(); };
+        uqMonitorDlg                dlg( new CInfoDlg( on_close ),form_deleter );
 
         dlg->Create( *this );
         dlg->ShowWindow( SW_NORMAL );

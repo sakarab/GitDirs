@@ -37,7 +37,7 @@
 //=======================================================================
 class CInfoDlg;
 typedef std::function<void( CInfoDlg * )>               InfoDlg_Deleter;
-typedef std::unique_ptr<CInfoDlg, InfoDlg_Deleter>      qpMonitorDlg;
+typedef std::unique_ptr<CInfoDlg, InfoDlg_Deleter>      uqMonitorDlg;
 
 class CInfoDlg : public CDialogImpl<CInfoDlg>,
                  public CDialogResize<CInfoDlg>,

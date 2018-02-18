@@ -131,7 +131,7 @@ private:
     CProgressBarCtrl    mProgressBar;
     ViewState           mViewState;
     unique_string       mOldEditName;
-    qpMonitorDlg        mInfoDlg;
+    uqMonitorDlg        mInfoDlg;
     cclib::uqThread     mWork;
     cclib::ThreadResult mWorkResult;
     UINT_PTR            mTimer = 0;
