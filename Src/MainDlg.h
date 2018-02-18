@@ -34,7 +34,7 @@
 #include "gd_Utils.h"
 #include "ListData.h"
 #include "InfoDlg.h"
-#include "Worker.h"
+#include <Thread2.h>
 
 //=======================================================================
 //==============    CHDrop
@@ -132,8 +132,8 @@ private:
     ViewState           mViewState;
     unique_string       mOldEditName;
     qpMonitorDlg        mInfoDlg;
-    uqWork              mWork;
-    ThreadResult        mWorkResult;
+    cclib::uqThread     mWork;
+    cclib::ThreadResult mWorkResult;
     UINT_PTR            mTimer = 0;
     int                 mListView_LastSelected = -1;
     bool                mEscapeExit = false;

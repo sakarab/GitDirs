@@ -109,9 +109,9 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
     else
     {
         mWorkResult.SetPromise<GitDirStateList>( boost::any( std::make_shared<std::promise<GitDirStateList>>() ) );
-        mWork = std::make_unique<Work>();
+        mWork = std::make_unique<cclib::Thread>();
 
-        auto    func = [state_list]( const Work::spFlags& flags, std::shared_ptr<std::promise<GitDirStateList>> promise ) {
+        auto    func = [state_list]( const cclib::Thread::spFlags& flags, std::shared_ptr<std::promise<GitDirStateList>> promise ) {
             try
             {
                 GitDirStateList     result = state_list;
@@ -457,9 +457,9 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
             fetch_list[item->Name()] = item->Directory();
 
         mWorkResult.Clear();
-        mWork = std::make_unique<Work>();
+        mWork = std::make_unique<cclib::Thread>();
 
-        auto    func = [fetch_list]( const Work::spFlags& flags ) {
+        auto    func = [fetch_list]( const cclib::Thread::spFlags& flags ) {
             try
             {
                 for ( const ReposList::value_type& item : fetch_list )
