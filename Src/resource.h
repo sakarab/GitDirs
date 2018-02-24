@@ -8,7 +8,6 @@
 #define IDR_MENU_MAIN                   201
 #define IDR_MENU_POPUP                  206
 #define IDD_REPO_INFO                   210
-#define IDD_DIALOG1                     215
 #define IDD_OPTIONS                     215
 #define IDC_LIST                        1000
 #define IDC_INFO_TEXT                   1001
@@ -17,6 +16,10 @@
 #define IDC_GROUP_INFO_REFEDIT          1004
 #define IDC_GROUP_INFO_REFLABEL         1005
 #define IDC_PROGRESS                    1007
+#define IDC_CHECK1                      1009
+#define IDC_CHECK2                      1010
+#define IDC_EDIT1                       1011
+#define IDC_BUTTON1                     1012
 #define ID_FILE_QUIT                    32776
 #define ID_EDIT_OPTIONS                 32784
 #define ID_GIT_PULL                     32785
@@ -54,7 +57,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32858
-#define _APS_NEXT_CONTROL_VALUE         1009
+#define _APS_NEXT_CONTROL_VALUE         1013
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
