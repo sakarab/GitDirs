@@ -8,6 +8,8 @@
 #define IDR_MENU_MAIN                   201
 #define IDR_MENU_POPUP                  206
 #define IDD_REPO_INFO                   210
+#define IDD_DIALOG1                     215
+#define IDD_OPTIONS                     215
 #define IDC_LIST                        1000
 #define IDC_INFO_TEXT                   1001
 #define IDC_GROUP_INFO                  1002
@@ -50,9 +52,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        212
+#define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32858
-#define _APS_NEXT_CONTROL_VALUE         1008
+#define _APS_NEXT_CONTROL_VALUE         1009
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

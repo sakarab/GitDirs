@@ -189,6 +189,7 @@
     <ClCompile Include="..\Src\InfoDlg.cpp" />
     <ClCompile Include="..\Src\ListData.cpp" />
     <ClCompile Include="..\Src\MainDlg.cpp" />
+    <ClCompile Include="..\Src\Options.cpp" />
     <ClCompile Include="..\Src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_Static|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug_Static_XP|Win32'">Create</PrecompiledHeader>
@@ -202,6 +203,7 @@
     <ClInclude Include="..\Src\InfoDlg.h" />
     <ClInclude Include="..\Src\ListData.h" />
     <ClInclude Include="..\Src\MainDlg.h" />
+    <ClInclude Include="..\Src\Options.h" />
     <ClInclude Include="..\Src\resource.h" />
     <ClInclude Include="..\Src\stdafx.h" />
     <ClInclude Include="..\version_common_rc.h" />
