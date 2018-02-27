@@ -277,6 +277,7 @@ LRESULT CMainDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
     MainMenu_Append( mMainMenu.GetSubMenu( GROUPS_MENU_Position ) );
     ListView_SetShowCheckBoxes( ini.ReadBool( IniSections::ViewState, IniKeys::ViewState_ShowCheckBoxes, false ) );
     mViewState.Load( ini );
+    mOptions.LoadOptions( ini );
 
     mTimer = SetTimer( 1, 1000 );
 
@@ -337,13 +338,6 @@ LRESULT CMainDlg::OnAppAbout( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
     CAboutDlg       dlg( L"GitDirs" );
 
     dlg.DoModal();
-    return 0;
-}
-
-LRESULT CMainDlg::OnOK( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
-{
-    // TODO: Add validation code 
-    CloseDialog( wID );
     return 0;
 }
 
@@ -568,7 +562,12 @@ LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 {
     COptionsDlg     dlg( mOptions );
 
-    dlg.DoModal();
+    if ( dlg.DoModal() == IDOK )
+    {
+        ccwin::TIniFile     ini( GetIniFileName() );
+
+        mOptions.SaveOptions( ini );
+    }
     return 0;
 }
 

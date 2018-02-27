@@ -65,11 +65,13 @@ private:
     LRESULT OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ );
     LRESULT OnCmd_Cancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
     LRESULT OnCmd_OK( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
+    LRESULT OnCmd_Browse( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/ );
 
     BEGIN_MSG_MAP( COptionsDlg )
         MESSAGE_HANDLER( WM_INITDIALOG, OnInitDialog )
         COMMAND_ID_HANDLER( IDOK, OnCmd_OK )
         COMMAND_ID_HANDLER( IDCANCEL, OnCmd_Cancel )
+        COMMAND_ID_HANDLER( IDC_BROWSE_FILENAME, OnCmd_Browse )
     END_MSG_MAP()
 public:
     COptionsDlg( Options& options );

@@ -22,20 +22,27 @@
 #include "stdafx.h"
 #include "Options.h"
 #include "wtlUtils.h"
+#include "gd_Utils.h"
+#include <atldlgs.h>
+#include <winUtils.h>
 
 //=======================================================================
 //==============    Options
 //=======================================================================
 void Options::LoadOptions( ccwin::TIniFile & ini )
 {
-    //static const wchar_t *Options_RefreshAfterFetch;
-    //static const wchar_t *Options_UseStaticWorksetFilename;
-    //static const wchar_t *Options_WorksetFilename;
-    //static const wchar_t *Options_SaveWorksetAfterDB;
+    RefreshAfterFetch = ini.ReadBool( IniSections::Options, IniKeys::Options_RefreshAfterFetch, false );
+    UseStaticWorksetFilename = ini.ReadBool( IniSections::Options, IniKeys::Options_UseStaticWorksetFilename, false );
+    SaveWorksetAfterDB = ini.ReadBool( IniSections::Options, IniKeys::Options_SaveWorksetAfterDB, false );
+    WoksetFilename = ini.ReadString( IniSections::Options, IniKeys::Options_WorksetFilename, CCTEXT("") );
 }
 
 void Options::SaveOptions( ccwin::TIniFile & ini )
 {
+    ini. WriteBool( IniSections::Options, IniKeys::Options_RefreshAfterFetch, RefreshAfterFetch );
+    ini.WriteBool( IniSections::Options, IniKeys::Options_UseStaticWorksetFilename, UseStaticWorksetFilename );
+    ini.WriteBool( IniSections::Options, IniKeys::Options_SaveWorksetAfterDB, SaveWorksetAfterDB );
+    ini.WriteString( IniSections::Options, IniKeys::Options_WorksetFilename, WoksetFilename.c_str() );
 }
 
 //=======================================================================
@@ -81,6 +88,22 @@ LRESULT COptionsDlg::OnCmd_OK( WORD, WORD wID, HWND, BOOL & )
 {
     SaveOptions();
     EndDialog( wID );
+    return LRESULT();
+}
+
+LRESULT COptionsDlg::OnCmd_Browse( WORD, WORD, HWND, BOOL & )
+{
+    std::wstring    fname = SaveDlg( L"", ccwin::ExtractFileName( ccwtl::getControlText( mWorksetFilename ) ),
+#if defined (WINDOWS_XP_BUILD)
+                                     OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,  // DWORD dwFlags = 
+#else
+                                     FOS_NOCHANGEDIR | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_NOTESTFILECREATE,
+#endif
+                                     { open_filter_spec( L"Text Files (*.txt)", L"*.txt" ), open_filter_spec( L"All Files (*.*)", L"*.*" ) },
+                                     *this );
+
+    if ( !fname.empty() )
+        mWorksetFilename.SetWindowText( fname.c_str() );
     return LRESULT();
 }
 
