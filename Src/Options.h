@@ -21,10 +21,25 @@
 
 #pragma once
 
-#if ! defined (GITDIRS_OPTIONS_H)
-#define GITDIRS_OPTIONS_H
+#if ! defined (GITDIRS_OPTIONS_DLG_H)
+#define GITDIRS_OPTIONS_DLG_H
 
 #include "resource.h"
+
+//=======================================================================
+//==============    Options
+//=======================================================================
+class Options
+{
+public:
+    std::wstring    WoksetFilename;
+    bool            RefreshAfterFetch = true;
+    bool            UseStaticWorksetFilename = false;
+    bool            SaveWorksetAfterDB = false;
+public:
+    void LoadOptions( ccwin::TIniFile& ini );
+    void SaveOptions( ccwin::TIniFile& ini );
+};
 
 //=======================================================================
 //==============    COptionsDlg
@@ -32,6 +47,16 @@
 class COptionsDlg : public CDialogImpl<COptionsDlg>
 {
 private:
+    CButton     mBrowse;
+    CButton     mRefreshAfterFetch;
+    CButton     mUseStaticWorksetFilename;
+    CButton     mSaveWorksetAfterDB;
+    CEdit       mWorksetFilename;
+
+    Options&    mOptions;
+
+    void LoadOptions();
+    void SaveOptions();
     // Handler prototypes (uncomment arguments if needed):
     //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
     //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -47,7 +72,7 @@ private:
         COMMAND_ID_HANDLER( IDCANCEL, OnCmd_Cancel )
     END_MSG_MAP()
 public:
-    COptionsDlg();
+    COptionsDlg( Options& options );
 
     enum { IDD = IDD_OPTIONS };
 };

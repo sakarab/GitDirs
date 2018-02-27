@@ -48,6 +48,7 @@ struct IniSections
     static const wchar_t *ViewState;
     static const wchar_t *Data;
     static const wchar_t *Version;
+    static const wchar_t *Options;
 };
 
 struct IniKeys
@@ -59,6 +60,10 @@ struct IniKeys
     static const wchar_t *Data_Marks;
     static const wchar_t *Data_AllGroups;
     static const wchar_t *Version;
+    static const wchar_t *Options_RefreshAfterFetch;
+    static const wchar_t *Options_UseStaticWorksetFilename;
+    static const wchar_t *Options_WorksetFilename;
+    static const wchar_t *Options_SaveWorksetAfterDB;
 };
 
 //=======================================================================
@@ -209,16 +214,7 @@ void RepositoryExists( const std::wstring& result );
 typedef std::pair<const wchar_t *, const wchar_t *>     open_filter_spec;
 typedef std::initializer_list<open_filter_spec>         open_filter_list;
 
-#if defined (WINDOWS_XP_BUILD)
-
 std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd );
 std::wstring SaveDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd );
-
-#else
-
-std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd );
-std::wstring SaveDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd );
-
-#endif
 
 #endif

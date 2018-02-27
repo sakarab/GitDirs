@@ -143,6 +143,8 @@ const wchar_t * IniSections::Repositories_Groups = L"Repositories_Groups";
 const wchar_t * IniSections::ViewState = L"ViewState";
 const wchar_t * IniSections::Data = L"Data";
 const wchar_t * IniSections::Version = L"Version";
+const wchar_t * IniSections::Options = L"Options";
+
 const wchar_t * IniKeys::ViewState_SortColumn = L"SortColumn";
 const wchar_t * IniKeys::ViewState_Group = L"Group";
 const wchar_t * IniKeys::ViewState_ShowCheckBoxes = L"ShowCheckBoxes";
@@ -150,6 +152,10 @@ const wchar_t * IniKeys::ViewState_WorksetFilename = L"WorksetFilename";
 const wchar_t * IniKeys::Data_Marks = L"Marks";
 const wchar_t * IniKeys::Data_AllGroups = L"AllGroups";
 const wchar_t * IniKeys::Version = L"Version";
+const wchar_t * IniKeys::Options_RefreshAfterFetch = L"RefreshAfterFetch";
+const wchar_t * IniKeys::Options_UseStaticWorksetFilename = L"UseStaticWorksetFilename";
+const wchar_t * IniKeys::Options_WorksetFilename = L"WorksetFilename";
+const wchar_t * IniKeys::Options_SaveWorksetAfterDB = L"SaveWorksetAfterDB";
 
 //=======================================================================
 //==============    FREE FUNCTIONS

@@ -21,17 +21,52 @@
 
 #include "stdafx.h"
 #include "Options.h"
+#include "wtlUtils.h"
+
+//=======================================================================
+//==============    Options
+//=======================================================================
+void Options::LoadOptions( ccwin::TIniFile & ini )
+{
+    //static const wchar_t *Options_RefreshAfterFetch;
+    //static const wchar_t *Options_UseStaticWorksetFilename;
+    //static const wchar_t *Options_WorksetFilename;
+    //static const wchar_t *Options_SaveWorksetAfterDB;
+}
+
+void Options::SaveOptions( ccwin::TIniFile & ini )
+{
+}
 
 //=======================================================================
 //==============    COptionsDlg
 //=======================================================================
+void COptionsDlg::LoadOptions()
+{
+    mRefreshAfterFetch.SetCheck( mOptions.RefreshAfterFetch ? BST_CHECKED : BST_UNCHECKED );
+    mUseStaticWorksetFilename.SetCheck( mOptions.UseStaticWorksetFilename ? BST_CHECKED : BST_UNCHECKED );
+    mSaveWorksetAfterDB.SetCheck( mOptions.SaveWorksetAfterDB ? BST_CHECKED : BST_UNCHECKED );
+    mWorksetFilename.SetWindowText( mOptions.WoksetFilename.c_str() );
+}
+
+void COptionsDlg::SaveOptions()
+{
+    mOptions.RefreshAfterFetch = mRefreshAfterFetch.GetCheck() == BST_CHECKED;
+    mOptions.UseStaticWorksetFilename = mUseStaticWorksetFilename.GetCheck() == BST_CHECKED;
+    mOptions.SaveWorksetAfterDB = mSaveWorksetAfterDB.GetCheck() == BST_CHECKED;
+    mOptions.WoksetFilename = ccwtl::getControlText( mWorksetFilename );
+}
+
 LRESULT COptionsDlg::OnInitDialog( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/ )
 {
     CenterWindow( GetParent() );
 
-    SYSTEMTIME      ttime;
+    mRefreshAfterFetch.Attach( GetDlgItem( IDC_REFRESH_AFTER_FETCH ) );
+    mUseStaticWorksetFilename.Attach( GetDlgItem( IDC_STATIC_FILENAME ) );
+    mSaveWorksetAfterDB.Attach( GetDlgItem( IDC_SAVE_WORKSET ) );
+    mWorksetFilename.Attach( GetDlgItem( IDC_EDIT_FILENAME ) );
 
-    GetLocalTime( &ttime );
+    LoadOptions();
 
     return TRUE;
 }
@@ -44,9 +79,12 @@ LRESULT COptionsDlg::OnCmd_Cancel( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCt
 
 LRESULT COptionsDlg::OnCmd_OK( WORD, WORD wID, HWND, BOOL & )
 {
+    SaveOptions();
     EndDialog( wID );
     return LRESULT();
 }
 
-COptionsDlg::COptionsDlg()
-{}
+COptionsDlg::COptionsDlg( Options& options )
+    : mOptions( options )
+{
+}

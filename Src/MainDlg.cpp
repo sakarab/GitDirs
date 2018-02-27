@@ -22,7 +22,6 @@
 #include "stdafx.h"
 #include "MainDlg.h"
 #include "AboutDlg.h"
-#include "Options.h"
 #include <atlmisc.h>
 #include <atldlgs.h>
 #include <smException.h>
@@ -567,7 +566,7 @@ LRESULT CMainDlg::OnEdit_ClearCheckBoxes( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    COptionsDlg     dlg;
+    COptionsDlg     dlg( mOptions );
 
     dlg.DoModal();
     return 0;

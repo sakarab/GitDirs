@@ -35,6 +35,7 @@
 #include "ListData.h"
 #include "InfoDlg.h"
 #include <Thread2.h>
+#include "Options.h"
 
 //=======================================================================
 //==============    CHDrop
@@ -135,6 +136,7 @@ private:
     cclib::uqThread     mWork;
     cclib::ThreadResult mWorkResult;
     UINT_PTR            mTimer = 0;
+    Options             mOptions;
     int                 mListView_LastSelected = -1;
     bool                mEscapeExit = false;
     bool                mInLabelEdit = false;
