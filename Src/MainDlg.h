@@ -160,6 +160,7 @@ private:
     void MainMenu_Append( CMenuHandle menu );
     void PopupMenu_Append( CMenuHandle menu, const WStringList& groups );
     void SetFilter( const spFilter& filter );
+    void DoExportWorkset();
 
     // Handler prototypes (uncomment arguments if needed):
     //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

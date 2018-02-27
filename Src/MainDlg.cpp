@@ -197,6 +197,34 @@ void CMainDlg::SetFilter( const spFilter& filter )
     mListView.Invalidate( FALSE );
 }
 
+void CMainDlg::DoExportWorkset()
+{
+    std::wstring     fname;
+
+    if ( !mOptions.UseStaticWorksetFilename || mOptions.WoksetFilename.empty() )
+    {
+        fname = SaveDlg( L"", ccwin::ExtractFileName( mViewState.Workset_Filename ),
+#if defined (WINDOWS_XP_BUILD)
+                         OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,  // DWORD dwFlags = 
+#else
+                         FOS_NOCHANGEDIR | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT | FOS_NOTESTFILECREATE,
+#endif
+                         { open_filter_spec( L"All Files (*.*)", L"*.*" ) },
+                         *this );
+        if ( !fname.empty() )
+            mViewState.Workset_Filename = fname;
+    }
+    else
+        fname = mOptions.WoksetFilename;
+
+    if ( !fname.empty() )
+    {
+        ccwin::TIniFile     ini( fname );
+
+        ini.WriteString( IniSections::Data, IniKeys::Data_Marks, mDataBase.WorksetAsString().c_str() );
+    }
+}
+
 BOOL CMainDlg::OnIdle()
 {
     if ( mListView_LastSelected >= 0 && mInfoDlg )
@@ -410,24 +438,7 @@ LRESULT CMainDlg::OnFile_ImportWorkset( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_ExportWorkset( WORD, WORD, HWND, BOOL & )
 {
-    std::wstring    fname = SaveDlg( L"", ccwin::ExtractFileName( mViewState.Workset_Filename ),
-#if defined (WINDOWS_XP_BUILD)
-                                     OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,  // DWORD dwFlags = 
-#else
-                                     FOS_NOCHANGEDIR | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT | FOS_NOTESTFILECREATE,
-#endif
-                                     { open_filter_spec( L"All Files (*.*)", L"*.*" ) },
-                                     *this );
-
-
-    if ( !fname.empty() )
-    {
-        mViewState.Workset_Filename = fname;
-
-        ccwin::TIniFile     ini( mViewState.Workset_Filename );
-
-        ini.WriteString( IniSections::Data, IniKeys::Data_Marks, mDataBase.WorksetAsString().c_str() );
-    }
+    DoExportWorkset();
     return LRESULT();
 }
 
@@ -436,6 +447,8 @@ LRESULT CMainDlg::OnFile_SaveData( WORD, WORD, HWND, BOOL & )
     ccwin::TIniFile     ini( GetIniFileName() );
 
     mDataBase.SaveToIni( ini );
+    if ( mOptions.SaveWorksetAfterDB )
+        DoExportWorkset();
     return LRESULT();
 }
 
