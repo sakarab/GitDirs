@@ -283,6 +283,7 @@ namespace
             result.append( filter.first );
             result.append( 1, '\0' );
             result.append( filter.second );
+            result.append( 1, '\0' );
         }
         result.append( 1, '\0' );
         return result;
