@@ -31,6 +31,31 @@
 #include <boost/scope_exit.hpp>
 #include <win_str.h>
 
+namespace
+{
+    template <class T> bool IsAnyClass( const boost::any& any )
+    {
+        bool    result = true;
+
+        try
+        {
+            boost::any_cast<const T&>(any);
+        }
+        catch ( const boost::bad_any_cast& )
+        {
+            result = false;
+        }
+        return result;
+    }
+
+    template <class T> T& AssignAny( boost::any& any, const T& value )
+    {
+        any = value;
+        return  boost::any_cast<T&>(any);
+    }
+
+}
+
 //=======================================================================
 //==============    CMainDlg
 //=======================================================================
@@ -108,22 +133,21 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
         mWork->CancelRun();
     else
     {
-        mWorkResult.SetPromise<GitDirStateList>( boost::any( std::make_shared<cclib::promise<GitDirStateList>>() ) );
+        GitDirStateList&    state_list_2 = AssignAny( mWorkResult, state_list );
+
         mWork = std::make_unique<cclib::Thread>();
 
-        auto    func = [state_list]( const cclib::Thread::spFlags& flags, std::shared_ptr<cclib::promise<GitDirStateList>> promise ) {
+        auto    func = [&state_list_2]( const cclib::Thread::spFlags& flags ) {
             try
             {
-                GitDirStateList     result = state_list;
                 git2::LibGit2       libgit;
 
-                for ( GitDirStateList::value_type& item : result )
+                for ( GitDirStateList::value_type& item : state_list_2 )
                 {
                     if ( flags->IsCancelAquired() )
                         break;
                     GetDirectoryState( libgit, item );
                 }
-                promise->set_value( result );
             }
             catch ( const std::exception& ex )
             {
@@ -132,11 +156,11 @@ void CMainDlg::RefreshRepoStateAndView( GitDirStateList& state_list )
             flags->MarkTerminated();
         };
 
-        if ( state_list.size() <=1 )
-            mWork->Run( func, mWorkResult.GetPromise<GitDirStateList>() );
+        if ( state_list_2.size() <=1 )
+            mWork->Run( func );
         else
         {
-            mWork->RunThreaded( func, mWorkResult.GetPromise<GitDirStateList>() );
+            mWork->RunThreaded( func );
             mProgressBar.ShowWindow( SW_SHOW );
             mProgressBar.SetMarquee( TRUE, 60 );
         }
@@ -458,15 +482,14 @@ LRESULT CMainDlg::OnFile_FetchAllRepositories( WORD, WORD, HWND, BOOL & )
         mWork->CancelRun();
     else
     {
-        ReposList       fetch_list;
+        ReposList&      fetch_list = AssignAny( mWorkResult, ReposList() );
 
         for ( const spListDataItem& item : mDataView )
             fetch_list[item->Name()] = item->Directory();
 
-        mWorkResult.Clear();
         mWork = std::make_unique<cclib::Thread>();
 
-        auto    func = [fetch_list]( const cclib::Thread::spFlags& flags ) {
+        auto    func = [&fetch_list]( const cclib::Thread::spFlags& flags ) {
             try
             {
                 for ( const ReposList::value_type& item : fetch_list )
@@ -884,9 +907,9 @@ void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
         return;
     if ( mWork->IsTerminated() )
     {
-        if ( mWorkResult.IsClass<GitDirStateList>() )
+        if ( IsAnyClass<GitDirStateList>( mWorkResult ) )
         {
-            GitDirStateList     state_list = mWorkResult.GetFuture<GitDirStateList>()->get();
+            GitDirStateList&    state_list = boost::any_cast<GitDirStateList&>( mWorkResult );
 
             for ( const GitDirStateList::value_type& item : state_list )
             {
@@ -903,6 +926,11 @@ void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
                     mListView.Update( idx );
                 }
             }
+        }
+        else if ( IsAnyClass<ReposList>( mWorkResult ) )
+        {
+            if ( mOptions.RefreshAfterFetch )
+                PostMessage( WM_COMMAND, ID_FILE_REFRESHREPOSITORYSTATE, 0 );
         }
 
         std::string     err_str = mWork->GetErrorMessage();

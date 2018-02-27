@@ -134,7 +134,7 @@ private:
     unique_string       mOldEditName;
     uqMonitorDlg        mInfoDlg;
     cclib::uqThread     mWork;
-    cclib::ThreadResult mWorkResult;
+    boost::any          mWorkResult;
     UINT_PTR            mTimer = 0;
     Options             mOptions;
     int                 mListView_LastSelected = -1;
