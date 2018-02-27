@@ -203,7 +203,7 @@ void CMainDlg::DoExportWorkset()
 
     if ( !mOptions.UseStaticWorksetFilename || mOptions.WoksetFilename.empty() )
     {
-        fname = SaveDlg( L"", ccwin::ExtractFileName( mViewState.Workset_Filename ),
+        fname = SaveDlg( L"", mViewState.Workset_Filename,
 #if defined (WINDOWS_XP_BUILD)
                          OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,  // DWORD dwFlags = 
 #else
@@ -415,7 +415,7 @@ LRESULT CMainDlg::OnFile_ReloadWorkset( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnFile_ImportWorkset( WORD, WORD, HWND, BOOL & )
 {
-    std::wstring    fname = OpenDlg( L"", ccwin::ExtractFileName( mViewState.Workset_Filename ),
+    std::wstring    fname = OpenDlg( L"", mViewState.Workset_Filename,
 #if defined (WINDOWS_XP_BUILD)
                                      OFN_HIDEREADONLY | OFN_FILEMUSTEXIST,                  // DWORD dwFlags = 
 #else

@@ -93,7 +93,7 @@ LRESULT COptionsDlg::OnCmd_OK( WORD, WORD wID, HWND, BOOL & )
 
 LRESULT COptionsDlg::OnCmd_Browse( WORD, WORD, HWND, BOOL & )
 {
-    std::wstring    fname = SaveDlg( L"", ccwin::ExtractFileName( ccwtl::getControlText( mWorksetFilename ) ),
+    std::wstring    fname = SaveDlg( L"", ccwtl::getControlText( mWorksetFilename ),
 #if defined (WINDOWS_XP_BUILD)
                                      OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR,  // DWORD dwFlags = 
 #else

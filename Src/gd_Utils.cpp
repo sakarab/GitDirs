@@ -288,38 +288,33 @@ namespace
         result.append( 1, '\0' );
         return result;
     }
+
+    std::wstring OpenSaveDlg( BOOL is_open, const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
+    {
+        auto            fname = cclib::LPSTR( filename );
+        auto            filter = cclib::LPSTR( MakeFilterString( filters ) );
+        CFileDialog     dlg( is_open,                                               // TRUE for FileOpen, FALSE for FileSaveAs
+                             def_ext.empty() ? nullptr : def_ext.c_str(),           // LPCTSTR lpszDefExt = 
+                             fname.get(),                                           // LPCTSTR lpszFileName = 
+                             flags,                                                 // DWORD dwFlags = 
+                             filter.get(),                                          // LPCTSTR lpszFilter =
+                             wnd );
+
+        if ( dlg.DoModal( wnd ) == IDOK )
+            return std::wstring( dlg.m_szFileName );
+        return std::wstring();
+    }
+
 }
 
 std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
 {
-    auto            fname = cclib::LPSTR( filename );
-    auto            filter = cclib::LPSTR( MakeFilterString( filters ) );
-    CFileDialog     dlg( TRUE,                                                  // TRUE for FileOpen, FALSE for FileSaveAs
-                         def_ext.empty() ? nullptr : def_ext.c_str(),           // LPCTSTR lpszDefExt = 
-                         fname.get(),                                           // LPCTSTR lpszFileName = 
-                         flags,                                                 // DWORD dwFlags = 
-                         filter.get(),                                          // LPCTSTR lpszFilter =
-                         wnd );
-
-    if ( dlg.DoModal( wnd ) == IDOK )
-        return std::wstring( dlg.m_szFileName );
-    return std::wstring();
+    return OpenSaveDlg( TRUE, def_ext, filename, flags, filters, wnd );
 }
 
 std::wstring SaveDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
 {
-    auto            fname = cclib::LPSTR( filename );
-    auto            filter = cclib::LPSTR( MakeFilterString( filters ) );
-    CFileDialog     dlg( FALSE,                                                 // TRUE for FileOpen, FALSE for FileSaveAs
-                         def_ext.empty() ? nullptr : def_ext.c_str(),           // LPCTSTR lpszDefExt = 
-                         fname.get(),                                           // LPCTSTR lpszFileName = 
-                         flags,                                                 // DWORD dwFlags = 
-                         filter.get(),                                          // LPCTSTR lpszFilter =
-                         wnd );
-
-    if ( dlg.DoModal( wnd ) == IDOK )
-        return std::wstring( dlg.m_szFileName );
-    return std::wstring();
+    return OpenSaveDlg( FALSE, def_ext, filename, flags, filters, wnd );
 }
 
 #else
@@ -339,52 +334,40 @@ namespace
             ++count;
         }
     }
+
+    template <class DLG> std::wstring FileDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
+    {
+        auto                    fname = cclib::LPSTR( ccwin::ExtractFileName( filename ) );
+        FILTERSPEC_array        fspecs{ new COMDLG_FILTERSPEC[filters.size()] };
+
+        MakeFilterString( filters, fspecs );
+
+        DLG     dlg( fname.get(),                                       // LPCTSTR lpszFileName
+                     flags,
+                     def_ext.empty() ? nullptr : def_ext.c_str(),       // LPCTSTR lpszDefExt = 
+                     fspecs.get(),
+                     filters.size() );
+
+        if ( dlg.DoModal( wnd ) == IDOK )
+        {
+            CString     sstr;
+
+            dlg.GetFilePath( sstr );
+            return std::wstring( static_cast<LPCTSTR>(sstr) );
+        }
+        return std::wstring();
+    }
+
 }
 
 std::wstring OpenDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
 {
-    auto                    fname = cclib::LPSTR( ccwin::ExtractFileName( filename ) );
-    FILTERSPEC_array        fspecs{ new COMDLG_FILTERSPEC[filters.size()] };
-
-    MakeFilterString( filters, fspecs );
-
-    CShellFileOpenDialog    dlg( fname.get(),                                       // LPCTSTR lpszFileName
-                                 flags,
-                                 def_ext.empty() ? nullptr : def_ext.c_str(),       // LPCTSTR lpszDefExt = 
-                                 fspecs.get(),
-                                 filters.size() );
-
-    if ( dlg.DoModal( wnd ) == IDOK )
-    {
-        CString     sstr;
-
-        dlg.GetFilePath( sstr );
-        return std::wstring( static_cast<LPCTSTR>(sstr) );
-    }
-    return std::wstring();
+    return FileDlg<CShellFileOpenDialog>( def_ext, filename, flags, filters, wnd );
 }
 
 std::wstring SaveDlg( const std::wstring& def_ext, const std::wstring& filename, DWORD flags, const open_filter_list& filters, HWND wnd )
 {
-    auto                    fname = cclib::LPSTR( ccwin::ExtractFileName( filename ) );
-    FILTERSPEC_array        fspecs{ new COMDLG_FILTERSPEC[filters.size()] };
-
-    MakeFilterString( filters, fspecs );
-
-    CShellFileSaveDialog    dlg( fname.get(),                                       // LPCTSTR lpszFileName
-                                 flags,
-                                 def_ext.empty() ? nullptr : def_ext.c_str(),       // LPCTSTR lpszDefExt = 
-                                 fspecs.get(),
-                                 filters.size() );
-
-    if ( dlg.DoModal( wnd ) == IDOK )
-    {
-        CString     sstr;
-
-        dlg.GetFilePath( sstr );
-        return std::wstring( static_cast<LPCTSTR>(sstr) );
-    }
-    return std::wstring();
+    return FileDlg<CShellFileSaveDialog>( def_ext, filename, flags, filters, wnd );
 }
 
 #endif
