@@ -161,6 +161,7 @@ private:
     void PopupMenu_Append( CMenuHandle menu, const WStringList& groups );
     void SetFilter( const spFilter& filter );
     void DoExportWorkset();
+    void Git_SingleCommand( const wchar_t *cmd_str, const std::wstring& path );
 
     // Handler prototypes (uncomment arguments if needed):
     //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

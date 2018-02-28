@@ -249,6 +249,21 @@ void CMainDlg::DoExportWorkset()
     }
 }
 
+void CMainDlg::Git_SingleCommand( const wchar_t* cmd_str, const std::wstring& path )
+{
+    if ( !path.empty() )
+    {
+        std::wstring    cmd = MakeCommand( cmd_str, path.c_str() );
+
+        if ( mOptions.RefreshAfterFetch )
+            ccwin::ExecuteProgramWait( cmd, INFINITE );
+        else
+            ccwin::ExecuteProgram( cmd );
+        if ( mOptions.RefreshAfterFetch )
+            PostMessage( WM_COMMAND, ID_POPUP_REFRESHSTATE, 0 );
+    }
+}
+
 BOOL CMainDlg::OnIdle()
 {
     if ( mListView_LastSelected >= 0 && mInfoDlg )
@@ -689,44 +704,25 @@ LRESULT CMainDlg::OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*
 
 LRESULT CMainDlg::OnGit_Fetch( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
-
-    if ( !sstr.empty() )
-    {
-        if ( mOptions.RefreshAfterFetch )
-            ccwin::ExecuteProgramWait( MakeCommand( L"fetch", sstr.c_str() ), INFINITE );
-        else
-            ccwin::ExecuteProgram( MakeCommand( L"fetch", sstr.c_str() ) );
-        if ( mOptions.RefreshAfterFetch )
-            PostMessage( WM_COMMAND, ID_POPUP_REFRESHSTATE, 0 );
-    }
+    Git_SingleCommand( L"fetch", ListView_GetSelectedText_Checked( ListColumn::path ) );
     return LRESULT();
 }
 
 LRESULT CMainDlg::OnGit_Pull( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
-
-    if ( !sstr.empty() )
-        ccwin::ExecuteProgram( MakeCommand( L"pull", sstr.c_str() ) );
+    Git_SingleCommand( L"pull", ListView_GetSelectedText_Checked( ListColumn::path ) );
     return LRESULT();
 }
 
 LRESULT CMainDlg::OnGit_Push( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
-
-    if ( !sstr.empty() )
-        ccwin::ExecuteProgram( MakeCommand( L"push", sstr.c_str() ) );
+    Git_SingleCommand( L"push", ListView_GetSelectedText_Checked( ListColumn::path ) );
     return LRESULT();
 }
 
 LRESULT CMainDlg::OnGit_Commit( WORD, WORD, HWND, BOOL & )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
-
-    if ( !sstr.empty() )
-        ccwin::ExecuteProgram( MakeCommand( L"commit", sstr.c_str() ) );
+    Git_SingleCommand( L"commit", ListView_GetSelectedText_Checked( ListColumn::path ) );
     return LRESULT();
 }
 
