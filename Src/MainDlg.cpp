@@ -692,7 +692,14 @@ LRESULT CMainDlg::OnGit_Fetch( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
     std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
 
     if ( !sstr.empty() )
-        ccwin::ExecuteProgram( MakeCommand( L"fetch", sstr.c_str() ) );
+    {
+        if ( mOptions.RefreshAfterFetch )
+            ccwin::ExecuteProgramWait( MakeCommand( L"fetch", sstr.c_str() ), INFINITE );
+        else
+            ccwin::ExecuteProgram( MakeCommand( L"fetch", sstr.c_str() ) );
+        if ( mOptions.RefreshAfterFetch )
+            PostMessage( WM_COMMAND, ID_POPUP_REFRESHSTATE, 0 );
+    }
     return LRESULT();
 }
 
