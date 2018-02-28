@@ -264,6 +264,12 @@ void CMainDlg::Git_SingleCommand( const wchar_t* cmd_str, const std::wstring& pa
     }
 }
 
+void CMainDlg::Git_SingleCommandNoWait( const wchar_t *cmd_str, const std::wstring& path )
+{
+    if ( !path.empty() )
+        ccwin::ExecuteProgram( MakeCommand( cmd_str, path.c_str() ) );
+}
+
 BOOL CMainDlg::OnIdle()
 {
     if ( mListView_LastSelected >= 0 && mInfoDlg )
@@ -695,10 +701,7 @@ LRESULT CMainDlg::OnPopup_RefreshState( WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT CMainDlg::OnGit_CheckForModifications( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
-
-    if ( !sstr.empty() )
-        ccwin::ExecuteProgram( MakeCommand( L"repostatus", sstr.c_str() ) );
+    Git_SingleCommandNoWait( L"repostatus", ListView_GetSelectedText_Checked( ListColumn::path ) );
     return LRESULT();
 }
 
@@ -728,19 +731,13 @@ LRESULT CMainDlg::OnGit_Commit( WORD, WORD, HWND, BOOL & )
 
 LRESULT CMainDlg::OnGit_ViewLog( WORD, WORD, HWND, BOOL & )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
-
-    if ( !sstr.empty() )
-        ccwin::ExecuteProgram( MakeCommand( L"log", sstr.c_str() ) );
+    Git_SingleCommandNoWait( L"log", ListView_GetSelectedText_Checked( ListColumn::path ) );
     return LRESULT();
 }
 
 LRESULT CMainDlg::OnGit_RevisionGraph( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/ )
 {
-    std::wstring    sstr = ListView_GetSelectedText_Checked( ListColumn::path );
-
-    if ( !sstr.empty() )
-        ccwin::ExecuteProgram( MakeCommand( L"revisiongraph", sstr.c_str() ) );
+    Git_SingleCommandNoWait( L"revisiongraph", ListView_GetSelectedText_Checked( ListColumn::path ) );
     return LRESULT();
 }
 

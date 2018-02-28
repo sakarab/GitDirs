@@ -275,8 +275,8 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,205,140,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,259,140,50,14
-    CONTROL         """Refresh Repository State"" after ""Fetch""",IDC_REFRESH_AFTER_FETCH,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,146,10
+    CONTROL         "Refresh Repository State after Fetch/Pull/Push/Commit",IDC_REFRESH_AFTER_FETCH,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,193,10
     CONTROL         "Static exported workset filename",IDC_STATIC_FILENAME,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,28,121,10
     EDITTEXT        IDC_EDIT_FILENAME,7,38,246,14,ES_AUTOHSCROLL

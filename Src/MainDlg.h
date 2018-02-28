@@ -162,6 +162,7 @@ private:
     void SetFilter( const spFilter& filter );
     void DoExportWorkset();
     void Git_SingleCommand( const wchar_t *cmd_str, const std::wstring& path );
+    void Git_SingleCommandNoWait( const wchar_t *cmd_str, const std::wstring& path );
 
     // Handler prototypes (uncomment arguments if needed):
     //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
