@@ -929,7 +929,7 @@ void CMainDlg::OnTimer( UINT_PTR /*nIDEvent*/ )
         }
         else if ( IsAnyClass<ReposList>( mWorkResult ) )
         {
-            if ( mOptions.RefreshAfterFetch )
+            if ( mOptions.RefreshAfterFetch && ! mWork->IsCancelAquired() )
                 PostMessage( WM_COMMAND, ID_FILE_REFRESHREPOSITORYSTATE, 0 );
         }
 
