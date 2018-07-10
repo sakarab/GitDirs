@@ -1,2 +1,13 @@
 ==== 1.1.5.31
-ApplicationProcessMessages() when fetching all repositories
+1. ApplicationProcessMessages() when fetching all repositories
+
+==== 1.1.6.40
+1. Fetching and updating repository info is now threaded
+
+==== 1.1.7.59
+1. Added busy progress bar for long running tasks
+2. Added programm options
+
+==== 1.1.8.62
+1. Try to keep selection after applying filter
+2. Don't "Refresh State of Repositories" if "Fetch All Repositories" was canceled
