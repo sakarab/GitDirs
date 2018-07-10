@@ -630,6 +630,8 @@ LRESULT CMainDlg::OnEdit_Options( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 LRESULT CMainDlg::OnGroup_All( WORD, WORD wID, HWND, BOOL & )
 {
+    std::wstring    sel = ListView_GetSelectedText( ListColumn::name );
+
     spFilter    filter;
 
     if ( wID == ID_SPECIAL_CHECKED )
@@ -650,6 +652,14 @@ LRESULT CMainDlg::OnGroup_All( WORD, WORD wID, HWND, BOOL & )
     CMenuHandle     menu = mMainMenu.GetSubMenu( GROUPS_MENU_Position );
 
     SetMenuRadioRecursive( menu, wID );
+
+    if ( !sel.empty() )
+    {
+        int     idx = mListView.FindItem( sel.c_str(), false, false, -1 );
+
+        if ( idx >= 0 )
+            mListView.SelectItem( idx );
+    }
     return LRESULT();
 }
 
